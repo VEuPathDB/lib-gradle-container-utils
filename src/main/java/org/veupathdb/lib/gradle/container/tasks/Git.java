@@ -26,7 +26,22 @@ public class Git {
 
   File clone(final String url, final File parent) {
     try {
-      final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FDepth, "1", FQuiet, url}, new String[0], parent);
+      final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, url}, new String[0], parent);
+
+      if (proc.waitFor() != 0) {
+        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
+      }
+    } catch (Exception e) {
+      Log.error("Failed to clone " + url + " into dir " + parent);
+      throw new RuntimeException("Failed to clone " + url + " into dir " + parent + url, e);
+    }
+
+    return new File(parent, url.substring(url.lastIndexOf('/') + 1));
+  }
+
+  File shallowClone(final String url, final File parent) {
+    try {
+      final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, FDepth, "1", url}, new String[0], parent);
 
       if (proc.waitFor() != 0) {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
@@ -40,6 +55,25 @@ public class Git {
   }
 
   File clone(final String url, final File parent, final String branch) {
+    try {
+      final var proc = Runtime.getRuntime()
+        .exec(
+          new String[]{Command, Clone, FBranch, branch, FQuiet, url},
+          new String[0],
+          parent
+        );
+
+      if (proc.waitFor() != 0)
+        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
+    } catch (Exception e) {
+      Log.error("Failed to clone " + url + " at branch " + branch + " into dir " + parent);
+      throw new RuntimeException("Failed to clone " + url + " at branch " + branch + " into dir " + parent, e);
+    }
+
+    return new File(parent, url.substring(url.lastIndexOf('/') + 1));
+  }
+
+  File shallowClone(final String url, final File parent, final String branch) {
     try {
       final var proc = Runtime.getRuntime()
         .exec(

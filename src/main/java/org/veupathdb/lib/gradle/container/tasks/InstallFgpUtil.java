@@ -7,6 +7,7 @@ import org.gradle.api.tasks.TaskAction;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 
@@ -122,7 +123,11 @@ public class InstallFgpUtil extends DefaultTask {
 
     try {
       for (final var jar : jars) {
-        Files.move(jar.toPath(), vendorDir.toPath().resolve(jar.getName()));
+        Files.move(
+          jar.toPath(),
+          vendorDir.toPath().resolve(jar.getName()),
+          StandardCopyOption.REPLACE_EXISTING
+        );
       }
     } catch (Exception e) {
       log.error("Failed to move one or more jar files to the vendor directory");
@@ -149,7 +154,8 @@ public class InstallFgpUtil extends DefaultTask {
       Files.writeString(
         new File(vendorDir, LockFile).toPath(),
         version.name(),
-        StandardOpenOption.TRUNCATE_EXISTING
+        StandardOpenOption.TRUNCATE_EXISTING,
+        StandardOpenOption.CREATE
       );
     } catch (Exception e) {
       getLogger().error("Failed to write FgpUtil lock file");
