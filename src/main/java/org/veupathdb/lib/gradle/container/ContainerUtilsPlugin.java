@@ -2,16 +2,38 @@ package org.veupathdb.lib.gradle.container;
 
 import org.gradle.api.Project;
 import org.gradle.api.Plugin;
-import org.veupathdb.lib.gradle.container.tasks.FgpUtil;
-import org.veupathdb.lib.gradle.container.tasks.Git;
-
-import java.io.File;
+import org.veupathdb.lib.gradle.container.tasks.InstallFgpUtil;
+import org.veupathdb.lib.gradle.container.tasks.UninstallFgpUtil;
+import org.veupathdb.lib.gradle.container.tasks.Vendor;
 
 public class ContainerUtilsPlugin implements Plugin<Project> {
-  public void apply(Project project) {
-    project.getExtensions().create(FgpUtil.ExtensionName, Git.GitExtension.class);
+  public static final String ExtensionName = "BuildOptions";
 
-    // Register a task
-    project.getTasks().register("install-fgputil", FgpUtil::execute);
+  public static class Options {
+    private String vendorDirectory = Vendor.DefaultVendorDir;
+
+    public String getVendorDirectory() {
+      return vendorDirectory;
+    }
+
+    public void setVendorDirectory(final String vendorDirectory) {
+      if (vendorDirectory == null)
+        throw new NullPointerException();
+
+      this.vendorDirectory = vendorDirectory;
+    }
+
+    public boolean isDefaultVendorDirectory() {
+      return Vendor.DefaultVendorDir.equals(vendorDirectory);
+    }
+  }
+
+  public void apply(final Project project) {
+    // Register Global Options
+    project.getExtensions().create(ExtensionName, Options.class);
+
+    // Register Tasks
+    project.getTasks().register("install-fgputil", InstallFgpUtil.class, InstallFgpUtil::init);
+    project.getTasks().register("uninstall-fgputil", UninstallFgpUtil.class);
   }
 }
