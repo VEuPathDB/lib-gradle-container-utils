@@ -31,7 +31,7 @@ public class InstallFgpUtil extends VendorAction {
     super(task);
   }
 
-  public void execute() {
+  private void execute() {
     final var log = Task.getLogger();
 
     final File repoDir;
