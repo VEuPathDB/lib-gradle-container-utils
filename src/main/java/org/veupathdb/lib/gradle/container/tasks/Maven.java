@@ -42,12 +42,14 @@ public class Maven {
     }
 
     try {
-      var a = Arrays.stream(workDir.listFiles());
-      var b = a.filter(File::isDirectory);
-      var c = b.map(f -> new File(f, TargetDir).listFiles());
-      var d = c.flatMap(Arrays::stream);
-      var e = d.filter(f -> f.getName().endsWith(".jar")).peek(f -> Log.warn(f.getName()));
-      return e.toArray(File[]::new);
+      return Arrays.stream(workDir.listFiles())
+        .filter(File::isDirectory)
+        .map(f -> new File(f, TargetDir))
+        .filter(File::exists)
+        .map(File::listFiles)
+        .flatMap(Arrays::stream)
+        .filter(f -> f.getName().endsWith(".jar")).peek(f -> Log.warn(f.getName()))
+        .toArray(File[]::new);
     } catch (Exception e) {
       Log.error("Failed to collect compiled jars from " + workDir);
       throw new RuntimeException("Failed to collect compiled jars from " + workDir, e);
