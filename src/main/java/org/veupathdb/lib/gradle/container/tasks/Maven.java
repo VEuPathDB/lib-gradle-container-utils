@@ -48,7 +48,7 @@ public class Maven {
         .filter(File::exists)
         .map(File::listFiles)
         .flatMap(Arrays::stream)
-        .filter(f -> f.getName().endsWith(".jar")).peek(f -> Log.warn(f.getName()))
+        .filter(f -> f.getName().endsWith(".jar"))
         .toArray(File[]::new);
     } catch (Exception e) {
       Log.error("Failed to collect compiled jars from " + workDir);
