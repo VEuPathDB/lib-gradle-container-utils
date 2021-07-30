@@ -33,7 +33,7 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     project.getExtensions().create(ExtensionName, Options.class);
 
     // Register Tasks
-    project.getTasks().register("fgputilInstall", InstallFgpUtil::init);
-    project.getTasks().register("fgputilUninstall", UninstallFgpUtil::init);
+    project.getTasks().create("fgputilInstall", InstallFgpUtil::init);
+    project.getTasks().create("fgputilUninstall", UninstallFgpUtil::init);
   }
 }
