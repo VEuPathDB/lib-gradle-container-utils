@@ -1,28 +1,23 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
-import org.gradle.api.Project;
-import org.gradle.api.logging.Logger;
-import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin;
+import org.gradle.api.tasks.Internal;
 
 import java.io.File;
+import java.util.Optional;
 
-public class Vendor {
+public class Vendor extends ExtTask {
   public static final String DefaultVendorDir = "vendor";
 
-  private final Logger Log;
+  @Internal
+  private File vendorDir;
 
-  private final ContainerUtilsPlugin.Options Opts;
+  private boolean checked;
 
-  private final File Root;
+  protected void createVendorDir() {
+    if (checked && vendorDir != null)
+      return;
 
-  public Vendor(final Project project) {
-    Log  = project.getLogger();
-    Opts = (ContainerUtilsPlugin.Options) project.getExtensions().getByName(ContainerUtilsPlugin.ExtensionName);
-    Root = project.getRootDir();
-  }
-
-  File getOrCreateVendorDir() {
-    final var dir = new File(Root, Opts.getVendorDirectory());
+    final var dir = new File(RootDir, getOptions().getVendorDirectory());
 
     if (!dir.exists()) {
       if (!dir.mkdir()) {
@@ -31,11 +26,25 @@ public class Vendor {
       }
     } else {
       if (!dir.isDirectory()) {
-        Log.error("Path " + Opts.getVendorDirectory() + " exists but is not a directory");
-        throw new RuntimeException("Path " + Opts.getVendorDirectory() + " exists but is not a directory");
+        Log.error("Path " + dir + " exists but is not a directory");
+        throw new RuntimeException("Path " + dir + " exists but is not a directory");
       }
     }
 
-    return dir;
+    checked = true;
+    vendorDir = dir;
+  }
+
+  protected Optional<File> getVendorDir() {
+    if (checked)
+      return Optional.ofNullable(vendorDir);
+
+    final var dir = new File(RootDir, getOptions().getVendorDirectory());
+    checked = true;
+    return dir.exists() ? Optional.of(vendorDir = dir) : Optional.empty();
+  }
+
+  protected File vendorDir() {
+    return vendorDir;
   }
 }

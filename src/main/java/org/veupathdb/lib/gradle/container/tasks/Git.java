@@ -118,7 +118,7 @@ public class Git {
 
   }
 
-  public static class GitExtension {
+  public static class Extension {
     private Target version;
 
     public Target getVersion() {

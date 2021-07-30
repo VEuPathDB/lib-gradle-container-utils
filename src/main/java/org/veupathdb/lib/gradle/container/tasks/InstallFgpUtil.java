@@ -1,100 +1,77 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Task;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.Optional;
+import java.util.Comparator;
 
-public class InstallFgpUtil extends DefaultTask {
+public class InstallFgpUtil extends Vendor {
   public static final String ExtensionName = "FgpUtilVersion";
 
   private static final String LockFile = "fgputil.lock";
   private static final String URL      = "https://github.com/VEuPathDB/FgpUtil";
 
-  public static void init(Task task) {
-    task.getProject().getExtensions().create(ExtensionName, Git.GitExtension.class);
+  private static final byte StateNew    = 1;
+  private static final byte StateUpdate = 2;
+  private static final byte StateSkip   = 127;
+
+  private byte state;
+
+  public static void init(final Task task) {
+    task.getProject().getExtensions().create(ExtensionName, Git.Extension.class);
     task.setDescription("Install FgpUtil");
     task.setGroup("VEuPathDB");
+    task.onlyIf(element -> {
+      final var t = (InstallFgpUtil) element;
+      return (t.state = t.calcState()) != StateSkip;
+    });
   }
 
   @TaskAction
   public void execute() {
     final var log = getLogger();
 
-    final var vendorDir   = new Vendor(getProject()).getOrCreateVendorDir();
-    final var prevVersion = getPreviousVersion(vendorDir);
-    final var version     = (Git.GitExtension) getProject().getExtensions().getByName(ExtensionName);
-
     final File repoDir;
 
-    // If there was no previous version recorded, assume it wasn't ever built.
-    if (prevVersion.isEmpty()) {
-      log.info("Cloning FgpUtil");
+    createVendorDir();
 
-      repoDir = gitClone(vendorDir, version);
-    }
-
-    // If the version in the lock file is different from what is set in the
-    // build config, then the build config has been update.  Clear out the old
-    // version and rebuild.
-    else if (!prevVersion.get().is(version.getVersion())) {
-      log.info("FgpUtil version change detected.  " +
-        "Updating from " + prevVersion.get().name() + " to " + version.getVersion().name());
-
-      removeOldJars(vendorDir);
-      repoDir = gitClone(vendorDir, version);
-    }
-
-    // The version in the lock file matches the version currently in the gradle
-    // config.  Nothing to do.
-    else {
-      return;
+    switch (state) {
+      case StateNew -> {
+        log.info("Cloning FgpUtil");
+        repoDir = gitClone();
+      }
+      case StateUpdate -> {
+        log.info("Configured FgpUtil version changed.  Rebuilding");
+        removeOldJars();
+        repoDir = gitClone();
+      }
+      default -> {
+        log.error("Unknown state " + state);
+        throw new IllegalStateException("Unknown state " + state);
+      }
     }
 
     // If we made it here, we have freshly cloned the FgpUtil repo and switched
     // it to the target revision/branch/tag.
-    assembleJars(vendorDir, repoDir);
-    writeLock(vendorDir, version.getVersion());
+    assembleJars(repoDir);
+    writeLock();
     cleanup(repoDir);
   }
 
-  private Optional<Git.Target> getPreviousVersion(final File vendorDir) {
-    final var lock = new File(vendorDir, LockFile);
-
-    if (!lock.exists())
-      return Optional.empty();
-
-    if (!lock.isFile()) {
-      getLogger().error("Path " + lock + " is not a regular file");
-      throw new RuntimeException("Path " + lock + " is not a regular file");
-    }
-
-    if (!lock.canRead()) {
-      getLogger().error("Cannot read file " + lock);
-      throw new RuntimeException("Cannot read file " + lock);
-    }
-
-    try {
-      return Optional.of(Git.Target.of(Files.readString(lock.toPath())));
-    } catch (IOException e) {
-      getLogger().error("Failed to read file " + lock);
-      throw new RuntimeException("Failed to read file " + lock, e);
-    }
-  }
-
-  private void removeOldJars(final File vendorDir) {
+  private void removeOldJars() {
     final var log = getLogger();
 
     log.info("Removing old FgpUtil jar files");
 
     try {
-      final var it = Files.walk(vendorDir.toPath(), 1)
+      final var it = Files.walk(vendorDir().toPath(), 1)
         .filter(path -> path.getFileName().startsWith("fgputil-"))
         .iterator();
 
@@ -114,7 +91,7 @@ public class InstallFgpUtil extends DefaultTask {
     }
   }
 
-  private void assembleJars(final File vendorDir, final File repoDir) {
+  private void assembleJars(final File repoDir) {
     final var mvn = new Maven(getProject());
     final var log = getLogger();
 
@@ -125,7 +102,7 @@ public class InstallFgpUtil extends DefaultTask {
       for (final var jar : jars) {
         Files.move(
           jar.toPath(),
-          vendorDir.toPath().resolve(jar.getName()),
+          vendorDir().toPath().resolve(jar.getName()),
           StandardCopyOption.REPLACE_EXISTING
         );
       }
@@ -135,25 +112,26 @@ public class InstallFgpUtil extends DefaultTask {
     }
   }
 
-  private File gitClone(final File vendorDir, final Git.GitExtension version) {
+  private File gitClone() {
     final var log  = getLogger();
     final var git  = new Git(getProject());
-    final var repo = git.clone(URL, vendorDir);
+    final var repo = git.clone(URL, vendorDir());
+    final var vers = getConfigVersion();
 
-    if (!version.isDefault()) {
-      log.info("Switching FgpUtil to " + version.getVersion());
+    if (!vers.isDefault()) {
+      log.info("Switching FgpUtil to " + vers.name());
 
-      git.checkout(repo, version.getVersion());
+      git.checkout(repo, vers);
     }
 
     return repo;
   }
 
-  private void writeLock(final File vendorDir, final Git.Target version) {
+  private void writeLock() {
     try {
       Files.writeString(
-        new File(vendorDir, LockFile).toPath(),
-        version.name(),
+        new File(vendorDir(), LockFile).toPath(),
+        getConfigVersion().name(),
         StandardOpenOption.TRUNCATE_EXISTING,
         StandardOpenOption.CREATE
       );
@@ -164,10 +142,61 @@ public class InstallFgpUtil extends DefaultTask {
   }
 
   private void cleanup(final File repoDir) {
-    if (!repoDir.delete()) {
-      getLogger().error("Failed to remove path " + repoDir);
-      throw new RuntimeException("Failed to remove path " + repoDir);
+    try {
+      Files.walk(repoDir.toPath())
+        .sorted(Comparator.reverseOrder())
+        .map(Path::toFile)
+        .forEach(f -> {
+          if (!f.delete()) {
+            getLogger().error("Failed to remove path " + f);
+            throw new RuntimeException("Failed to remove path " + f);
+          }
+        });
+    } catch (IOException e) {
+      getLogger().error("Failed to walk path " + repoDir);
+      throw new RuntimeException("Failed to walk path " + repoDir, e);
     }
   }
 
+  private byte calcState() {
+    final var optDir = getVendorDir();
+
+    if (optDir.isEmpty())
+      return StateNew;
+
+    final var lock = new File(optDir.get(), LockFile);
+
+    if (!lock.exists())
+      return StateNew;
+
+    if (!lock.isFile()) {
+      getLogger().error("Path " + lock + " is not a regular file");
+      throw new RuntimeException("Path " + lock + " is not a regular file");
+    }
+
+    if (!lock.canRead()) {
+      getLogger().error("Cannot read file " + lock);
+      throw new RuntimeException("Cannot read file " + lock);
+    }
+
+    try {
+      return Git.Target.of(Files.readString(lock.toPath())).is(getConfigVersion())
+        ? StateSkip
+        : StateUpdate;
+    } catch (IOException e) {
+      getLogger().error("Failed to read file " + lock);
+      throw new RuntimeException("Failed to read file " + lock, e);
+    }
+  }
+
+  private Git.Target getConfigVersion() {
+    return getExtension().getVersion();
+  }
+
+  private Git.Extension extension;
+  private Git.Extension getExtension() {
+    return extension == null
+      ? extension = (Git.Extension) getExtensions().findByName(ExtensionName)
+      : extension;
+  }
 }
