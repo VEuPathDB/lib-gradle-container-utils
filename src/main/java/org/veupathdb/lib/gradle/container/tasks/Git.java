@@ -5,7 +5,6 @@ import java.io.File;
 public class Git {
   private static final String[] DefaultBranches = {"master", "main"};
 
-
   // Git command parts
   private static final String
     Git      = "git",
@@ -15,7 +14,7 @@ public class Git {
     FDepth   = "--depth",
     FQuiet   = "--quiet";
 
-  public class GitExtension {
+  public static class GitExtension {
     private String version;
 
     public String getVersion() {

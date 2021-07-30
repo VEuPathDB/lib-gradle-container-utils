@@ -38,6 +38,7 @@ publishing {
   publications {
     create<MavenPublication>("gpr") {
       from(components["java"])
+
       pom {
         name.set("Gradle Container Build Utils")
         description.set("Provides functionality to assist the construction of containerized VEuPathDB gradle projects")
