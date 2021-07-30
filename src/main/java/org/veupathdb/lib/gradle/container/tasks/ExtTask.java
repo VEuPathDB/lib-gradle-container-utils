@@ -15,7 +15,7 @@ public class ExtTask extends DefaultTask {
   private ContainerUtilsPlugin.Options options;
   ContainerUtilsPlugin.Options getOptions() {
     return options == null
-      ? options = (ContainerUtilsPlugin.Options) getExtensions()
+      ? options = (ContainerUtilsPlugin.Options) getProject().getExtensions()
         .findByName(ContainerUtilsPlugin.ExtensionName)
       : options;
   }
