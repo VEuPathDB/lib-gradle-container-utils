@@ -1,6 +1,7 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
 import org.gradle.api.Task;
+import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
 
 public class InstallFgpUtil extends VendorAction {
-  public static final String ExtensionName = "FgpUtilVersion";
+  public static final String ExtensionName = "fgpUtilVersion";
 
   private static final String LockFile = "fgputil.lock";
   private static final String URL      = "https://github.com/VEuPathDB/FgpUtil";
@@ -20,19 +21,15 @@ public class InstallFgpUtil extends VendorAction {
   private static final byte StateUpdate = 2;
   private static final byte StateSkip   = 127;
 
-  public static void init(final Task task) {
+  public static void init(final InstallFgpUtil task) {
     task.getExtensions().create(ExtensionName, Git.Extension.class);
     task.setDescription("Install FgpUtil");
     task.setGroup("VEuPathDB");
-    task.getActions().add(t -> new InstallFgpUtil(t).execute());
-  }
-
-  public InstallFgpUtil(final Task task) {
-    super(task);
+    task.getActions().add(t -> task.execute());
   }
 
   private void execute() {
-    final var log = Task.getLogger();
+    final var log = getLogger();
 
     final File repoDir;
 
@@ -65,7 +62,7 @@ public class InstallFgpUtil extends VendorAction {
   }
 
   private void removeOldJars() {
-    final var log = Task.getLogger();
+    final var log = getLogger();
 
     log.info("Removing old FgpUtil jar files");
 
@@ -91,8 +88,8 @@ public class InstallFgpUtil extends VendorAction {
   }
 
   private void assembleJars(final File repoDir) {
-    final var mvn = new Maven(Task.getProject());
-    final var log = Task.getLogger();
+    final var mvn = new Maven(getProject());
+    final var log = getLogger();
 
     log.info("Building FgpUtil");
     final var jars = mvn.cleanInstall(repoDir);
@@ -112,8 +109,8 @@ public class InstallFgpUtil extends VendorAction {
   }
 
   private File gitClone() {
-    final var log  = Task.getLogger();
-    final var git  = new Git(Task.getProject());
+    final var log  = getLogger();
+    final var git  = new Git(getProject());
     final var repo = git.clone(URL, vendorDir());
     final var vers = getConfigVersion();
 
@@ -135,7 +132,7 @@ public class InstallFgpUtil extends VendorAction {
         StandardOpenOption.CREATE
       );
     } catch (Exception e) {
-      Task.getLogger().error("Failed to write FgpUtil lock file");
+      getLogger().error("Failed to write FgpUtil lock file");
       throw new RuntimeException("Failed to write FgpUtil lock file", e);
     }
   }
@@ -147,12 +144,12 @@ public class InstallFgpUtil extends VendorAction {
         .map(Path::toFile)
         .forEach(f -> {
           if (!f.delete()) {
-            Task.getLogger().error("Failed to remove path " + f);
+            getLogger().error("Failed to remove path " + f);
             throw new RuntimeException("Failed to remove path " + f);
           }
         });
     } catch (IOException e) {
-      Task.getLogger().error("Failed to walk path " + repoDir);
+      getLogger().error("Failed to walk path " + repoDir);
       throw new RuntimeException("Failed to walk path " + repoDir, e);
     }
   }
@@ -169,12 +166,12 @@ public class InstallFgpUtil extends VendorAction {
       return StateNew;
 
     if (!lock.isFile()) {
-      Task.getLogger().error("Path " + lock + " is not a regular file");
+      getLogger().error("Path " + lock + " is not a regular file");
       throw new RuntimeException("Path " + lock + " is not a regular file");
     }
 
     if (!lock.canRead()) {
-      Task.getLogger().error("Cannot read file " + lock);
+      getLogger().error("Cannot read file " + lock);
       throw new RuntimeException("Cannot read file " + lock);
     }
 
@@ -183,7 +180,7 @@ public class InstallFgpUtil extends VendorAction {
         ? StateSkip
         : StateUpdate;
     } catch (IOException e) {
-      Task.getLogger().error("Failed to read file " + lock);
+      getLogger().error("Failed to read file " + lock);
       throw new RuntimeException("Failed to read file " + lock, e);
     }
   }
@@ -195,7 +192,7 @@ public class InstallFgpUtil extends VendorAction {
   private Git.Extension extension;
   private Git.Extension getExtension() {
     return extension == null
-      ? extension = (Git.Extension) Task.getExtensions().getByName(ExtensionName)
+      ? extension = (Git.Extension) getExtensions().getByName(ExtensionName)
       : extension;
   }
 }

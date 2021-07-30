@@ -1,18 +1,12 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
-import org.gradle.api.Task;
-
 import java.util.Arrays;
 
 public class UninstallFgpUtil extends VendorAction {
-  public static void init(final Task task) {
+  public static void init(final UninstallFgpUtil task) {
     task.setDescription("Uninstall FgpUtil");
     task.setGroup("VEuPathDB");
-    task.getActions().add(t -> new UninstallFgpUtil(t).execute());
-  }
-
-  public UninstallFgpUtil(final Task task) {
-    super(task);
+    task.getActions().add(t -> task.execute());
   }
 
   private void execute() {
@@ -25,7 +19,7 @@ public class UninstallFgpUtil extends VendorAction {
       .filter(p -> p.getName().startsWith("fgputil"))
       .forEach(f -> {
         if (!f.delete()) {
-          Task.getLogger().error("Failed to delete file " + f);
+          getLogger().error("Failed to delete file " + f);
           throw new RuntimeException("Failed to delete file " + f);
         }
       });
