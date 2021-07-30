@@ -121,7 +121,7 @@ public class InstallFgpUtil extends DefaultTask {
 
     try {
       for (final var jar : jars) {
-        Files.move(jar.toPath(), vendorDir.toPath());
+        Files.move(jar.toPath(), vendorDir.toPath().resolve(jar.getName()));
       }
     } catch (Exception e) {
       log.error("Failed to move one or more jar files to the vendor directory");
