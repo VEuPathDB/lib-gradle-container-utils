@@ -1,7 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
 import org.gradle.api.Task;
-import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
 
-public class InstallFgpUtil extends VendorTask {
+public class InstallFgpUtil extends VendorAction {
   public static final String ExtensionName = "FgpUtilVersion";
 
   private static final String LockFile = "fgputil.lock";
@@ -25,11 +24,15 @@ public class InstallFgpUtil extends VendorTask {
     task.getExtensions().create(ExtensionName, Git.Extension.class);
     task.setDescription("Install FgpUtil");
     task.setGroup("VEuPathDB");
+    task.getActions().add(t -> new InstallFgpUtil(t).execute());
   }
 
-  @TaskAction
+  public InstallFgpUtil(final Task task) {
+    super(task);
+  }
+
   public void execute() {
-    final var log = getLogger();
+    final var log = Task.getLogger();
 
     final File repoDir;
 
@@ -62,7 +65,7 @@ public class InstallFgpUtil extends VendorTask {
   }
 
   private void removeOldJars() {
-    final var log = getLogger();
+    final var log = Task.getLogger();
 
     log.info("Removing old FgpUtil jar files");
 
@@ -88,8 +91,8 @@ public class InstallFgpUtil extends VendorTask {
   }
 
   private void assembleJars(final File repoDir) {
-    final var mvn = new Maven(getProject());
-    final var log = getLogger();
+    final var mvn = new Maven(Task.getProject());
+    final var log = Task.getLogger();
 
     log.info("Building FgpUtil");
     final var jars = mvn.cleanInstall(repoDir);
@@ -109,8 +112,8 @@ public class InstallFgpUtil extends VendorTask {
   }
 
   private File gitClone() {
-    final var log  = getLogger();
-    final var git  = new Git(getProject());
+    final var log  = Task.getLogger();
+    final var git  = new Git(Task.getProject());
     final var repo = git.clone(URL, vendorDir());
     final var vers = getConfigVersion();
 
@@ -132,7 +135,7 @@ public class InstallFgpUtil extends VendorTask {
         StandardOpenOption.CREATE
       );
     } catch (Exception e) {
-      getLogger().error("Failed to write FgpUtil lock file");
+      Task.getLogger().error("Failed to write FgpUtil lock file");
       throw new RuntimeException("Failed to write FgpUtil lock file", e);
     }
   }
@@ -144,12 +147,12 @@ public class InstallFgpUtil extends VendorTask {
         .map(Path::toFile)
         .forEach(f -> {
           if (!f.delete()) {
-            getLogger().error("Failed to remove path " + f);
+            Task.getLogger().error("Failed to remove path " + f);
             throw new RuntimeException("Failed to remove path " + f);
           }
         });
     } catch (IOException e) {
-      getLogger().error("Failed to walk path " + repoDir);
+      Task.getLogger().error("Failed to walk path " + repoDir);
       throw new RuntimeException("Failed to walk path " + repoDir, e);
     }
   }
@@ -166,12 +169,12 @@ public class InstallFgpUtil extends VendorTask {
       return StateNew;
 
     if (!lock.isFile()) {
-      getLogger().error("Path " + lock + " is not a regular file");
+      Task.getLogger().error("Path " + lock + " is not a regular file");
       throw new RuntimeException("Path " + lock + " is not a regular file");
     }
 
     if (!lock.canRead()) {
-      getLogger().error("Cannot read file " + lock);
+      Task.getLogger().error("Cannot read file " + lock);
       throw new RuntimeException("Cannot read file " + lock);
     }
 
@@ -180,7 +183,7 @@ public class InstallFgpUtil extends VendorTask {
         ? StateSkip
         : StateUpdate;
     } catch (IOException e) {
-      getLogger().error("Failed to read file " + lock);
+      Task.getLogger().error("Failed to read file " + lock);
       throw new RuntimeException("Failed to read file " + lock, e);
     }
   }
@@ -192,7 +195,7 @@ public class InstallFgpUtil extends VendorTask {
   private Git.Extension extension;
   private Git.Extension getExtension() {
     return extension == null
-      ? extension = (Git.Extension) getExtensions().getByName(ExtensionName)
+      ? extension = (Git.Extension) Task.getExtensions().getByName(ExtensionName)
       : extension;
   }
 }

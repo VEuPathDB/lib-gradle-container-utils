@@ -1,17 +1,22 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.Task;
 
 import java.io.File;
 import java.util.Optional;
 
-public class VendorTask extends ExtTask {
+public class VendorAction extends Action {
   public static final String DefaultVendorDir = "vendor";
 
   @Internal
   private File vendorDir;
 
   private boolean checked;
+
+  protected VendorAction(final Task task) {
+    super(task);
+  }
 
   protected void createVendorDir() {
     if (checked && vendorDir != null)
@@ -35,6 +40,7 @@ public class VendorTask extends ExtTask {
     vendorDir = dir;
   }
 
+  @Internal
   protected Optional<File> getVendorDir() {
     if (checked)
       return Optional.ofNullable(vendorDir);

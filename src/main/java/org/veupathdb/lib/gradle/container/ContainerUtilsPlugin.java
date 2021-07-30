@@ -4,13 +4,13 @@ import org.gradle.api.Project;
 import org.gradle.api.Plugin;
 import org.veupathdb.lib.gradle.container.tasks.InstallFgpUtil;
 import org.veupathdb.lib.gradle.container.tasks.UninstallFgpUtil;
-import org.veupathdb.lib.gradle.container.tasks.VendorTask;
+import org.veupathdb.lib.gradle.container.tasks.VendorAction;
 
 public class ContainerUtilsPlugin implements Plugin<Project> {
   public static final String ExtensionName = "BuildOptions";
 
   public static class Options {
-    private String vendorDirectory = VendorTask.DefaultVendorDir;
+    private String vendorDirectory = VendorAction.DefaultVendorDir;
 
     public String getVendorDirectory() {
       return vendorDirectory;
@@ -24,7 +24,7 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     }
 
     public boolean isDefaultVendorDirectory() {
-      return VendorTask.DefaultVendorDir.equals(vendorDirectory);
+      return VendorAction.DefaultVendorDir.equals(vendorDirectory);
     }
   }
 
@@ -33,7 +33,7 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     project.getExtensions().create(ExtensionName, Options.class);
 
     // Register Tasks
-    project.getTasks().register("install-fgputil", InstallFgpUtil.class, InstallFgpUtil::init);
-    project.getTasks().register("uninstall-fgputil", UninstallFgpUtil.class, UninstallFgpUtil::init);
+    project.getTasks().register("fgputilInstall", InstallFgpUtil::init);
+    project.getTasks().register("fgputilUninstall", UninstallFgpUtil::init);
   }
 }
