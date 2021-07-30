@@ -39,11 +39,12 @@ public class InstallFgpUtil extends DefaultTask {
       repoDir = gitClone(vendorDir, version);
     }
 
-    // If the version in the lock file is different than what is set in the
+    // If the version in the lock file is different from what is set in the
     // build config, then the build config has been update.  Clear out the old
     // version and rebuild.
-    else if (!prevVersion.get().equals(version.getVersion())) {
-      log.info("FgpUtil version change detected.  Updating from " + prevVersion.get() + " to " + version.getVersion());
+    else if (!prevVersion.get().is(version.getVersion())) {
+      log.info("FgpUtil version change detected.  " +
+        "Updating from " + prevVersion.get().name() + " to " + version.getVersion().name());
 
       removeOldJars(vendorDir);
       repoDir = gitClone(vendorDir, version);
@@ -62,7 +63,7 @@ public class InstallFgpUtil extends DefaultTask {
     cleanup(repoDir);
   }
 
-  private Optional<String> getPreviousVersion(final File vendorDir) {
+  private Optional<Git.Target> getPreviousVersion(final File vendorDir) {
     final var lock = new File(vendorDir, LockFile);
 
     if (!lock.exists())
@@ -79,7 +80,7 @@ public class InstallFgpUtil extends DefaultTask {
     }
 
     try {
-      return Optional.of(Files.readString(lock.toPath()));
+      return Optional.of(Git.Target.of(Files.readString(lock.toPath())));
     } catch (IOException e) {
       getLogger().error("Failed to read file " + lock);
       throw new RuntimeException("Failed to read file " + lock, e);
@@ -143,9 +144,13 @@ public class InstallFgpUtil extends DefaultTask {
     return repo;
   }
 
-  private void writeLock(final File vendorDir, final String version) {
+  private void writeLock(final File vendorDir, final Git.Target version) {
     try {
-      Files.writeString(new File(vendorDir, LockFile).toPath(), version, StandardOpenOption.TRUNCATE_EXISTING);
+      Files.writeString(
+        new File(vendorDir, LockFile).toPath(),
+        version.name(),
+        StandardOpenOption.TRUNCATE_EXISTING
+      );
     } catch (Exception e) {
       getLogger().error("Failed to write FgpUtil lock file");
       throw new RuntimeException("Failed to write FgpUtil lock file", e);

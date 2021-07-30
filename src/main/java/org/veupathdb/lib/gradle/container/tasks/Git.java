@@ -10,7 +10,7 @@ public class Git {
 
   // Git command parts
   private static final String
-    Git      = "git",
+    Command  = "git",
     Checkout = "checkout",
     Clone    = "clone",
     FBranch  = "--branch",
@@ -26,7 +26,7 @@ public class Git {
 
   File clone(final String url, final File parent) {
     try {
-      final var proc = Runtime.getRuntime().exec(new String[]{Git, Clone, FDepth, "1", FQuiet, url}, new String[0], parent);
+      final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FDepth, "1", FQuiet, url}, new String[0], parent);
 
       if (proc.waitFor() != 0) {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
@@ -43,7 +43,7 @@ public class Git {
     try {
       final var proc = Runtime.getRuntime()
         .exec(
-          new String[]{Git, Clone, FDepth, "1", FBranch, branch, FQuiet, url},
+          new String[]{Command, Clone, FDepth, "1", FBranch, branch, FQuiet, url},
           new String[0],
           parent
         );
@@ -58,9 +58,10 @@ public class Git {
     return new File(parent, url.substring(url.lastIndexOf('/') + 1));
   }
 
-  void checkout(final File repo, final String target) {
+  void checkout(final File repo, final Target target) {
     try {
-      final var proc = Runtime.getRuntime().exec(new String[]{Git, Checkout, target}, new String[0], repo);
+      final var proc = Runtime.getRuntime()
+        .exec(new String[]{Command, Checkout, target.name()}, new String[0], repo);
 
       if (proc.waitFor() != 0) {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
@@ -71,26 +72,55 @@ public class Git {
     }
   }
 
-  public static class GitExtension {
-    private String version;
+  private static boolean isDefault(final String branchName) {
+    if (branchName == null)
+      throw new NullPointerException("Branch name cannot be null");
 
-    public String getVersion() {
-      return version;
+    for (final var branch : DefaultBranches)
+      if (branch.equals(branchName))
+        return true;
+
+    return false;
+
+  }
+
+  public static class GitExtension {
+    private Target version;
+
+    public Target getVersion() {
+      return version == null ? Target.Default : version;
     }
 
     public void setVersion(String version) {
-      this.version = version;
+      this.version = Target.of(version);
     }
 
     public boolean isDefault() {
-      if (version == null)
-        return true;
+      return version == null || version == Target.Default;
+    }
+  }
 
-      for (final var branch : DefaultBranches)
-        if (branch.equals(version))
-          return true;
+  public interface Target {
+    Target Default = () -> "main";
 
-      return false;
+    static Target of(final String branchName) {
+      if (branchName == null)
+        return Default;
+
+      if (Git.isDefault(branchName))
+        return Default;
+
+      return () -> branchName;
+    }
+
+    String name();
+
+    default boolean isDefault() {
+      return Git.isDefault(name());
+    }
+
+    default boolean is(final Target other) {
+      return this == other || this.name().equals(other.name());
     }
   }
 }
