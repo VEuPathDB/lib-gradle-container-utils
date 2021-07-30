@@ -18,6 +18,8 @@ public class InstallFgpUtil extends DefaultTask {
 
   public static void init(Task task) {
     task.getProject().getExtensions().create(ExtensionName, Git.GitExtension.class);
+    task.setDescription("Install FgpUtil");
+    task.setGroup("VEuPathDB");
   }
 
   @TaskAction

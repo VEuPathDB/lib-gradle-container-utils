@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "org.veupathdb.lib"
-version = "1.0.3"
+version = "1.0.4"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_14
@@ -20,6 +20,7 @@ gradlePlugin {
   val `container-utils` by plugins.creating {
     id = "org.veupathdb.lib.gradle.container.container-utils"
     implementationClass = "org.veupathdb.lib.gradle.container.ContainerUtilsPlugin"
+    description = "Utilities for building containerized services"
   }
 }
 
