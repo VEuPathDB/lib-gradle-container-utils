@@ -1,11 +1,10 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
 import org.gradle.api.Project;
+import org.gradle.api.logging.LogLevel;
 import org.gradle.api.logging.Logger;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -32,6 +31,15 @@ public class Maven {
         new String[0],
         workDir
       );
+
+      if (Log.isEnabled(LogLevel.DEBUG)) {
+        final var stream = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+        String line;
+        while ((line = stream.readLine()) != null) {
+          Log.debug(line);
+        }
+      }
 
       if (proc.waitFor() != 0) {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
