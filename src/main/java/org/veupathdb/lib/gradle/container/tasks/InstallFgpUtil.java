@@ -22,7 +22,7 @@ public class InstallFgpUtil extends Vendor {
   private static final byte StateSkip   = 127;
 
   public static void init(final Task task) {
-    task.getProject().getExtensions().create(ExtensionName, Git.Extension.class);
+    task.getExtensions().create(ExtensionName, Git.Extension.class);
     task.setDescription("Install FgpUtil");
     task.setGroup("VEuPathDB");
   }
@@ -190,7 +190,7 @@ public class InstallFgpUtil extends Vendor {
   private Git.Extension extension;
   private Git.Extension getExtension() {
     return extension == null
-      ? extension = (Git.Extension) getExtensions().findByName(ExtensionName)
+      ? extension = (Git.Extension) getExtensions().getByName(ExtensionName)
       : extension;
   }
 }
