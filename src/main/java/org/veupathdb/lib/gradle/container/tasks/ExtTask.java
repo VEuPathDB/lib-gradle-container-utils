@@ -13,7 +13,7 @@ public class ExtTask extends DefaultTask {
 
   @Internal
   private ContainerUtilsPlugin.Options options;
-  protected ContainerUtilsPlugin.Options getOptions() {
+  ContainerUtilsPlugin.Options getOptions() {
     return options == null
       ? options = (ContainerUtilsPlugin.Options) getExtensions()
         .findByName(ContainerUtilsPlugin.ExtensionName)

@@ -21,16 +21,10 @@ public class InstallFgpUtil extends Vendor {
   private static final byte StateUpdate = 2;
   private static final byte StateSkip   = 127;
 
-  private byte state;
-
   public static void init(final Task task) {
     task.getProject().getExtensions().create(ExtensionName, Git.Extension.class);
     task.setDescription("Install FgpUtil");
     task.setGroup("VEuPathDB");
-    task.onlyIf(element -> {
-      final var t = (InstallFgpUtil) element;
-      return (t.state = t.calcState()) != StateSkip;
-    });
   }
 
   @TaskAction
@@ -41,6 +35,7 @@ public class InstallFgpUtil extends Vendor {
 
     createVendorDir();
 
+    byte state = calcState();
     switch (state) {
       case StateNew -> {
         log.info("Cloning FgpUtil");
