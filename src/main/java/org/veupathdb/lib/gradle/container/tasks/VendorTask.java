@@ -5,7 +5,7 @@ import org.gradle.api.tasks.Internal;
 import java.io.File;
 import java.util.Optional;
 
-public class Vendor extends ExtTask {
+public class VendorTask extends ExtTask {
   public static final String DefaultVendorDir = "vendor";
 
   @Internal

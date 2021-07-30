@@ -1,16 +1,14 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskAction;
-import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class UninstallFgpUtil extends DefaultTask {
+public class UninstallFgpUtil extends VendorTask {
   public static void init(final Task task) {
     task.setDescription("Uninstall FgpUtil");
     task.setGroup("VEuPathDB");
@@ -18,12 +16,13 @@ public class UninstallFgpUtil extends DefaultTask {
 
   @TaskAction
   public void execute() {
-    final var opts = (ContainerUtilsPlugin.Options) getProject()
-      .getExtensions()
-      .getByName(ContainerUtilsPlugin.ExtensionName);
+    final var vendorDir = getVendorDir().map(File::toPath);
+
+    if (vendorDir.isEmpty())
+      return;
 
     try {
-      Files.walk(new File(getProject().getRootDir(), opts.getVendorDirectory()).toPath(), 1)
+      Files.walk(vendorDir.get(), 1)
         .filter(p -> p.getFileName().startsWith("fgputil"))
         .map(Path::toFile)
         .forEach(f -> {

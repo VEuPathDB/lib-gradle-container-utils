@@ -29,7 +29,7 @@ public class Git {
       final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, url}, new String[0], parent);
 
       if (proc.waitFor() != 0) {
-        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
+        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()).trim());
       }
     } catch (Exception e) {
       Log.error("Failed to clone " + url + " into dir " + parent);
@@ -44,7 +44,7 @@ public class Git {
       final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, FDepth, "1", url}, new String[0], parent);
 
       if (proc.waitFor() != 0) {
-        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
+        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()).trim());
       }
     } catch (Exception e) {
       Log.error("Failed to clone " + url + " into dir " + parent);
@@ -64,7 +64,7 @@ public class Git {
         );
 
       if (proc.waitFor() != 0)
-        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
+        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()).trim());
     } catch (Exception e) {
       Log.error("Failed to clone " + url + " at branch " + branch + " into dir " + parent);
       throw new RuntimeException("Failed to clone " + url + " at branch " + branch + " into dir " + parent, e);
@@ -83,7 +83,7 @@ public class Git {
         );
 
       if (proc.waitFor() != 0)
-        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
+        throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()).trim());
     } catch (Exception e) {
       Log.error("Failed to clone " + url + " at branch " + branch + " into dir " + parent);
       throw new RuntimeException("Failed to clone " + url + " at branch " + branch + " into dir " + parent, e);

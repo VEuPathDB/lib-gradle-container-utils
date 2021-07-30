@@ -11,7 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
 
-public class InstallFgpUtil extends Vendor {
+public class InstallFgpUtil extends VendorTask {
   public static final String ExtensionName = "FgpUtilVersion";
 
   private static final String LockFile = "fgputil.lock";
@@ -33,18 +33,20 @@ public class InstallFgpUtil extends Vendor {
 
     final File repoDir;
 
-    createVendorDir();
-
     byte state = calcState();
     switch (state) {
       case StateNew -> {
         log.info("Cloning FgpUtil");
+        createVendorDir();
         repoDir = gitClone();
       }
       case StateUpdate -> {
         log.info("Configured FgpUtil version changed.  Rebuilding");
         removeOldJars();
         repoDir = gitClone();
+      }
+      case StateSkip -> {
+        return;
       }
       default -> {
         log.error("Unknown state " + state);
