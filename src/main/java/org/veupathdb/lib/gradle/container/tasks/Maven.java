@@ -26,7 +26,7 @@ public class Maven {
     try {
       final var proc = Runtime.getRuntime().exec(
         new String[]{Command, Clean, Install, FQuiet},
-        new String[0],
+        new String[]{"JAVA_HOME=" + System.getenv("JAVA_HOME")},
         workDir
       );
 
