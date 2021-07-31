@@ -32,12 +32,12 @@ public class InstallFgpUtil extends VendorAction {
     byte state = calcState();
     switch (state) {
       case StateNew -> {
-        log.info("Cloning FgpUtil");
+        System.out.println("Cloning FgpUtil");
         createVendorDir();
         repoDir = gitClone();
       }
       case StateUpdate -> {
-        log.info("Configured FgpUtil version changed.  Rebuilding");
+        System.out.println("Configured FgpUtil version changed.  Rebuilding");
         removeOldJars();
         repoDir = gitClone();
       }
@@ -60,7 +60,7 @@ public class InstallFgpUtil extends VendorAction {
   private void removeOldJars() {
     final var log = getLogger();
 
-    log.info("Removing old FgpUtil jar files");
+    System.out.println("Removing old FgpUtil jar files");
 
     try {
       final var it = Files.walk(vendorDir().toPath(), 1)
@@ -87,7 +87,7 @@ public class InstallFgpUtil extends VendorAction {
     final var mvn = new Maven(getProject());
     final var log = getLogger();
 
-    log.info("Building FgpUtil");
+    System.out.println("Building FgpUtil");
     final var jars = mvn.cleanInstall(repoDir);
 
     try {
@@ -110,7 +110,7 @@ public class InstallFgpUtil extends VendorAction {
     final var repo = git.clone(URL, vendorDir());
 
     if (!fgpUtilVersion().isDefault()) {
-      log.info("Switching FgpUtil to " + fgpUtilVersion().name());
+      System.out.println("Switching FgpUtil to " + fgpUtilVersion().name());
 
       git.checkout(repo, fgpUtilVersion());
     }
