@@ -1,12 +1,9 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
 import org.gradle.api.Project;
-import org.gradle.api.logging.LogLevel;
 import org.gradle.api.logging.Logger;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 
 public class Maven {
@@ -38,10 +35,11 @@ public class Maven {
       }
     } catch (Exception e) {
       Log.error("Failed to build maven project in " + workDir);
-      throw new RuntimeException("Failed to build maven project in " + workDir);
+      throw new RuntimeException("Failed to build maven project in " + workDir, e);
     }
 
     try {
+      //noinspection ConstantConditions
       return Arrays.stream(workDir.listFiles())
         .filter(File::isDirectory)
         .map(f -> new File(f, TargetDir))
