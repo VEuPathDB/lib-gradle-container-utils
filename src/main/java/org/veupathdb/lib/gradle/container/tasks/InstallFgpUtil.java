@@ -1,5 +1,7 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
+import org.gradle.api.tasks.Internal;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,14 +26,13 @@ public class InstallFgpUtil extends VendorAction {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  @Internal
   private Git.Target fgpUtilVersion = Git.Target.Default;
 
-  @SuppressWarnings("unused")
   public Git.Target getFgpUtilVersion() {
     return fgpUtilVersion;
   }
 
-  @SuppressWarnings("unused")
   public void setFgpUtilVersion(final String fgpUtilVersion) {
     this.fgpUtilVersion = Git.Target.of(fgpUtilVersion);
   }

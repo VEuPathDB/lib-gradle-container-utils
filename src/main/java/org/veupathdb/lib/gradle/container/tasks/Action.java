@@ -19,7 +19,6 @@ public class Action extends DefaultTask {
   @Internal
   private ContainerUtilsPlugin.Options options;
 
-  @Internal
   protected ContainerUtilsPlugin.Options getOptions() {
     return options == null
       ? options = (ContainerUtilsPlugin.Options) getProject()

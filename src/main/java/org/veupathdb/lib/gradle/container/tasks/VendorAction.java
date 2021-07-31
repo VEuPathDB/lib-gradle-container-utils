@@ -35,7 +35,6 @@ public class VendorAction extends Action {
     vendorDir = dir;
   }
 
-  @Internal
   protected Optional<File> getVendorDir() {
     if (checked)
       return Optional.ofNullable(vendorDir);
