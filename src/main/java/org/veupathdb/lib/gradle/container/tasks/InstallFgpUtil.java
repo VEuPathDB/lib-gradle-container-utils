@@ -1,7 +1,5 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
-import org.gradle.api.tasks.Internal;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,19 +20,6 @@ public class InstallFgpUtil extends VendorAction {
     task.setDescription("Install FgpUtil");
     task.setGroup("VEuPathDB");
     task.getActions().add(t -> task.execute());
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-
-  @Internal
-  private Git.Target fgpUtilVersion = Git.Target.Default;
-
-  public Git.Target getFgpUtilVersion() {
-    return fgpUtilVersion;
-  }
-
-  public void setFgpUtilVersion(final String fgpUtilVersion) {
-    this.fgpUtilVersion = Git.Target.of(fgpUtilVersion);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,10 +109,10 @@ public class InstallFgpUtil extends VendorAction {
     final var git  = new Git(getProject());
     final var repo = git.clone(URL, vendorDir());
 
-    if (!fgpUtilVersion.isDefault()) {
-      log.info("Switching FgpUtil to " + fgpUtilVersion.name());
+    if (!fgpUtilVersion().isDefault()) {
+      log.info("Switching FgpUtil to " + fgpUtilVersion().name());
 
-      git.checkout(repo, fgpUtilVersion);
+      git.checkout(repo, fgpUtilVersion());
     }
 
     return repo;
@@ -137,7 +122,7 @@ public class InstallFgpUtil extends VendorAction {
     try {
       Files.writeString(
         new File(vendorDir(), LockFile).toPath(),
-        fgpUtilVersion.name(),
+        fgpUtilVersion().name(),
         StandardOpenOption.TRUNCATE_EXISTING,
         StandardOpenOption.CREATE
       );
@@ -186,12 +171,16 @@ public class InstallFgpUtil extends VendorAction {
     }
 
     try {
-      return Git.Target.of(Files.readString(lock.toPath())).is(fgpUtilVersion)
+      return Git.Target.of(Files.readString(lock.toPath())).is(fgpUtilVersion())
         ? StateSkip
         : StateUpdate;
     } catch (IOException e) {
       getLogger().error("Failed to read file " + lock);
       throw new RuntimeException("Failed to read file " + lock, e);
     }
+  }
+
+  private Git.Target fgpUtilVersion() {
+    return getOptions().getFgpUtilVersion();
   }
 }
