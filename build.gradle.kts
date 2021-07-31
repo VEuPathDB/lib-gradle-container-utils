@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "org.veupathdb.lib"
-version = "1.0.12-SNAPSHOT"
+version = "1.0.0"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_14
