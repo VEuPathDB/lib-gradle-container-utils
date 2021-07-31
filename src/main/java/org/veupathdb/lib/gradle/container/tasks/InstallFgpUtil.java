@@ -1,8 +1,5 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
-import org.gradle.api.Task;
-import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,8 +9,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
 
 public class InstallFgpUtil extends VendorAction {
-  public static final String ExtensionName = "fgpUtilVersion";
-
   private static final String LockFile = "fgputil.lock";
   private static final String URL      = "https://github.com/VEuPathDB/FgpUtil";
 
@@ -22,11 +17,26 @@ public class InstallFgpUtil extends VendorAction {
   private static final byte StateSkip   = 127;
 
   public static void init(final InstallFgpUtil task) {
-    task.getExtensions().create(ExtensionName, Git.Extension.class);
     task.setDescription("Install FgpUtil");
     task.setGroup("VEuPathDB");
     task.getActions().add(t -> task.execute());
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+
+  private Git.Target fgpUtilVersion = Git.Target.Default;
+
+  @SuppressWarnings("unused")
+  public Git.Target getFgpUtilVersion() {
+    return fgpUtilVersion;
+  }
+
+  @SuppressWarnings("unused")
+  public void setFgpUtilVersion(final String fgpUtilVersion) {
+    this.fgpUtilVersion = Git.Target.of(fgpUtilVersion);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
 
   private void execute() {
     final var log = getLogger();
@@ -112,12 +122,11 @@ public class InstallFgpUtil extends VendorAction {
     final var log  = getLogger();
     final var git  = new Git(getProject());
     final var repo = git.clone(URL, vendorDir());
-    final var vers = getConfigVersion();
 
-    if (!vers.isDefault()) {
-      log.info("Switching FgpUtil to " + vers.name());
+    if (!fgpUtilVersion.isDefault()) {
+      log.info("Switching FgpUtil to " + fgpUtilVersion.name());
 
-      git.checkout(repo, vers);
+      git.checkout(repo, fgpUtilVersion);
     }
 
     return repo;
@@ -127,7 +136,7 @@ public class InstallFgpUtil extends VendorAction {
     try {
       Files.writeString(
         new File(vendorDir(), LockFile).toPath(),
-        getConfigVersion().name(),
+        fgpUtilVersion.name(),
         StandardOpenOption.TRUNCATE_EXISTING,
         StandardOpenOption.CREATE
       );
@@ -176,23 +185,12 @@ public class InstallFgpUtil extends VendorAction {
     }
 
     try {
-      return Git.Target.of(Files.readString(lock.toPath())).is(getConfigVersion())
+      return Git.Target.of(Files.readString(lock.toPath())).is(fgpUtilVersion)
         ? StateSkip
         : StateUpdate;
     } catch (IOException e) {
       getLogger().error("Failed to read file " + lock);
       throw new RuntimeException("Failed to read file " + lock, e);
     }
-  }
-
-  private Git.Target getConfigVersion() {
-    return getExtension().getVersion();
-  }
-
-  private Git.Extension extension;
-  private Git.Extension getExtension() {
-    return extension == null
-      ? extension = (Git.Extension) getExtensions().getByName(ExtensionName)
-      : extension;
   }
 }

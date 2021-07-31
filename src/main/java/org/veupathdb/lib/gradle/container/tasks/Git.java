@@ -118,22 +118,6 @@ public class Git {
 
   }
 
-  public static class Extension {
-    private Target version;
-
-    public Target getVersion() {
-      return version == null ? Target.Default : version;
-    }
-
-    public void setVersion(String version) {
-      this.version = Target.of(version);
-    }
-
-    public boolean isDefault() {
-      return version == null || version == Target.Default;
-    }
-  }
-
   public interface Target {
     Target Default = () -> "main";
 

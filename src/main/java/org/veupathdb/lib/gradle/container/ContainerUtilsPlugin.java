@@ -10,6 +10,7 @@ import org.veupathdb.lib.gradle.container.tasks.VendorAction;
 public class ContainerUtilsPlugin implements Plugin<Project> {
   public static final String ExtensionName = "containerBuild";
 
+  @SuppressWarnings("unused")
   public static class Options {
     private String     vendorDirectory = VendorAction.DefaultVendorDir;
     private Git.Target fgpUtilVersion  = Git.Target.Default;
@@ -29,8 +30,8 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
       return fgpUtilVersion;
     }
 
-    public void setFgpUtilVersion(Git.Target fgpUtilVersion) {
-      this.fgpUtilVersion = fgpUtilVersion;
+    public void setFgpUtilVersion(final String fgpUtilVersion) {
+      this.fgpUtilVersion = Git.Target.of(fgpUtilVersion);
     }
   }
 
