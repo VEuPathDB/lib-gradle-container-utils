@@ -24,6 +24,15 @@ public class Git {
     Log = project.getLogger();
   }
 
+  /**
+   * Performs a full clone of the target repository in the given working
+   * directory.
+   *
+   * @param url    URL of the repository to clone.
+   * @param parent Workdir the git command will be run in.
+   *
+   * @return The directory containing the newly checked out git repository.
+   */
   public File clone(final String url, final File parent) {
     try {
       final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, url}, new String[0], parent);
@@ -39,6 +48,15 @@ public class Git {
     return new File(parent, url.substring(url.lastIndexOf('/') + 1).replace(".git", ""));
   }
 
+  /**
+   * Performs a shallow clone of the target repository in the given working
+   * directory.
+   *
+   * @param url    URL of the repository to clone.
+   * @param parent Workdir the git command will be run in.
+   *
+   * @return The directory containing the newly checked out git repository.
+   */
   public File shallowClone(final String url, final File parent) {
     try {
       final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, FDepth, "1", url}, new String[0], parent);

@@ -41,7 +41,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   @Override
   protected String getConfiguredVersion() {
     final String tmp;
-    return (tmp = getOptions().getRamlForJaxRSVersion()) == null ? DefaultVersion : tmp;
+    return (tmp = Options.getRamlForJaxRSVersion()) == null ? DefaultVersion : tmp;
   }
 
   @Override

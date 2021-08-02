@@ -14,7 +14,7 @@ public abstract class VendorBuildAction extends BuildAction {
       return vendorRoot;
 
     final String tmp;
-    return vendorRoot = new File(RootDir, (tmp = getOptions().getVendorDirectory()) == null
+    return vendorRoot = new File(RootDir, (tmp = Options.getVendorDirectory()) == null
       ? Defaults.DefaultVendorDirectory
       : tmp
     );

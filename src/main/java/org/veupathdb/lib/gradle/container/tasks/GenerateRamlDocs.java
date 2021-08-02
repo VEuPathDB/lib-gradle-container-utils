@@ -75,9 +75,7 @@ public class GenerateRamlDocs extends ExecAction {
     final String tmp;
     final var out = new File(
       RootDir,
-      (tmp = getOptions().getRepoDocsDirectory()) == null
-        ? Defaults.DefaultDocsDirectory
-        : tmp
+      (tmp = Options.getRepoDocsDirectory()) == null ? Defaults.DefaultDocsDirectory : tmp
     );
 
     if (!out.exists()) {

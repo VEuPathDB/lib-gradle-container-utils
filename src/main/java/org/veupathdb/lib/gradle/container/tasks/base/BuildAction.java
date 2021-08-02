@@ -4,9 +4,7 @@ import org.gradle.api.tasks.Internal;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Comparator;
 
 public abstract class BuildAction extends Action {
 
@@ -82,11 +80,11 @@ public abstract class BuildAction extends Action {
     final var state = determineState();
     switch (state) {
       case StateNew -> {
-        System.out.println("Installing " + getDependencyName());
+        System.out.println("==> Installing " + getDependencyName());
         createBuildRootIfNotExists();
       }
       case StateUpdate -> {
-        System.out.println("Updating " + getDependencyName());
+        System.out.println("==> Updating " + getDependencyName());
         clean();
       }
       case StateSkip -> System.out.println("Skipping " + getDependencyName() + ", no update needed.");

@@ -11,7 +11,7 @@ public abstract class BinCleanAction extends CleanAction {
     final String tmp;
     return new File(
       RootDir,
-      (tmp = getOptions().getBinDirectory()) == null ? Defaults.DefaultBinDirectory : tmp
+      (tmp = Options.getBinDirectory()) == null ? Defaults.DefaultBinDirectory : tmp
     );
   }
 }

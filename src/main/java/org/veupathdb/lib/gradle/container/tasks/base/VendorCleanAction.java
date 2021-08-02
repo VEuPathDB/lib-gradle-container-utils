@@ -11,7 +11,7 @@ public abstract class VendorCleanAction extends CleanAction {
     final String tmp;
     return new File(
       RootDir,
-      (tmp = getOptions().getVendorDirectory()) == null ? Defaults.DefaultVendorDirectory : tmp
+      (tmp = Options.getVendorDirectory()) == null ? Defaults.DefaultVendorDirectory : tmp
     );
   }
 }

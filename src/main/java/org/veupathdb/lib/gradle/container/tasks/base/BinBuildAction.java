@@ -27,6 +27,6 @@ public abstract class BinBuildAction extends BuildAction {
 
     final String tmp;
 
-    return (tmp = getOptions().getBinDirectory()) == null ? Defaults.DefaultBinDirectory : tmp;
+    return (tmp = Options.getBinDirectory()) == null ? Defaults.DefaultBinDirectory : tmp;
   }
 }

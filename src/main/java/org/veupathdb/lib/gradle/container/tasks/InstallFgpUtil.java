@@ -36,6 +36,8 @@ public class InstallFgpUtil extends VendorBuildAction {
   protected File download() {
     Log.trace("InstallFgpUtil#download()");
 
+    System.out.println("Cloning FgpUtil");
+
     final var git  = new Git(getProject());
     final var repo = git.clone(URL, getDependencyRoot());
     final var vers = getConfiguredVersion();
