@@ -5,11 +5,15 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.Internal;
 import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin;
 import org.veupathdb.lib.gradle.container.config.Options;
+import org.veupathdb.lib.gradle.container.config.ServiceProperties;
 
 import java.io.File;
+import java.io.IOException;
 
 public abstract class Action extends DefaultTask {
   private static final String Group = "VEuPathDB";
+
+  private static ServiceProperties svcProps;
 
   protected final Logger Log;
   protected final File   RootDir;
@@ -42,5 +46,21 @@ public abstract class Action extends DefaultTask {
         .getExtensions()
         .getByName(ContainerUtilsPlugin.ExtensionName)
       : options;
+  }
+
+  @Internal
+  protected ServiceProperties serviceProperties() {
+    Log.trace("Action#serviceProperties()");
+
+    if (svcProps != null)
+      return svcProps;
+
+    try {
+      Log.debug("Loading service properties from file.");
+      return svcProps = Utils.loadServiceProperties(RootDir);
+    } catch (IOException e) {
+      Log.error("Failed to read service properties file.");
+      throw new RuntimeException("Failed to read service properties file.", e);
+    }
   }
 }

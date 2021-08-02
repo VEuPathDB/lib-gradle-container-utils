@@ -6,8 +6,6 @@ import org.gradle.api.tasks.Internal;
 import java.io.File;
 
 public abstract class BinBuildAction extends BuildAction {
-  public static final String DefaultBinDirectory = ".bin";
-
   private File binRoot;
 
   @Internal
@@ -29,6 +27,6 @@ public abstract class BinBuildAction extends BuildAction {
 
     final String tmp;
 
-    return (tmp = getOptions().getBinDirectory()) == null ? DefaultBinDirectory : tmp;
+    return (tmp = getOptions().getBinDirectory()) == null ? Defaults.DefaultBinDirectory : tmp;
   }
 }

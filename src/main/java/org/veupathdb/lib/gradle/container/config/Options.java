@@ -6,6 +6,7 @@ public class Options {
   private String fgpUtilVersion;
   private String ramlForJaxRSVersion;
   private String binDirectory;
+  private String repoDocsDirectory;
 
   public String getVendorDirectory() {
     return vendorDirectory;
@@ -37,5 +38,13 @@ public class Options {
 
   public void setBinDirectory(String binDirectory) {
     this.binDirectory = binDirectory;
+  }
+
+  public String getRepoDocsDirectory() {
+    return repoDocsDirectory;
+  }
+
+  public void setRepoDocsDirectory(String repoDocsDirectory) {
+    this.repoDocsDirectory = repoDocsDirectory;
   }
 }

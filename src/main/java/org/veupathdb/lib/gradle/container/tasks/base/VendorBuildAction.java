@@ -5,8 +5,6 @@ import org.gradle.api.tasks.Internal;
 import java.io.File;
 
 public abstract class VendorBuildAction extends BuildAction {
-  public static final String DefaultVendorDir = "vendor";
-
   private File vendorRoot;
 
   @Override
@@ -17,7 +15,7 @@ public abstract class VendorBuildAction extends BuildAction {
 
     final String tmp;
     return vendorRoot = new File(RootDir, (tmp = getOptions().getVendorDirectory()) == null
-      ? DefaultVendorDir
+      ? Defaults.DefaultVendorDirectory
       : tmp
     );
   }

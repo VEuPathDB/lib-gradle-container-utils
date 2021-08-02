@@ -4,10 +4,10 @@ import org.gradle.api.tasks.Internal;
 
 import java.io.File;
 
-public abstract class BinCleanAction extends CleanAction {
+public abstract class BinExecAction extends ExecAction {
   @Override
   @Internal
-  protected File getTargetDirectory() {
+  protected File getWorkDirectory() {
     final String tmp;
     return new File(
       RootDir,
