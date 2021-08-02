@@ -55,12 +55,13 @@ public abstract class ExecAction extends Action {
 
       status = proc.waitFor();
       if (status != 0) {
-        Log.error("Command " + getCommandName() + " execution failed with status code " + status);
-        throw new RuntimeException("Command " + getCommandName() + " execution failed with status code " + status);
+        final var err = new String(proc.getErrorStream().readAllBytes());
+        Log.error("Command " + getCommandName() + " execution failed with status code " + status + ": " + err);
+        throw new RuntimeException("Command " + getCommandName() + " execution failed with status code " + status + ": " + err);
       }
     } catch (IOException | InterruptedException e) {
       Log.error("Command " + getCommandName() + " execution failed");
-      throw new RuntimeException("Command " + getCommandName() + " execution failed");
+      throw new RuntimeException("Command " + getCommandName() + " execution failed", e);
     }
 
     postExec();
