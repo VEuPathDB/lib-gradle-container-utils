@@ -65,6 +65,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     correctPoms(findPoms());
 
     System.out.println("Compiling " + getDependencyName());
+
     final var jars = new Maven(getProject())
       .cleanInstall(new File(getBuildTargetDirectory(), "raml-to-jaxrs/raml-to-jaxrs-cli"));
 

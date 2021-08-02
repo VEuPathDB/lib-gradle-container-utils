@@ -4,7 +4,7 @@ import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.Stack;
 
 public class Maven {
   private static final String TargetDir = "target";
@@ -38,19 +38,54 @@ public class Maven {
       throw new RuntimeException("Failed to build maven project in " + workDir, e);
     }
 
-    try {
+    return findJars(workDir);
+  }
+
+  public File[] findJars(final File workDir) {
+    Log.trace("Maven#findJars({})", workDir);
+
+    final var dirs = new Stack<File>();
+    final var targ = new Stack<File>();
+    final var jars = new Stack<File>();
+
+    dirs.push(workDir);
+
+    // Locate target directories
+    while (!dirs.empty()) {
+
       //noinspection ConstantConditions
-      return Arrays.stream(workDir.listFiles())
-        .filter(File::isDirectory)
-        .map(f -> new File(f, TargetDir))
-        .filter(File::exists)
-        .map(File::listFiles)
-        .flatMap(Arrays::stream)
-        .filter(f -> f.getName().endsWith(".jar"))
-        .toArray(File[]::new);
-    } catch (Exception e) {
-      Log.error("Failed to collect compiled jars from " + workDir);
-      throw new RuntimeException("Failed to collect compiled jars from " + workDir, e);
+      for (final var child : dirs.pop().listFiles()) {
+
+        if (child.isDirectory()) {
+          dirs.push(child);
+
+          if (child.getName().equals(TargetDir)) {
+            targ.push(child);
+          }
+        }
+      }
     }
+
+    // Scan target dirs for jar files
+    while (!targ.empty()) {
+      final var dir = targ.pop();
+
+      //noinspection ConstantConditions
+      for (final var file : dir.listFiles()) {
+        if (file.isFile() && file.getName().endsWith(".jar")) {
+          jars.push(file);
+        }
+      }
+    }
+
+    final var out = new File[jars.size()];
+    for (int i = 0; i < out.length; i++) {
+      out[i] = jars.pop();
+    }
+
+    System.out.printf("Located %d output jars.\n", out.length);
+    Log.debug("Jar Files: {}", (Object) out);
+
+    return out;
   }
 }
