@@ -1,4 +1,4 @@
-package org.veupathdb.lib.gradle.container.tasks;
+package org.veupathdb.lib.gradle.container.exec;
 
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
@@ -23,6 +23,8 @@ public class Maven {
   }
 
   public File[] cleanInstall(final File workDir) {
+    Log.trace("Maven#cleanInstall(File)");
+
     try {
       final var proc = Runtime.getRuntime().exec(
         new String[]{Command, Clean, Install, FQuiet},

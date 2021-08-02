@@ -1,4 +1,4 @@
-package org.veupathdb.lib.gradle.container.tasks;
+package org.veupathdb.lib.gradle.container.exec;
 
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
@@ -24,7 +24,7 @@ public class Git {
     Log = project.getLogger();
   }
 
-  File clone(final String url, final File parent) {
+  public File clone(final String url, final File parent) {
     try {
       final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, url}, new String[0], parent);
 
@@ -39,7 +39,7 @@ public class Git {
     return new File(parent, url.substring(url.lastIndexOf('/') + 1));
   }
 
-  File shallowClone(final String url, final File parent) {
+  public File shallowClone(final String url, final File parent) {
     try {
       final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, FDepth, "1", url}, new String[0], parent);
 
@@ -54,7 +54,7 @@ public class Git {
     return new File(parent, url.substring(url.lastIndexOf('/') + 1));
   }
 
-  File clone(final String url, final File parent, final String branch) {
+  public File clone(final String url, final File parent, final String branch) {
     try {
       final var proc = Runtime.getRuntime()
         .exec(
@@ -73,7 +73,7 @@ public class Git {
     return new File(parent, url.substring(url.lastIndexOf('/') + 1));
   }
 
-  File shallowClone(final String url, final File parent, final String branch) {
+  public File shallowClone(final String url, final File parent, final String branch) {
     try {
       final var proc = Runtime.getRuntime()
         .exec(
@@ -92,7 +92,7 @@ public class Git {
     return new File(parent, url.substring(url.lastIndexOf('/') + 1));
   }
 
-  void checkout(final File repo, final Target target) {
+  public void checkout(final File repo, final Target target) {
     try {
       final var proc = Runtime.getRuntime()
         .exec(new String[]{Command, Checkout, target.name()}, new String[0], repo);
