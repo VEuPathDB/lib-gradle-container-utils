@@ -99,6 +99,7 @@ public abstract class BuildAction extends Action {
     buildDirectory = download();
     install();
     writeLockFile();
+    postBuildCleanup();
   }
 
   @Internal
@@ -116,27 +117,14 @@ public abstract class BuildAction extends Action {
   /**
    * Deletes the build directory for the installed dependency.
    */
-  protected void removeBuildDir() {
+  protected void postBuildCleanup() {
     Log.trace("InstallAction#removeBuildDir()");
 
-    if (!getLockFile().delete()) {
-      Log.error("Failed to delete file " + getLockFile());
-      throw new RuntimeException("Failed to delete file " + getLockFile());
-    }
-
     try {
-      Files.walk(getBuildTargetDirectory().toPath())
-        .sorted(Comparator.reverseOrder())
-        .map(Path::toFile)
-        .forEach(f -> {
-          if (!f.delete()) {
-            Log.error("Failed to remove path " + f);
-            throw new RuntimeException("Failed to remove path " + f);
-          }
-        });
+      Utils.deleteRecursive(getBuildTargetDirectory());
     } catch (Exception e) {
-      Log.error("Failed to walk path " + getBuildTargetDirectory());
-      throw new RuntimeException("Failed to walk path " + getBuildTargetDirectory(), e);
+      Log.error("Post build cleanup failed");
+      throw new RuntimeException("Post build cleanup failed", e);
     }
   }
 

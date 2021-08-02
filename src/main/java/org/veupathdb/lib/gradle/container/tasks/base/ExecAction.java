@@ -50,6 +50,7 @@ public abstract class ExecAction extends Action {
 
     try {
       Log.debug("Executing command {} in directory {}", com.command(), com.directory());
+      logComStart(com);
 
       proc = com.start();
 
@@ -68,4 +69,15 @@ public abstract class ExecAction extends Action {
   }
 
   protected void postExec() {}
+
+  private void logComStart(final ProcessBuilder com) {
+    final var args = com.command();
+
+    switch (args.size()) {
+      case 1  -> System.out.println("Executing command " + args.get(0));
+      case 2  -> System.out.println("Executing command " + args.get(0) + " " + args.get(1));
+      case 3  -> System.out.printf("Executing command %s %s %s\n", args.get(0), args.get(1), args.get(2));
+      default -> System.out.printf("Executing command %s %s %s ...\n", args.get(0), args.get(1), args.get(2));
+    }
+  }
 }
