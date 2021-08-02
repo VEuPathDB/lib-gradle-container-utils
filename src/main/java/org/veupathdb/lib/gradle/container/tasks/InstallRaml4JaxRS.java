@@ -94,8 +94,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
 
     // Version 3.0.7 of raml-for-jax-rs contains 46 pom files.  Oversize this a
     // bit for different versions.
-    final var dirs = new ArrayList<File>(64);
-
+    final var poms  = new ArrayList<File>(64);
     final var queue = new LinkedList<File>();
 
     queue.push(getBuildTargetDirectory());
@@ -109,16 +108,14 @@ public class InstallRaml4JaxRS extends BinBuildAction {
       for (final var child : dir.listFiles()) {
         if (child.isDirectory()) {
           queue.push(dir);
-        } else {
-          if (child.getName().endsWith(".pom.xml")) {
-            Log.debug("Located pom file {}", child);
-            dirs.add(child);
-          }
+        } else if (child.getName().endsWith(".pom.xml")) {
+          Log.debug("Located pom file {}", child);
+          poms.add(child);
         }
       }
     }
 
-    return dirs;
+    return poms;
   }
 
   private void correctPoms(final List<File> poms) {

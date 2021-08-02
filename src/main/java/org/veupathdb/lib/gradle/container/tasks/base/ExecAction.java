@@ -49,6 +49,8 @@ public abstract class ExecAction extends Action {
     int status;
 
     try {
+      Log.debug("Executing command {}", com.command());
+
       proc = com.start();
 
       status = proc.waitFor();

@@ -36,7 +36,7 @@ public class Git {
       throw new RuntimeException("Failed to clone " + url + " into dir " + parent + url, e);
     }
 
-    return new File(parent, url.substring(url.lastIndexOf('/') + 1));
+    return new File(parent, url.substring(url.lastIndexOf('/') + 1).replace(".git", ""));
   }
 
   public File shallowClone(final String url, final File parent) {
@@ -51,7 +51,7 @@ public class Git {
       throw new RuntimeException("Failed to clone " + url + " into dir " + parent + url, e);
     }
 
-    return new File(parent, url.substring(url.lastIndexOf('/') + 1));
+    return new File(parent, url.substring(url.lastIndexOf('/') + 1).replace(".git", ""));
   }
 
   public File clone(final String url, final File parent, final String branch) {
@@ -70,7 +70,7 @@ public class Git {
       throw new RuntimeException("Failed to clone " + url + " at branch " + branch + " into dir " + parent, e);
     }
 
-    return new File(parent, url.substring(url.lastIndexOf('/') + 1));
+    return new File(parent, url.substring(url.lastIndexOf('/') + 1).replace(".git", ""));
   }
 
   public File shallowClone(final String url, final File parent, final String branch) {
@@ -89,7 +89,7 @@ public class Git {
       throw new RuntimeException("Failed to clone " + url + " at branch " + branch + " into dir " + parent, e);
     }
 
-    return new File(parent, url.substring(url.lastIndexOf('/') + 1));
+    return new File(parent, url.substring(url.lastIndexOf('/') + 1).replace(".git", ""));
   }
 
   public void checkout(final File repo, final Target target) {

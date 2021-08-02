@@ -8,6 +8,5 @@ validate:
 
 .PHONY: publish
 publish:
-	@./gradlew publishPluginMavenPublicationToGitHubRepository
-	@./gradlew publishContainer-utilsPluginMarkerMavenPublicationToGitHubRepository
+	@./gradlew publishPluginMavenPublicationToGitHubRepository publishContainer-utilsPluginMarkerMavenPublicationToGitHubRepository
 
