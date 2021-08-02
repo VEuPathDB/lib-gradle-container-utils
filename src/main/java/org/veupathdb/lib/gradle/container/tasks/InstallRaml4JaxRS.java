@@ -109,7 +109,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
         if (child.isDirectory()) {
           if (!child.getName().startsWith(".") && !child.getName().equals("src"))
             queue.push(child);
-        } else if (child.getName().endsWith(".pom.xml")) {
+        } else if (child.getName().equals("pom.xml")) {
           Log.debug("Located pom file {}", child);
           poms.add(child);
         }

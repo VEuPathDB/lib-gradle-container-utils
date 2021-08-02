@@ -25,12 +25,10 @@ public class Maven {
   public File[] cleanInstall(final File workDir) {
     Log.trace("Maven#cleanInstall(File)");
 
+    final var cmd = new ProcessBuilder(Command, Clean, Install, FQuiet).directory(workDir);
+
     try {
-      final var proc = Runtime.getRuntime().exec(
-        new String[]{Command, Clean, Install, FQuiet},
-        new String[]{"JAVA_HOME=" + System.getenv("JAVA_HOME")},
-        workDir
-      );
+      final var proc = cmd.start();
 
       if (proc.waitFor() != 0) {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
