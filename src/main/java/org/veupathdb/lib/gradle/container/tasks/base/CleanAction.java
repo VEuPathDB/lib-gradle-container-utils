@@ -1,11 +1,14 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
+import org.gradle.api.tasks.Internal;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Stack;
 
 public abstract class CleanAction extends Action {
+  @Internal
   protected abstract File getTargetDirectory();
 
   protected abstract boolean filerPredicate(final File file);
