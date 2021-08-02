@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class ExecAction extends Action {
 
@@ -49,7 +50,13 @@ public abstract class ExecAction extends Action {
     int status;
 
     try {
-      Log.debug("Executing command {} in directory {}", com.command(), com.directory());
+      if (Log.isDebugEnabled()) {
+        Log.debug(
+          "Executing\n    {}\nIn directory {}",
+          String.join(" ", com.command()),
+          com.directory()
+        );
+      }
       logComStart(com);
 
       proc = com.start();
