@@ -49,7 +49,7 @@ public abstract class ExecAction extends Action {
     int status;
 
     try {
-      Log.debug("Executing command {}", com.command());
+      Log.debug("Executing command {} in directory {}", com.command(), com.directory());
 
       proc = com.start();
 
