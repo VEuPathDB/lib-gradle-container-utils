@@ -48,7 +48,6 @@ public abstract class Action extends DefaultTask {
       : options;
   }
 
-  @Internal
   protected ServiceProperties serviceProperties() {
     Log.trace("Action#serviceProperties()");
 
