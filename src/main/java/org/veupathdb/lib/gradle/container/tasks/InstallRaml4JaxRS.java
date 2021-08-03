@@ -73,7 +73,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
       for (final var jar : jars) {
         // Locate the target jar and move it to the bin directory.
         if (jar.getName().endsWith("dependencies.jar")) {
-          Log.debug("Moving file {} to {}", jar, getDependencyRoot());
+          Log.debug("Moving file\n  {}\nto\n  {}", jar, getDependencyRoot());
 
           Files.move(
             jar.toPath(),

@@ -87,7 +87,12 @@ public class Maven {
 
     System.out.printf("Located %d output jars.\n", out.length);
     if (Log.isDebugEnabled()) {
-      Log.debug("Jar Files: {}", Arrays.stream(out).map(File::getName).collect(Collectors.joining("\n  ", "[\n  ", "\n]")));
+      Log.debug(
+        "Jar Files: {}",
+        Arrays.stream(out)
+          .map(File::getName)
+          .collect(Collectors.joining("\n  ", "[\n  ", "\n]"))
+      );
     }
 
     return out;

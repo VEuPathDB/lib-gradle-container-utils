@@ -87,7 +87,10 @@ public abstract class BuildAction extends Action {
         System.out.println("==> Updating " + getDependencyName());
         clean();
       }
-      case StateSkip -> System.out.println("Skipping " + getDependencyName() + ", no update needed.");
+      case StateSkip -> {
+        System.out.println("Skipping " + getDependencyName() + ", no update needed.");
+        return;
+      }
       default -> {
         Log.error("Unrecognized state " + state);
         throw new RuntimeException("Unrecognized state " + state);
