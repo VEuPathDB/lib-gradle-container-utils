@@ -1,11 +1,11 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
 import org.gradle.api.DefaultTask;
-import org.gradle.api.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin;
 import org.veupathdb.lib.gradle.container.config.Options;
 import org.veupathdb.lib.gradle.container.config.ServiceProperties;
+import org.veupathdb.lib.gradle.container.util.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,12 +24,16 @@ public abstract class Action extends DefaultTask {
   @NotNull
   protected final Options Options;
 
+  @NotNull
+  protected final Utils Util;
+
   protected Action() {
-    this.Log     = getLogger();
     this.RootDir = getProject().getRootDir();
     this.Options = (Options) getProject()
       .getExtensions()
       .getByName(ContainerUtilsPlugin.ExtensionName);
+    this.Log     = new Logger(Options.getLogLevel());
+    this.Util    = new Utils(this.Log);
   }
 
   public static void init(@NotNull final Action action) {
@@ -54,12 +58,7 @@ public abstract class Action extends DefaultTask {
     if (svcProps != null)
       return svcProps;
 
-    try {
-      Log.debug("Loading service properties from file.");
-      return svcProps = Utils.loadServiceProperties(RootDir);
-    } catch (IOException e) {
-      Log.error("Failed to read service properties file.");
-      throw new RuntimeException("Failed to read service properties file.", e);
-    }
+    Log.debug("Loading service properties from file.");
+    return svcProps = Util.loadServiceProperties(RootDir);
   }
 }

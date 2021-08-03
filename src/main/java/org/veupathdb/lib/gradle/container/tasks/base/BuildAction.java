@@ -97,7 +97,7 @@ public abstract class BuildAction extends Action {
         clean();
       }
       case StateSkip -> {
-        System.out.println("Already installed at the configured version. Skipping.");
+        Log.info("Already installed at the configured version. Skipping.");
         return;
       }
       default -> {
@@ -130,13 +130,9 @@ public abstract class BuildAction extends Action {
    */
   protected void postBuildCleanup() {
     Log.trace("InstallAction#removeBuildDir()");
+    Log.debug("Beginning post build cleanup.");
 
-    try {
-      Utils.deleteRecursive(getBuildTargetDirectory());
-    } catch (Exception e) {
-      Log.error("Post build cleanup failed");
-      throw new RuntimeException("Post build cleanup failed", e);
-    }
+    Util.deleteRecursive(getBuildTargetDirectory());
   }
 
   /**

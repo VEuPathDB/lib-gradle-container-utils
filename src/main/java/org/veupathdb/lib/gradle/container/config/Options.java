@@ -1,18 +1,30 @@
 package org.veupathdb.lib.gradle.container.config;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static org.veupathdb.lib.gradle.container.tasks.base.Defaults.*;
 
 @SuppressWarnings("unused")
 public class Options {
-  @NotNull private String vendorDirectory      = DefaultVendorDirectory;
-  @NotNull private String fgpUtilVersion       = DefaultFgpUtilVersion;
-  @NotNull private String ramlForJaxRSVersion  = DefaultRamlForJaxRSVersion;
-  @NotNull private String binDirectory         = DefaultBinDirectory;
-  @NotNull private String repoDocsDirectory    = DefaultDocsDirectory;
-  @NotNull private String apiDocRoot           = DefaultApiDocsRoot;
+  @NotNull
+  private String vendorDirectory = DefaultVendorDirectory;
+
+  @NotNull
+  private String fgpUtilVersion = DefaultFgpUtilVersion;
+
+  @NotNull
+  private String ramlForJaxRSVersion = DefaultRamlForJaxRSVersion;
+
+  @NotNull
+  private String binDirectory = DefaultBinDirectory;
+
+  @NotNull
+  private String repoDocsDirectory = DefaultDocsDirectory;
+
+  @NotNull
+  private String apiDocRoot = DefaultApiDocsRoot;
+
+  private byte logLevel = 1;
 
   /**
    * Returns the currently configured custom vendor directory.
@@ -34,11 +46,10 @@ public class Options {
    * <b>Note</b>: If this directory doesn't already exist, on first vendored
    * dependency installation, it will be created.
    *
-   * @param directory Target vendor directory, or {@code null} to use
-   *                        the default value.
+   * @param directory Target vendor directory.
    */
-  public void setVendorDirectory(@Nullable final String directory) {
-    this.vendorDirectory = directory == null ? DefaultVendorDirectory : directory;
+  public void setVendorDirectory(@NotNull final String directory) {
+    this.vendorDirectory = directory;
   }
 
   /**
@@ -71,26 +82,22 @@ public class Options {
    * FgpUtil uninstallation command, then run the installation again.
    *
    * @param version FgpUtil tag, branch, or commit to use when building
-   *                       this project.  Set to {@code null} to use the default
-   *                       value.
+   *                this project.
    */
-  public void setFgpUtilVersion(@Nullable final String version) {
-    this.fgpUtilVersion = version == null ? DefaultFgpUtilVersion : version;
+  public void setFgpUtilVersion(@NotNull final String version) {
+    this.fgpUtilVersion = version;
   }
 
   /**
-   * Returns the currently configured target Raml for Jax RS branch (or
-   * {@code null} if no value has been set).
+   * Returns the currently configured target Raml for Jax RS branch.
    * <p>
    * This value allows overriding the default Raml for Jax RS branch
-   * configuration, if {@code null}, the default config will be used.
+   * configuration.
    * <p>
    * If updating this value after Raml for Jax RS has already been installed,
    * run the installation command again to update.
    *
    * @return The currently configured override Raml for Jax RS branch.
-   * {@code null} if no override has been set, the default Raml for Jax RS
-   * branch configuration is used.
    */
   @NotNull
   public String getRamlForJaxRSVersion() {
@@ -100,16 +107,13 @@ public class Options {
   /**
    * Configures an override for the target branch of Raml for Jax RS.
    * <p>
-   * If set to {@code null} the default branch config will be used.
-   * <p>
    * If updating this value after Raml for Jax RS has already been installed,
    * run the installation command again to update.
    *
-   * @param branch Raml for Jax RS branch name.  If {@code null},
-   *                            the default branch config will be used.
+   * @param branch Raml for Jax RS branch name.
    */
-  public void setRamlForJaxRSVersion(@Nullable final String branch) {
-    this.ramlForJaxRSVersion = branch == null ? DefaultRamlForJaxRSVersion : branch;
+  public void setRamlForJaxRSVersion(@NotNull final String branch) {
+    this.ramlForJaxRSVersion = branch;
   }
 
   @NotNull
@@ -117,8 +121,8 @@ public class Options {
     return binDirectory;
   }
 
-  public void setBinDirectory(@Nullable final String directory) {
-    this.binDirectory = directory == null ? DefaultBinDirectory : directory;
+  public void setBinDirectory(@NotNull final String directory) {
+    this.binDirectory = directory;
   }
 
   @NotNull
@@ -126,8 +130,8 @@ public class Options {
     return repoDocsDirectory;
   }
 
-  public void setRepoDocsDirectory(@Nullable final String directory) {
-    this.repoDocsDirectory = directory == null ? DefaultDocsDirectory : directory;
+  public void setRepoDocsDirectory(@NotNull final String directory) {
+    this.repoDocsDirectory = directory;
   }
 
   @NotNull
@@ -135,7 +139,15 @@ public class Options {
     return apiDocRoot;
   }
 
-  public void setApiDocRoot(@Nullable final String apiDocFile) {
-    this.apiDocRoot = apiDocFile == null ? DefaultApiDocsRoot : apiDocFile;
+  public void setApiDocRoot(@NotNull final String apiDocFile) {
+    this.apiDocRoot = apiDocFile;
+  }
+
+  public byte getLogLevel() {
+    return logLevel;
+  }
+
+  public void setLogLevel(byte logLevel) {
+    this.logLevel = logLevel;
   }
 }

@@ -24,6 +24,8 @@ public class GenerateJaxRS extends BinExecAction {
 
   @Override
   protected void appendArguments(@NotNull final List<String> args) {
+    Log.trace("GenerateJaxRS#appendArguments(%s)", args);
+
     final var props = serviceProperties();
     final var base  = props.appPackageRoot() + "." + props.appPackageService() + ".generated.";
 

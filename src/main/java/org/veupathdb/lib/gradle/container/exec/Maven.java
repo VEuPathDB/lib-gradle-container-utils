@@ -1,7 +1,6 @@
 package org.veupathdb.lib.gradle.container.exec;
 
-import org.gradle.api.Project;
-import org.gradle.api.logging.Logger;
+import org.veupathdb.lib.gradle.container.util.Logger;
 
 import java.io.*;
 import java.util.Arrays;
@@ -20,8 +19,8 @@ public class Maven {
 
   private final Logger Log;
 
-  public Maven(final Project project) {
-    Log = project.getLogger();
+  public Maven(final Logger log) {
+    Log = log;
   }
 
   public File[] cleanInstall(final File workDir) {
@@ -85,15 +84,13 @@ public class Maven {
       out[i] = jars.pop();
     }
 
-    System.out.printf("Located %d output jars.\n", out.length);
-    if (Log.isDebugEnabled()) {
-      Log.debug(
-        "Jar Files: {}",
-        Arrays.stream(out)
-          .map(File::getName)
-          .collect(Collectors.joining("\n  ", "[\n  ", "\n]"))
-      );
-    }
+    Log.info("Located %d output jars.", out.length);
+    Log.debug(
+      "Jar Files: %s",
+      () -> Arrays.stream(out)
+        .map(File::getName)
+        .collect(Collectors.joining("\n  ", "[\n  ", "\n]"))
+    );
 
     return out;
   }

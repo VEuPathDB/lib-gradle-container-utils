@@ -50,17 +50,15 @@ public abstract class ExecAction extends Action {
 
     com.directory(getWorkDirectory());
 
-    Process proc = null;
+    Process proc;
     int status;
 
     try {
-      if (Log.isDebugEnabled()) {
-        Log.debug(
-          "Executing\n    {}\nIn directory {}",
-          String.join(" ", com.command()),
-          com.directory()
-        );
-      }
+      Log.debug(
+        "\n  Executing:\n    %s\n  In directory:\n    %s",
+        () -> String.join(" ", com.command()),
+        com::directory
+      );
       logComStart(com);
 
       proc = com.start();
@@ -82,13 +80,15 @@ public abstract class ExecAction extends Action {
   protected void postExec() {}
 
   private void logComStart(@NotNull final ProcessBuilder com) {
-    final var args = com.command();
+    Log.info(() -> {
+      final var args = com.command();
 
-    switch (args.size()) {
-      case 1  -> System.out.println("Executing command " + args.get(0));
-      case 2  -> System.out.println("Executing command " + args.get(0) + " " + args.get(1));
-      case 3  -> System.out.printf("Executing command %s %s %s\n", args.get(0), args.get(1), args.get(2));
-      default -> System.out.printf("Executing command %s %s %s ...\n", args.get(0), args.get(1), args.get(2));
-    }
+      return switch (args.size()) {
+        case 1  -> String.format("Executing command `%s`\n", args.get(0));
+        case 2  -> String.format("Executing command `%s %s`", args.get(0), args.get(1));
+        case 3  -> String.format("Executing command `%s %s %s`\n", args.get(0), args.get(1), args.get(2));
+        default -> String.format("Executing command `%s %s %s ...`\n", args.get(0), args.get(1), args.get(2));
+      };
+    });
   }
 }

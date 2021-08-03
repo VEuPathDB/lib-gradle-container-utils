@@ -4,9 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.tasks.base.ExecAction;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,10 +34,9 @@ public class GenerateRamlDocs extends ExecAction {
 
   @Override
   protected void appendArguments(@NotNull final List<String> args) {
-    args.addAll(Arrays.asList(
-      "api.raml",
-      "--theme", "raml2html-modern-theme"
-    ));
+    Log.trace("GenerateRamlDocs#appendArguments(%s)", args);
+
+    args.addAll(Arrays.asList("api.raml", "--theme", "raml2html-modern-theme"));
   }
 
   @Override
@@ -53,59 +49,12 @@ public class GenerateRamlDocs extends ExecAction {
   protected void postExec() {
     Log.trace("GenerateRamlDocs#postExec()");
 
-    final var src = getStdOutRedirect();
+    Log.debug("Copying generated docs to target doc directories");
 
-    try {
-      Log.debug("Copying api docs to repo doc directory");
-      Files.copy(
-        src.toPath(),
-        getOrCreateRepoDocsDir().toPath().resolve(OutputFile),
-        StandardCopyOption.REPLACE_EXISTING
-      );
-
-      Log.debug("Copying api docs to resources directory");
-      Files.move(
-        src.toPath(),
-        getOrCreateSrcDocsDir().toPath().resolve(OutputFile),
-        StandardCopyOption.REPLACE_EXISTING
-      );
-    } catch (IOException e) {
-      Log.error("Failed to copy/move generated API docs to target locations.");
-      throw new RuntimeException("Failed to copy/move generated API docs to target locations.", e);
-    }
-  }
-
-  @NotNull
-  private File getOrCreateRepoDocsDir() {
-    final var out = new File(RootDir, Options.getRepoDocsDirectory());
-
-    if (!out.exists()) {
-      if (!out.mkdirs()) {
-        throw new RuntimeException("Failed to create docs directory " + out);
-      }
-    } else {
-      if (!out.isDirectory()) {
-        throw new RuntimeException("Path " + out + " exists but is not a directory");
-      }
-    }
-
-    return out;
-  }
-
-  @NotNull
-  private File getOrCreateSrcDocsDir() {
-    final var out = new File(RootDir, SrcDocsDir);
-
-    if (!out.exists()) {
-      if (!out.mkdirs()) {
-        throw new RuntimeException("Failed to create docs directory " + out);
-      }
-    } else {
-      if (!out.isDirectory()) {
-        throw new RuntimeException("Path " + out + " exists but is not a directory");
-      }
-    }
-
-    return out;
+    Util.moveFile(
+      getStdOutRedirect(),
+      new File(Util.getOrCreateDir(new File(RootDir, Options.getRepoDocsDirectory())), OutputFile),
+      new File(Util.getOrCreateDir(new File(RootDir, SrcDocsDir)), OutputFile)
+    );
   }
 }

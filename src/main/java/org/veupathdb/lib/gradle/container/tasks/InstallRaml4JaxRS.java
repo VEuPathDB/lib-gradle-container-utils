@@ -6,9 +6,6 @@ import org.veupathdb.lib.gradle.container.exec.Maven;
 import org.veupathdb.lib.gradle.container.tasks.base.BinBuildAction;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,10 +15,10 @@ public class InstallRaml4JaxRS extends BinBuildAction {
 
   public static final String TaskName = "ramlGenInstall";
 
-  static final String  LockFile       = "raml4jaxrs.lock";
-  static final String  GitURL         = "https://github.com/mulesoft-labs/raml-for-jax-rs.git";
-  static final Pattern VersionMatch   = Pattern.compile("\\d+\\.\\d+\\.\\d+-SNAPSHOT");
-  static final String  OutputFile     = "raml-to-jaxrs.jar";
+  static final String  LockFile     = "raml4jaxrs.lock";
+  static final String  GitURL       = "https://github.com/mulesoft-labs/raml-for-jax-rs.git";
+  static final Pattern VersionMatch = Pattern.compile("\\d+\\.\\d+\\.\\d+-SNAPSHOT");
+  static final String  OutputFile   = "raml-to-jaxrs.jar";
 
   @Override
   @NotNull
@@ -56,8 +53,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   @NotNull
   protected File download() {
     Log.trace("InstallRaml4JaxRS#download()");
-
-    System.out.println("Cloning " + getDependencyName());
+    Log.info("Cloning " + getDependencyName());
 
     return new Git(getProject()).shallowClone(GitURL, getDependencyRoot(), getConfiguredVersion());
   }
@@ -68,35 +64,23 @@ public class InstallRaml4JaxRS extends BinBuildAction {
 
     correctPoms(findPoms());
 
-    System.out.println("Compiling " + getDependencyName());
+    Log.info("Compiling " + getDependencyName());
 
-    final var jars = new Maven(getProject())
+    final var jars = new Maven(Log)
       .cleanInstall(new File(getBuildTargetDirectory(), "raml-to-jaxrs/raml-to-jaxrs-cli"));
 
-    try {
-      for (final var jar : jars) {
-        // Locate the target jar and move it to the bin directory.
-        if (jar.getName().endsWith("dependencies.jar")) {
-          Log.debug("Moving file\n  {}\nto\n  {}", jar, getDependencyRoot());
-
-          Files.move(
-            jar.toPath(),
-            getBinRoot().toPath().resolve(OutputFile),
-            StandardCopyOption.REPLACE_EXISTING
-          );
-
-          break;
-        }
+    for (final var jar : jars) {
+      // Locate the target jar and move it to the bin directory.
+      if (jar.getName().endsWith("dependencies.jar")) {
+        Util.moveFile(jar, new File(getBinRoot(), OutputFile));
+        break;
       }
-    } catch (Exception e) {
-      Log.error("Failed to move one or more jar files to the bin directory");
-      throw new RuntimeException("Failed to move one or more jar files to the bin directory", e);
     }
   }
 
   @NotNull
   private List<File> findPoms() {
-    Log.trace("InstallRaml4JaxRS#getPoms(File)");
+    Log.trace("InstallRaml4JaxRS#findPoms()");
 
     // Version 3.0.7 of raml-for-jax-rs contains 46 pom files.  Oversize this a
     // bit for different versions.
@@ -108,7 +92,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     while (queue.peek() != null) {
       final var dir = queue.poll();
 
-      Log.debug("Gathering pom files from directory {}", dir);
+      Log.debug("Gathering pom files from directory %s", dir);
 
       //noinspection ConstantConditions
       for (final var child : dir.listFiles()) {
@@ -116,7 +100,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
           if (!child.getName().startsWith(".") && !child.getName().equals("src"))
             queue.push(child);
         } else if (child.getName().equals("pom.xml")) {
-          Log.debug("Located pom file {}", child);
+          Log.debug("Located pom file %s", child);
           poms.add(child);
         }
       }
@@ -126,25 +110,18 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   }
 
   private void correctPoms(@NotNull final List<File> poms) {
-    Log.trace("InstallRaml4JaxRS#correctPoms(List)");
+    Log.trace("InstallRaml4JaxRS#correctPoms(poms = %s)", poms);
 
-    System.out.println("Patching " + getDependencyName() + " pom files");
+    Log.info("Patching %s pom files", getDependencyName());
 
-    try {
-      for (final var pom : poms) {
-        Log.debug("Patching {}", pom);
+    for (final var pom : poms) {
+      Log.debug("Patching %s", pom);
 
-        final var pp = pom.toPath();
-
-        Files.writeString(
-          pp,
-          VersionMatch.matcher(Files.readString(pp)).replaceAll(getConfiguredVersion()),
-          StandardOpenOption.TRUNCATE_EXISTING
-        );
-      }
-    } catch (Exception e) {
-      Log.error("Failed to correct pom files");
-      throw new RuntimeException("Failed to correct pom files", e);
+      Util.overwriteFile(
+        pom,
+        VersionMatch.matcher(Util.readFile(pom))
+          .replaceAll(getConfiguredVersion())
+      );
     }
   }
 }

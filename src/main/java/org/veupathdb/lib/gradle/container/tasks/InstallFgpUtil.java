@@ -7,8 +7,6 @@ import org.veupathdb.lib.gradle.container.exec.Git;
 import org.veupathdb.lib.gradle.container.exec.Maven;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
 public class InstallFgpUtil extends VendorBuildAction {
 
@@ -41,7 +39,7 @@ public class InstallFgpUtil extends VendorBuildAction {
   protected File download() {
     Log.trace("InstallFgpUtil#download()");
 
-    System.out.println("Cloning FgpUtil");
+    Log.info("Cloning FgpUtil");
 
     final var git  = new Git(getProject());
     final var repo = git.clone(URL, getDependencyRoot());
@@ -49,7 +47,7 @@ public class InstallFgpUtil extends VendorBuildAction {
     final var targ = Git.Target.of(vers);
 
     if (!targ.isDefault()) {
-      System.out.println("Switching FgpUtil to " + vers);
+      Log.info("Switching FgpUtil to " + vers);
 
       git.checkout(repo, targ);
     }
@@ -61,7 +59,7 @@ public class InstallFgpUtil extends VendorBuildAction {
   protected void clean() {
     Log.trace("InstallFgpUtil#clean()");
 
-    System.out.println("Removing old FgpUtil jar files");
+    Log.info("Removing old FgpUtil jar files");
 
     //noinspection ConstantConditions
     for (final var file : getDependencyRoot().listFiles()) {
@@ -84,22 +82,8 @@ public class InstallFgpUtil extends VendorBuildAction {
   @Override
   protected void install() {
     Log.trace("InstallFgpUtil#install()");
+    Log.info("Building FgpUtil");
 
-    System.out.println("Building FgpUtil");
-
-    final var jars = new Maven(getProject()).cleanInstall(getBuildTargetDirectory());
-
-    try {
-      for (final var jar : jars) {
-        Files.move(
-          jar.toPath(),
-          getDependencyRoot().toPath().resolve(jar.getName()),
-          StandardCopyOption.REPLACE_EXISTING
-        );
-      }
-    } catch (Exception e) {
-      Log.error("Failed to move one or more jar files to the vendor directory");
-      throw new RuntimeException("Failed to move one or more jar files to the vendor directory", e);
-    }
+    Util.moveFilesTo(getDependencyRoot(), new Maven(Log).cleanInstall(getBuildTargetDirectory()));
   }
 }
