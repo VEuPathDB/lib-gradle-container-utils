@@ -66,16 +66,12 @@ public abstract class Action extends DefaultTask {
   @NotNull
   @Internal
   protected Options getOptions() {
-    log().open();
-
     if (options != null)
-      return log().close(options);
+      return options;
 
-    log().debug("Reading options from gradle config.");
-
-    return options = log().close((Options) getProject()
+    return options = (Options) getProject()
       .getExtensions()
-      .getByName(ContainerUtilsPlugin.ExtensionName));
+      .getByName(ContainerUtilsPlugin.ExtensionName);
   }
 
   @NotNull
