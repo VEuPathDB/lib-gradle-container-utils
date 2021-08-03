@@ -2,31 +2,21 @@ package org.veupathdb.lib.gradle.container.tasks.base;
 
 
 import org.gradle.api.tasks.Internal;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
 public abstract class BinBuildAction extends BuildAction {
-  private File binRoot;
-
   @Internal
+  @NotNull
   protected File getBinRoot() {
-    return binRoot == null
-      ? (binRoot = new File(getProject().getRootDir(), getConfiguredBinPath()))
-      : binRoot;
+    return new File(getProject().getRootDir(), Options.getBinDirectory());
   }
 
   @Override
   @Internal
+  @NotNull
   protected File getDependencyRoot() {
     return getBinRoot();
-  }
-
-  @Internal
-  protected String getConfiguredBinPath() {
-    Log.trace("BinAction#getConfiguredBinPath()");
-
-    final String tmp;
-
-    return (tmp = Options.getBinDirectory()) == null ? Defaults.DefaultBinDirectory : tmp;
   }
 }

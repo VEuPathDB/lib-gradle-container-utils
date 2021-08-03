@@ -1,6 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
-import org.veupathdb.lib.gradle.container.tasks.base.Defaults;
+import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.tasks.base.ExecAction;
 
 import java.io.File;
@@ -18,22 +18,25 @@ public class GenerateRamlDocs extends ExecAction {
   private static final String OutputFile = "api.html";
 
   @Override
+  @NotNull
   protected File getWorkDirectory() {
     return RootDir;
   }
 
   @Override
+  @NotNull
   protected String pluginDescription() {
     return "Generates HTML documentation from the RAML API spec.";
   }
 
   @Override
+  @NotNull
   protected String getCommandName() {
     return "raml2html";
   }
 
   @Override
-  protected void appendArguments(final List<String> args) {
+  protected void appendArguments(@NotNull final List<String> args) {
     args.addAll(Arrays.asList(
       "api.raml",
       "--theme", "raml2html-modern-theme"
@@ -41,6 +44,7 @@ public class GenerateRamlDocs extends ExecAction {
   }
 
   @Override
+  @NotNull
   protected File getStdOutRedirect() {
     return new File(RootDir, OutputFile);
   }
@@ -71,12 +75,9 @@ public class GenerateRamlDocs extends ExecAction {
     }
   }
 
+  @NotNull
   private File getOrCreateRepoDocsDir() {
-    final String tmp;
-    final var out = new File(
-      RootDir,
-      (tmp = Options.getRepoDocsDirectory()) == null ? Defaults.DefaultDocsDirectory : tmp
-    );
+    final var out = new File(RootDir, Options.getRepoDocsDirectory());
 
     if (!out.exists()) {
       if (!out.mkdirs()) {
@@ -91,6 +92,7 @@ public class GenerateRamlDocs extends ExecAction {
     return out;
   }
 
+  @NotNull
   private File getOrCreateSrcDocsDir() {
     final var out = new File(RootDir, SrcDocsDir);
 

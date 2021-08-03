@@ -1,5 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
+import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.config.ServiceProperties;
 
 import java.io.File;
@@ -11,7 +12,8 @@ import java.util.Stack;
 class Utils {
   static final String PropFileName = "service.properties";
 
-  static ServiceProperties loadServiceProperties(final File projectRoot) throws IOException {
+  @NotNull
+  static ServiceProperties loadServiceProperties(@NotNull final File projectRoot) throws IOException {
     final var props = new Properties();
 
     try (final var stream = new FileInputStream(new File(projectRoot, PropFileName))) {
@@ -21,7 +23,7 @@ class Utils {
     return new ServiceProperties(props);
   }
 
-  static void deleteRecursive(final File target) {
+  static void deleteRecursive(@NotNull final File target) {
     if (!target.isDirectory()) {
       if (!target.delete()) {
         throw new RuntimeException("Failed to delete file " + target);

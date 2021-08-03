@@ -1,6 +1,7 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
 import org.gradle.api.tasks.Internal;
+import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.tasks.base.VendorBuildAction;
 import org.veupathdb.lib.gradle.container.exec.Git;
 import org.veupathdb.lib.gradle.container.exec.Maven;
@@ -18,21 +19,25 @@ public class InstallFgpUtil extends VendorBuildAction {
   private static final String URL        = "https://github.com/VEuPathDB/FgpUtil";
 
   @Override
+  @NotNull
   protected String getDependencyName() {
     return TargetName;
   }
 
   @Override
+  @NotNull
   protected String pluginDescription() {
     return "Download, build, and vendor FgpUtil";
   }
 
   @Override
+  @NotNull
   protected File getLockFile() {
     return new File(getDependencyRoot(), LockFile);
   }
 
   @Override
+  @NotNull
   protected File download() {
     Log.trace("InstallFgpUtil#download()");
 
@@ -71,11 +76,9 @@ public class InstallFgpUtil extends VendorBuildAction {
 
   @Override
   @Internal
+  @NotNull
   protected String getConfiguredVersion() {
-    final String tmp;
-    return (tmp = Options.getFgpUtilVersion()) == null
-      ? Git.Target.Default.name()
-      : tmp;
+    return Options.getFgpUtilVersion();
   }
 
   @Override

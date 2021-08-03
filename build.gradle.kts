@@ -24,6 +24,10 @@ gradlePlugin {
   }
 }
 
+dependencies {
+  implementation("org.jetbrains:annotations:21.0.1")
+}
+
 publishing {
   repositories {
     maven {

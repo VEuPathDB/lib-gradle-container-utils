@@ -2,6 +2,7 @@ package org.veupathdb.lib.gradle.container.tasks.base;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.logging.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin;
 import org.veupathdb.lib.gradle.container.config.Options;
 import org.veupathdb.lib.gradle.container.config.ServiceProperties;
@@ -14,8 +15,13 @@ public abstract class Action extends DefaultTask {
 
   private static ServiceProperties svcProps;
 
-  protected final Logger  Log;
-  protected final File    RootDir;
+  @NotNull
+  protected final Logger Log;
+
+  @NotNull
+  protected final File RootDir;
+
+  @NotNull
   protected final Options Options;
 
   protected Action() {
@@ -26,12 +32,13 @@ public abstract class Action extends DefaultTask {
       .getByName(ContainerUtilsPlugin.ExtensionName);
   }
 
-  public static void init(final Action action) {
+  public static void init(@NotNull final Action action) {
     action.register();
   }
 
   protected abstract void execute();
 
+  @NotNull
   protected abstract String pluginDescription();
 
   protected void register() {
@@ -40,6 +47,7 @@ public abstract class Action extends DefaultTask {
     getActions().add(t -> execute());
   }
 
+  @NotNull
   protected ServiceProperties serviceProperties() {
     Log.trace("Action#serviceProperties()");
 

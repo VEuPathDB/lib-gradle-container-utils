@@ -1,5 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
+import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.tasks.base.VendorCleanAction;
 
 import java.io.File;
@@ -9,12 +10,13 @@ public class UninstallFgpUtil extends VendorCleanAction {
   public static final String TaskName = "fgputilUninstall";
 
   @Override
+  @NotNull
   protected String pluginDescription() {
     return "Removes FgpUtil jars from the dependency directory.";
   }
 
   @Override
-  protected boolean filerPredicate(File file) {
+  protected boolean filerPredicate(@NotNull final File file) {
     return file.getName().startsWith("fgputil");
   }
 }

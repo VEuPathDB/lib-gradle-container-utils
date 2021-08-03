@@ -1,31 +1,35 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
 import org.gradle.api.tasks.Internal;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class ExecAction extends Action {
 
   @Internal
+  @NotNull
   protected abstract File getWorkDirectory();
 
   @Internal
+  @NotNull
   protected abstract String getCommandName();
 
   @Internal
+  @Nullable
   protected File getStdOutRedirect() {
     return null;
   }
 
-  protected void appendArguments(final List<String> args) {
+  protected void appendArguments(@NotNull final List<String> args) {
     // Override me to add args
   }
 
-  protected void appendEnvironment(final Map<String, String> env) {
+  protected void appendEnvironment(@NotNull final Map<String, String> env) {
     // Override me to add extra environment vars
   }
 
@@ -77,7 +81,7 @@ public abstract class ExecAction extends Action {
 
   protected void postExec() {}
 
-  private void logComStart(final ProcessBuilder com) {
+  private void logComStart(@NotNull final ProcessBuilder com) {
     final var args = com.command();
 
     switch (args.size()) {

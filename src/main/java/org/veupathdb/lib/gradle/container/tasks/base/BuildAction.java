@@ -1,6 +1,7 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
 import org.gradle.api.tasks.Internal;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ public abstract class BuildAction extends Action {
    * Returns the name of the dependency this {@code BuildAction} will build.
    */
   @Internal
+  @NotNull
   protected abstract String getDependencyName();
 
   /**
@@ -28,12 +30,14 @@ public abstract class BuildAction extends Action {
    * exists.
    */
   @Internal
+  @NotNull
   protected abstract File getLockFile();
 
   /**
    * Returns the version of this dependency configured at the plugin level.
    */
   @Internal
+  @NotNull
   protected abstract String getConfiguredVersion();
 
   /**
@@ -43,6 +47,7 @@ public abstract class BuildAction extends Action {
    * directory actually exists.
    */
   @Internal
+  @NotNull
   protected abstract File getDependencyRoot();
 
   /**
@@ -57,6 +62,7 @@ public abstract class BuildAction extends Action {
    * @return The directory containing the unpacked source files required to
    * build the dependency.
    */
+  @NotNull
   protected abstract File download();
 
   /**
@@ -66,6 +72,7 @@ public abstract class BuildAction extends Action {
   protected abstract void clean();
 
   @Internal
+  @NotNull
   protected File getBuildTargetDirectory() {
     if (buildDirectory == null)
       throw new IllegalStateException("Cannot get build directory before it's been created.");
@@ -77,18 +84,20 @@ public abstract class BuildAction extends Action {
   protected void execute() {
     Log.trace("InstallAction#execute()");
 
+    Log.info("Checking " + getDependencyName());
+
     final var state = determineState();
     switch (state) {
       case StateNew -> {
-        System.out.println("==> Installing " + getDependencyName());
+        Log.info("Not Found. Installing.");
         createBuildRootIfNotExists();
       }
       case StateUpdate -> {
-        System.out.println("==> Updating " + getDependencyName());
+        Log.info("Configured version changed. Updating.");
         clean();
       }
       case StateSkip -> {
-        System.out.println("Skipping " + getDependencyName() + ", no update needed.");
+        System.out.println("Already installed at the configured version. Skipping.");
         return;
       }
       default -> {
@@ -104,6 +113,7 @@ public abstract class BuildAction extends Action {
   }
 
   @Internal
+  @NotNull
   protected String getLockVersion() {
     Log.trace("InstallAction#getLockVersion()");
 

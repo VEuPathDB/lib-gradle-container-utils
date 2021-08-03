@@ -1,5 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
+import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.exec.Git;
 import org.veupathdb.lib.gradle.container.exec.Maven;
 import org.veupathdb.lib.gradle.container.tasks.base.BinBuildAction;
@@ -18,30 +19,32 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   public static final String TaskName = "ramlGenInstall";
 
   static final String  LockFile       = "raml4jaxrs.lock";
-  static final String  DefaultVersion = "3.0.7";
   static final String  GitURL         = "https://github.com/mulesoft-labs/raml-for-jax-rs.git";
   static final Pattern VersionMatch   = Pattern.compile("\\d+\\.\\d+\\.\\d+-SNAPSHOT");
   static final String  OutputFile     = "raml-to-jaxrs.jar";
 
   @Override
+  @NotNull
   protected String getDependencyName() {
     return "Raml for JaxRS";
   }
 
   @Override
+  @NotNull
   protected File getLockFile() {
     return new File(getDependencyRoot(), LockFile);
   }
 
   @Override
+  @NotNull
   protected String pluginDescription() {
     return "Builds and installs the Raml for JaxRS generator.";
   }
 
   @Override
+  @NotNull
   protected String getConfiguredVersion() {
-    final String tmp;
-    return (tmp = Options.getRamlForJaxRSVersion()) == null ? DefaultVersion : tmp;
+    return Options.getRamlForJaxRSVersion();
   }
 
   @Override
@@ -50,6 +53,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   }
 
   @Override
+  @NotNull
   protected File download() {
     Log.trace("InstallRaml4JaxRS#download()");
 
@@ -90,6 +94,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     }
   }
 
+  @NotNull
   private List<File> findPoms() {
     Log.trace("InstallRaml4JaxRS#getPoms(File)");
 
@@ -120,7 +125,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     return poms;
   }
 
-  private void correctPoms(final List<File> poms) {
+  private void correctPoms(@NotNull final List<File> poms) {
     Log.trace("InstallRaml4JaxRS#correctPoms(List)");
 
     System.out.println("Patching " + getDependencyName() + " pom files");
