@@ -182,7 +182,7 @@ public class Logger {
 
   public void log(final byte level, @NotNull final String fmt, @NotNull final Supplier<?> fn1) {
     if (this.level >= level) {
-      System.out.printf(pad(call) + fmt + "%s", fn1.get());
+      System.out.printf(pad(call) + fmt + "%n", fn1.get());
     }
   }
 
@@ -193,13 +193,13 @@ public class Logger {
     @NotNull final Supplier<?> fn2
   ) {
     if (this.level >= level) {
-      System.out.printf(pad(call) + fmt + "%s", fn1.get(), fn2.get());
+      System.out.printf(pad(call) + fmt + "%n", fn1.get(), fn2.get());
     }
   }
 
   public void log(final byte level, @NotNull final String fmt, @Nullable final Object val1) {
     if (this.level >= level) {
-      System.out.printf(pad(call) + fmt + "%s", val1);
+      System.out.printf(pad(call) + fmt + "%n", val1);
     }
   }
 
@@ -210,7 +210,7 @@ public class Logger {
     @Nullable final Object val2
   ) {
     if (this.level >= level) {
-      System.out.printf(pad(call) + fmt + "%s", val1, val2);
+      System.out.printf(pad(call) + fmt + "%n", val1, val2);
     }
   }
 
@@ -222,7 +222,7 @@ public class Logger {
     @Nullable final Object val3
   ) {
     if (this.level >= level) {
-      System.out.printf(pad(call) + fmt + "%s", val1, val2, val3);
+      System.out.printf(pad(call) + fmt + "%n", val1, val2, val3);
     }
   }
 
@@ -235,7 +235,7 @@ public class Logger {
     @Nullable final Object val4
   ) {
     if (this.level >= level) {
-      System.out.printf(pad(call) + fmt + "%s", val1, val2, val3, val4);
+      System.out.printf(pad(call) + fmt + "%n", val1, val2, val3, val4);
     }
   }
 
@@ -249,7 +249,7 @@ public class Logger {
     @Nullable final Object val5
   ) {
     if (this.level >= level) {
-      System.out.printf(pad(call) + fmt + "%s", val1, val2, val3, val4, val5);
+      System.out.printf(pad(call) + fmt + "%n", val1, val2, val3, val4, val5);
     }
   }
 
