@@ -17,6 +17,6 @@ public class UninstallFgpUtil extends VendorCleanAction {
 
   @Override
   protected boolean filerPredicate(@NotNull final File file) {
-    return file.getName().startsWith("fgputil");
+    return Log.map(file, file.getName().startsWith("fgputil"));
   }
 }

@@ -34,20 +34,22 @@ public class GenerateRamlDocs extends ExecAction {
 
   @Override
   protected void appendArguments(@NotNull final List<String> args) {
-    Log.trace("GenerateRamlDocs#appendArguments(%s)", args);
+    Log.open(args);
 
     args.addAll(Arrays.asList("api.raml", "--theme", "raml2html-modern-theme"));
+
+    Log.close();
   }
 
   @Override
   @NotNull
   protected File getStdOutRedirect() {
-    return new File(RootDir, OutputFile);
+    return Log.getter(new File(RootDir, OutputFile));
   }
 
   @Override
   protected void postExec() {
-    Log.trace("GenerateRamlDocs#postExec()");
+    Log.open();
 
     Log.debug("Copying generated docs to target doc directories");
 
@@ -56,5 +58,7 @@ public class GenerateRamlDocs extends ExecAction {
       new File(Util.getOrCreateDir(new File(RootDir, Options.getRepoDocsDirectory())), OutputFile),
       new File(Util.getOrCreateDir(new File(RootDir, SrcDocsDir)), OutputFile)
     );
+
+    Log.close();
   }
 }

@@ -45,19 +45,24 @@ public abstract class Action extends DefaultTask {
   protected abstract String pluginDescription();
 
   protected void register() {
+    Log.open("Action#register()");
+
     setDescription(pluginDescription());
     setGroup(Group);
     getActions().add(t -> execute());
+
+    Log.close();
   }
 
   @NotNull
   protected ServiceProperties serviceProperties() {
-    Log.trace("Action#serviceProperties()");
+    Log.open("Action#serviceProperties()");
 
     if (svcProps != null)
       return svcProps;
 
     Log.debug("Loading service properties from file.");
-    return svcProps = Util.loadServiceProperties(RootDir);
+
+    return Log.close(svcProps = Util.loadServiceProperties(RootDir));
   }
 }

@@ -22,20 +22,21 @@ public abstract class ExecAction extends Action {
   @Internal
   @Nullable
   protected File getStdOutRedirect() {
-    return null;
+    //noinspection ConstantConditions
+    return Log.getter(null);
   }
 
   protected void appendArguments(@NotNull final List<String> args) {
-    // Override me to add args
+    Log.noop(args);
   }
 
   protected void appendEnvironment(@NotNull final Map<String, String> env) {
-    // Override me to add extra environment vars
+    Log.noop(env);
   }
 
   @Override
   protected void execute() {
-    Log.trace("ExecAction#execute()");
+    Log.open("ExecAction#execute()");
 
     final var com = new ProcessBuilder(getCommandName());
 
@@ -75,9 +76,13 @@ public abstract class ExecAction extends Action {
     }
 
     postExec();
+
+    Log.close();
   }
 
-  protected void postExec() {}
+  protected void postExec() {
+    Log.noop();
+  }
 
   private void logComStart(@NotNull final ProcessBuilder com) {
     Log.info(() -> {

@@ -10,6 +10,6 @@ public abstract class BinExecAction extends ExecAction {
   @Internal
   @NotNull
   protected File getWorkDirectory() {
-    return new File(RootDir, Options.getBinDirectory());
+    return Log.getter(new File(RootDir, Options.getBinDirectory()));
   }
 }

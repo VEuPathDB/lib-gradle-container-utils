@@ -10,6 +10,6 @@ public abstract class VendorCleanAction extends CleanAction {
   @Internal
   @NotNull
   protected File getTargetDirectory() {
-    return new File(RootDir, Options.getVendorDirectory());
+    return Log.getter(new File(RootDir, Options.getVendorDirectory()));
   }
 }

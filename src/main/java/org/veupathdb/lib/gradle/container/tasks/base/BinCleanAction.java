@@ -10,6 +10,6 @@ public abstract class BinCleanAction extends CleanAction {
   @Internal
   @NotNull
   protected File getTargetDirectory() {
-    return new File(RootDir, Options.getBinDirectory());
+    return Log.getter(new File(RootDir, Options.getBinDirectory()));
   }
 }

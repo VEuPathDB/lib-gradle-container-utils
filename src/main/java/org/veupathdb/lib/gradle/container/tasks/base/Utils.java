@@ -8,12 +8,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 public class Utils {
   private static final String PropFileName = "service.properties";
@@ -21,12 +21,13 @@ public class Utils {
   private final Logger Log;
 
   Utils(Logger log) {
+    log.constructor(log);
     Log = log;
   }
 
   @NotNull
   public ServiceProperties loadServiceProperties(@NotNull final File projectRoot) {
-    Log.trace("Util#loadServiceProperties(%s)", projectRoot);
+    Log.open(projectRoot);
 
     final var props = new Properties();
 
@@ -37,11 +38,11 @@ public class Utils {
       throw new RuntimeException("Failed to read project's prop file.", e);
     }
 
-    return new ServiceProperties(props);
+    return Log.close(new ServiceProperties(props));
   }
 
   public void deleteRecursive(@NotNull final File target) {
-    Log.trace("Util#deleteRecursive(%s)", target);
+    Log.open(target);
 
     if (!target.isDirectory()) {
       if (!target.delete()) {
@@ -51,6 +52,9 @@ public class Utils {
 
       return;
     }
+
+    var dirsDeleted  = 0;
+    var filesDeleted = 0;
 
     final var dirs = new Stack<File>();
     final var dels = new Stack<File>();
@@ -69,6 +73,8 @@ public class Utils {
             Log.error("Failed to delete file " + child);
             throw new RuntimeException("Failed to delete file " + child);
           }
+
+          filesDeleted++;
         }
       }
     }
@@ -80,11 +86,17 @@ public class Utils {
         Log.error("Failed to delete directory " + del);
         throw new RuntimeException("Failed to delete directory " + del);
       }
+
+      dirsDeleted++;
     }
+
+    Log.debug("Deleted %d files and %d directories", filesDeleted, dirsDeleted);
+
+    Log.close();
   }
 
   public File getOrCreateDir(@NotNull final File dir) {
-    Log.trace("Utils#getOrCreateDir(%s)", dir);
+    Log.open(dir);
 
     if (!dir.exists()) {
       if (!dir.mkdirs()) {
@@ -98,11 +110,11 @@ public class Utils {
       }
     }
 
-    return dir;
+    return Log.close(dir);
   }
 
   public void moveFile(@NotNull final File src, @NotNull final File tgt) {
-    Log.trace("Utils#moveFile(src = %s, tgt = %s)", src, tgt);
+    Log.open(src, tgt);
 
     try {
       Files.move(src.toPath(), tgt.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -117,7 +129,7 @@ public class Utils {
     @NotNull final File tgt1,
     @NotNull final File tgt2
   ) {
-    Log.trace("Utils#moveFile(src = %s, tgt1 = %s, tgt2 = %s)", src, tgt1, tgt2);
+    Log.open(src, tgt1, tgt2);
 
     try {
       Files.copy(src.toPath(), tgt1.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -132,10 +144,12 @@ public class Utils {
       Log.error("Failed to move file " + src + " to " + tgt2);
       throw new RuntimeException("Failed to move file " + src + " to " + tgt2, e);
     }
+
+    Log.close();
   }
 
-  public void moveFilesTo(@NotNull final File tgtDir, @NotNull final File... srcFiles) {
-    Log.trace("Utils#moveFilesTo(tgtDir = %s, srcFiles = %s)", () -> tgtDir, () -> Arrays.toString(srcFiles));
+  public void moveFilesTo(@NotNull final File tgtDir, @NotNull final Stream<File> srcFiles) {
+    Log.open("Utils#moveFilesTo(File, Stream<File>)");
 
     if (!tgtDir.exists()) {
       Log.error("Cannot move files to dir " + tgtDir + ".  Directory does not exist.");
@@ -145,31 +159,17 @@ public class Utils {
       throw new RuntimeException("Cannot move files to path " + tgtDir + ".  Path does not point to a directory.");
     }
 
-    final var path = tgtDir.toPath();
+    srcFiles.forEach(f -> moveFile(f, new File(tgtDir, f.getName())));
 
-    File src = null;
-    Path tgt = null;
-
-    try {
-      //noinspection ForLoopReplaceableByForEach
-      for (int i = 0; i < srcFiles.length; i++) {
-        src = srcFiles[i];
-        tgt = path.resolve(src.getName());
-
-        Files.move(src.toPath(), tgt, StandardCopyOption.REPLACE_EXISTING);
-      }
-    } catch (IOException e) {
-      Log.error("Failed to move file " + src + " to " + tgt);
-      throw new RuntimeException("Failed to move file " + src + " to " + tgt, e);
-    }
+    Log.close();
   }
 
   @NotNull
   public String readFile(@NotNull final File src) {
-    Log.trace("Utils#readFile(src = %s)", src);
+    Log.open(src);
 
     try {
-      return Files.readString(src.toPath());
+      return Log.close(Files.readString(src.toPath()));
     } catch (IOException e) {
       Log.error("Failed to read contents of file " + src);
       throw new RuntimeException("Failed to read contents of file " + src, e);
@@ -177,7 +177,7 @@ public class Utils {
   }
 
   public void overwriteFile(@NotNull final File tgt, @NotNull final String content) {
-    Log.trace("Utils#overwriteFile(tgt = %s, content = ...)", tgt);
+    Log.open(tgt, "...");
 
     try {
       Files.writeString(
@@ -191,5 +191,18 @@ public class Utils {
       throw new RuntimeException("Failed to write contents to file " + tgt, e);
     }
 
+    Log.close();
+  }
+
+  @NotNull
+  public Stream<File> listChildren(@NotNull final File root) {
+    Log.open("Utils#listChildren(root = %s)", root);
+
+    if (!root.exists() || !root.isDirectory()) {
+      return Stream.empty();
+    }
+
+    //noinspection ConstantConditions
+    return Log.close(Arrays.stream(root.listFiles()));
   }
 }

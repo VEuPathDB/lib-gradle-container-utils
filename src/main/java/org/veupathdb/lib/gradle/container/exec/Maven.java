@@ -1,11 +1,13 @@
 package org.veupathdb.lib.gradle.container.exec;
 
+import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.util.Logger;
+import org.veupathdb.lib.gradle.container.util.StackIterator;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Stack;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Maven {
   private static final String TargetDir = "target";
@@ -17,14 +19,16 @@ public class Maven {
     Install = "install",
     FQuiet  = "--quiet";
 
+  @NotNull
   private final Logger Log;
 
-  public Maven(final Logger log) {
+  public Maven(@NotNull final Logger log) {
+    log.constructor(log);
     Log = log;
   }
 
-  public File[] cleanInstall(final File workDir) {
-    Log.trace("Maven#cleanInstall(File)");
+  public void cleanInstall(@NotNull final File workDir) {
+    Log.open(workDir);
 
     final var cmd = new ProcessBuilder(Command, Clean, Install, FQuiet).directory(workDir);
 
@@ -39,59 +43,49 @@ public class Maven {
       throw new RuntimeException("Failed to build maven project in " + workDir, e);
     }
 
-    return findJars(workDir);
+    Log.close();
   }
 
-  public File[] findJars(final File workDir) {
-    Log.trace("Maven#findJars({})", workDir);
+  @NotNull
+  public Stream<File> findOutputJars(@NotNull final File workDir) {
+    Log.open(workDir);
 
-    final var dirs = new Stack<File>();
-    final var targ = new Stack<File>();
-    final var jars = new Stack<File>();
+    final var allDirs    = new Stack<File>();
+    final var targetDirs = new Stack<File>();
+    final var jarFiles   = new Stack<File>();
 
-    dirs.push(workDir);
+    allDirs.push(workDir);
 
     // Locate target directories
-    while (!dirs.empty()) {
+    while (!allDirs.empty()) {
 
       //noinspection ConstantConditions
-      for (final var child : dirs.pop().listFiles()) {
+      for (final var child : allDirs.pop().listFiles()) {
 
         if (child.isDirectory()) {
-          dirs.push(child);
+          allDirs.push(child);
 
           if (child.getName().equals(TargetDir)) {
-            targ.push(child);
+            targetDirs.push(child);
           }
         }
       }
     }
 
     // Scan target dirs for jar files
-    while (!targ.empty()) {
-      final var dir = targ.pop();
+    while (!targetDirs.empty()) {
+      final var dir = targetDirs.pop();
 
       //noinspection ConstantConditions
       for (final var file : dir.listFiles()) {
         if (file.isFile() && file.getName().endsWith(".jar")) {
-          jars.push(file);
+          jarFiles.push(file);
         }
       }
     }
 
-    final var out = new File[jars.size()];
-    for (int i = 0; i < out.length; i++) {
-      out[i] = jars.pop();
-    }
+    Log.info("Located %d output jars.", jarFiles.size());
 
-    Log.info("Located %d output jars.", out.length);
-    Log.debug(
-      "Jar Files: %s",
-      () -> Arrays.stream(out)
-        .map(File::getName)
-        .collect(Collectors.joining("\n  ", "[\n  ", "\n]"))
-    );
-
-    return out;
+    return Log.close(StreamSupport.stream(new StackIterator<>(jarFiles), false));
   }
 }
