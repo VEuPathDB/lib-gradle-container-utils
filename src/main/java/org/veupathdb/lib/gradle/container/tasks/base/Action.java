@@ -33,6 +33,8 @@ public abstract class Action extends DefaultTask {
       .getByName(ContainerUtilsPlugin.ExtensionName);
     this.Log     = new Logger(Options.getLogLevel());
     this.Util    = new Utils(this.Log);
+
+    System.out.println(Options);
   }
 
   public static void init(@NotNull final Action action) {

@@ -150,4 +150,17 @@ public class Options {
   public void setLogLevel(byte logLevel) {
     this.logLevel = logLevel;
   }
+
+  @Override
+  public String toString() {
+    return "Options{" +
+      "vendorDirectory='" + vendorDirectory + '\'' +
+      ", fgpUtilVersion='" + fgpUtilVersion + '\'' +
+      ", ramlForJaxRSVersion='" + ramlForJaxRSVersion + '\'' +
+      ", binDirectory='" + binDirectory + '\'' +
+      ", repoDocsDirectory='" + repoDocsDirectory + '\'' +
+      ", apiDocRoot='" + apiDocRoot + '\'' +
+      ", logLevel=" + logLevel +
+      '}';
+  }
 }
