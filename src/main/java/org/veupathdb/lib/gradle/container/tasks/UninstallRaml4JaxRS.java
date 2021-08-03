@@ -16,6 +16,6 @@ public class UninstallRaml4JaxRS extends BinCleanAction {
 
   @Override
   protected boolean filerPredicate(@NotNull final File file) {
-    return Log.map(file, file.getName().equals(InstallRaml4JaxRS.OutputFile));
+    return log().map(file, file.getName().equals(InstallRaml4JaxRS.OutputFile));
   }
 }

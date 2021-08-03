@@ -74,36 +74,36 @@ public abstract class BuildAction extends Action {
   @Internal
   @NotNull
   protected File getBuildTargetDirectory() {
-    Log.open("BuildAction#getBuildTargetDirectory()");
+    log().open("BuildAction#getBuildTargetDirectory()");
 
     if (buildDirectory == null)
       throw new IllegalStateException("Cannot get build directory before it's been created.");
 
-    return Log.close(buildDirectory);
+    return log().close(buildDirectory);
   }
 
   @Override
   protected void execute() {
-    Log.open("InstallAction#execute()");
+    log().open("InstallAction#execute()");
 
-    Log.info("Checking " + getDependencyName());
+    log().info("Checking " + getDependencyName());
 
     final var state = determineState();
     switch (state) {
       case StateNew -> {
-        Log.info("  Not Found. Installing.");
+        log().info("  Not Found. Installing.");
         createBuildRootIfNotExists();
       }
       case StateUpdate -> {
-        Log.info("  Version change detected. Updating.");
+        log().info("  Version change detected. Updating.");
         clean();
       }
       case StateSkip -> {
-        Log.info("  Already up to date. Skipping.");
+        log().info("  Already up to date. Skipping.");
         return;
       }
       default -> {
-        Log.error("Unrecognized state " + state);
+        log().error("Unrecognized state " + state);
         throw new RuntimeException("Unrecognized state " + state);
       }
     }
@@ -113,25 +113,25 @@ public abstract class BuildAction extends Action {
     writeLockFile();
     postBuildCleanup();
 
-    Log.close();
+    log().close();
   }
 
   @Internal
   @NotNull
   protected String getLockVersion() {
-    return Log.getter(Util.readFile(getLockFile()));
+    return log().getter(util().readFile(getLockFile()));
   }
 
   /**
    * Deletes the build directory for the installed dependency.
    */
   protected void postBuildCleanup() {
-    Log.open("InstallAction#removeBuildDir()");
-    Log.debug("Beginning post build cleanup.");
+    log().open("InstallAction#removeBuildDir()");
+    log().debug("Beginning post build cleanup.");
 
-    Util.deleteRecursive(getBuildTargetDirectory());
+    util().deleteRecursive(getBuildTargetDirectory());
 
-    Log.close();
+    log().close();
   }
 
   /**
@@ -142,12 +142,12 @@ public abstract class BuildAction extends Action {
    * {@link #StateSkip}.
    */
   protected byte determineState() {
-    Log.open("BuildAction#determineState()");
+    log().open("BuildAction#determineState()");
 
     if (!getDependencyRoot().exists() || !getLockFile().exists())
-      return Log.close(StateNew);
+      return log().close(StateNew);
 
-    return Log.close(
+    return log().close(
       getLockVersion().equals(getConfiguredVersion())
         ? StateSkip
         : StateUpdate
@@ -155,7 +155,7 @@ public abstract class BuildAction extends Action {
   }
 
   protected void writeLockFile() {
-    Log.open("BuildAction#writeLockFile()");
+    log().open("BuildAction#writeLockFile()");
 
     try {
       Files.writeString(
@@ -165,23 +165,23 @@ public abstract class BuildAction extends Action {
         StandardOpenOption.TRUNCATE_EXISTING
       );
     } catch (Exception e) {
-      Log.error("Failed to write lock file " + getLockFile());
+      log().error("Failed to write lock file " + getLockFile());
       throw new RuntimeException("Failed to write lock file " + getLockFile(), e);
     }
 
-    Log.close();
+    log().close();
   }
 
   protected void createBuildRootIfNotExists() {
-    Log.open("BuildAction#createBuildRootIfNotExists()");
+    log().open("BuildAction#createBuildRootIfNotExists()");
 
     final var dir = getDependencyRoot();
 
     if (!dir.exists() && !dir.mkdirs()) {
-      Log.error("Failed to create build root " + dir);
+      log().error("Failed to create build root " + dir);
       throw new RuntimeException("Failed to create build root " + dir);
     }
 
-    Log.close();
+    log().close();
   }
 }

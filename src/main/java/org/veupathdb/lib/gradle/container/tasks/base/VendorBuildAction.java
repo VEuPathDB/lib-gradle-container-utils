@@ -10,6 +10,6 @@ public abstract class VendorBuildAction extends BuildAction {
   @Internal
   @NotNull
   protected File getDependencyRoot() {
-    return Log.getter(new File(RootDir, Options.getVendorDirectory()));
+    return log().getter(new File(RootDir, getOptions().getVendorDirectory()));
   }
 }

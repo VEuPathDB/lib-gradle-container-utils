@@ -23,20 +23,20 @@ public abstract class ExecAction extends Action {
   @Nullable
   protected File getStdOutRedirect() {
     //noinspection ConstantConditions
-    return Log.getter(null);
+    return log().getter(null);
   }
 
   protected void appendArguments(@NotNull final List<String> args) {
-    Log.noop(args);
+    log().noop(args);
   }
 
   protected void appendEnvironment(@NotNull final Map<String, String> env) {
-    Log.noop(env);
+    log().noop(env);
   }
 
   @Override
   protected void execute() {
-    Log.open("ExecAction#execute()");
+    log().open("ExecAction#execute()");
 
     final var com = new ProcessBuilder(getCommandName());
 
@@ -55,7 +55,7 @@ public abstract class ExecAction extends Action {
     int status;
 
     try {
-      Log.debug(
+      log().debug(
         "\n  Executing:\n    %s\n  In directory:\n    %s",
         () -> String.join(" ", com.command()),
         com::directory
@@ -67,25 +67,25 @@ public abstract class ExecAction extends Action {
       status = proc.waitFor();
       if (status != 0) {
         final var err = new String(proc.getErrorStream().readAllBytes());
-        Log.error("Command " + getCommandName() + " execution failed with status code " + status + ": " + err);
+        log().error("Command " + getCommandName() + " execution failed with status code " + status + ": " + err);
         throw new RuntimeException("Command " + getCommandName() + " execution failed with status code " + status + ": " + err);
       }
     } catch (IOException | InterruptedException e) {
-      Log.error("Command " + getCommandName() + " execution failed");
+      log().error("Command " + getCommandName() + " execution failed");
       throw new RuntimeException("Command " + getCommandName() + " execution failed", e);
     }
 
     postExec();
 
-    Log.close();
+    log().close();
   }
 
   protected void postExec() {
-    Log.noop();
+    log().noop();
   }
 
   private void logComStart(@NotNull final ProcessBuilder com) {
-    Log.info(() -> {
+    log().info(() -> {
       final var args = com.command();
 
       return switch (args.size()) {

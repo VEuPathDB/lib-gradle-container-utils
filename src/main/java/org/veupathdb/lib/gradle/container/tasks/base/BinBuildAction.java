@@ -10,7 +10,7 @@ public abstract class BinBuildAction extends BuildAction {
   @Internal
   @NotNull
   protected File getBinRoot() {
-    return Log.getter(new File(getProject().getRootDir(), Options.getBinDirectory()));
+    return log().getter(new File(getProject().getRootDir(), getOptions().getBinDirectory()));
   }
 
   @Override

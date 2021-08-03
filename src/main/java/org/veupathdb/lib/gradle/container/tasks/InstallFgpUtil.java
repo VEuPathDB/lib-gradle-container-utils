@@ -31,82 +31,82 @@ public class InstallFgpUtil extends VendorBuildAction {
   @Override
   @NotNull
   protected File getLockFile() {
-    return Log.getter(new File(getDependencyRoot(), LockFile));
+    return log().getter(new File(getDependencyRoot(), LockFile));
   }
 
   @Override
   @NotNull
   protected File download() {
-    Log.open();
+    log().open();
 
-    Log.info("Cloning FgpUtil");
+    log().info("Cloning FgpUtil");
 
-    final var git  = new Git(Log);
+    final var git  = new Git(log());
     final var repo = git.clone(URL, getDependencyRoot());
     final var vers = getConfiguredVersion();
     final var targ = Git.Target.of(vers);
 
     if (!targ.isDefault()) {
-      Log.info("Switching FgpUtil to " + vers);
+      log().info("Switching FgpUtil to " + vers);
 
       git.checkout(repo, targ);
     }
 
-    return Log.close(repo);
+    return log().close(repo);
   }
 
   @Override
   protected void clean() {
-    Log.open();
+    log().open();
 
-    Log.info("Removing old FgpUtil jar files");
+    log().info("Removing old FgpUtil jar files");
 
-    Util.listChildren(getDependencyRoot())
+    util().listChildren(getDependencyRoot())
       .filter(this::fileFilter)
       .forEach(this::fileDelete);
 
-    Log.close();
+    log().close();
   }
 
   @Override
   @Internal
   @NotNull
   protected String getConfiguredVersion() {
-    return Log.getter(Options.getFgpUtilVersion());
+    return log().getter(getOptions().getFgpUtilVersion());
   }
 
   @Override
   protected void install() {
-    Log.open();
+    log().open();
 
-    Log.info("Building FgpUtil");
+    log().info("Building FgpUtil");
 
-    final var mvn = new Maven(Log);
+    final var mvn = new Maven(log());
     final var dir = getBuildTargetDirectory();
 
     mvn.cleanInstall(dir);
 
-    Util.moveFilesTo(getDependencyRoot(), mvn.findOutputJars(dir));
+    util().moveFilesTo(getDependencyRoot(), mvn.findOutputJars(dir));
 
-    Log.close();
+    log().close();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
   private boolean fileFilter(@NotNull final File file) {
-    return Log.map(file, file.isFile() && file.getName().startsWith("fgputil"));
+    return log().map(file, file.isFile() && file.getName().startsWith("fgputil"));
   }
 
   private void fileDelete(@NotNull final File file) {
-    Log.open(file);
+    log().open(file);
 
-    Log.debug("Deleting file %s", file);
+    log().debug("Deleting file %s", file);
 
     if (!file.delete()) {
-      Log.error("Failed to delete file " + file);
+      log().error("Failed to delete file " + file);
       throw new RuntimeException("Failed to delete file " + file);
     }
 
-    Log.close();
+    log().close();
   }
 }

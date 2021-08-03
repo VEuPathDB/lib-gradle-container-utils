@@ -1,7 +1,9 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.Internal;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin;
 import org.veupathdb.lib.gradle.container.config.Options;
 import org.veupathdb.lib.gradle.container.config.ServiceProperties;
@@ -15,26 +17,19 @@ public abstract class Action extends DefaultTask {
   private static ServiceProperties svcProps;
 
   @NotNull
-  protected final Logger Log;
-
-  @NotNull
   protected final File RootDir;
 
-  @NotNull
-  protected final Options Options;
+  @Nullable
+  private Utils util;
 
-  @NotNull
-  protected final Utils Util;
+  @Nullable
+  private Logger log;
+
+  @Nullable
+  private Options options;
 
   protected Action() {
     this.RootDir = getProject().getRootDir();
-    this.Options = (Options) getProject()
-      .getExtensions()
-      .getByName(ContainerUtilsPlugin.ExtensionName);
-    this.Log     = new Logger(Options.getLogLevel());
-    this.Util    = new Utils(this.Log);
-
-    System.out.println(Options);
   }
 
   public static void init(@NotNull final Action action) {
@@ -47,24 +42,49 @@ public abstract class Action extends DefaultTask {
   protected abstract String pluginDescription();
 
   protected void register() {
-    Log.open("Action#register()");
+    log().open("Action#register()");
 
     setDescription(pluginDescription());
     setGroup(Group);
     getActions().add(t -> execute());
 
-    Log.close();
+    log().close();
   }
 
   @NotNull
   protected ServiceProperties serviceProperties() {
-    Log.open("Action#serviceProperties()");
+    log().open("Action#serviceProperties()");
 
     if (svcProps != null)
       return svcProps;
 
-    Log.debug("Loading service properties from file.");
+    log().debug("Loading service properties from file.");
 
-    return Log.close(svcProps = Util.loadServiceProperties(RootDir));
+    return log().close(svcProps = util().loadServiceProperties(RootDir));
+  }
+
+  @NotNull
+  @Internal
+  protected Options getOptions() {
+    log().open();
+
+    if (options != null)
+      return log().close(options);
+
+    log().debug("Reading options from gradle config.");
+
+    return options = log().close((Options) getProject()
+      .getExtensions()
+      .getByName(ContainerUtilsPlugin.ExtensionName));
+  }
+
+  @NotNull
+  protected Logger log() {
+    return log == null ? (log = new Logger(getOptions().getLogLevel())) : log;
+  }
+
+  @NotNull
+  protected Utils util() {
+    return util == null ? (util = new Utils(log())) : util;
   }
 }

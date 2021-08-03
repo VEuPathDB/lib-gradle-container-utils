@@ -24,14 +24,14 @@ public class GenerateJaxRS extends BinExecAction {
 
   @Override
   protected void appendArguments(@NotNull final List<String> args) {
-    Log.open(args);
+    log().open(args);
 
     final var props = serviceProperties();
     final var base  = props.appPackageRoot() + "." + props.appPackageService() + ".generated.";
 
     args.addAll(Arrays.asList(
       "-jar",                  InstallRaml4JaxRS.OutputFile,
-      new File(RootDir.getParentFile(), Options.getApiDocRoot()).getName(),
+      new File(RootDir.getParentFile(), getOptions().getApiDocRoot()).getName(),
       "--directory",           "../src/main/java",
       "--generate-types-with", "jackson",
       "--model-package",       base + "model",
@@ -39,6 +39,6 @@ public class GenerateJaxRS extends BinExecAction {
       "--support-package",     base + "support"
     ));
 
-    Log.close();
+    log().close();
   }
 }

@@ -28,7 +28,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   @Override
   @NotNull
   protected File getLockFile() {
-    return Log.getter(new File(getDependencyRoot(), LockFile));
+    return log().getter(new File(getDependencyRoot(), LockFile));
   }
 
   @Override
@@ -40,7 +40,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   @Override
   @NotNull
   protected String getConfiguredVersion() {
-    return Log.getter(Options.getRamlForJaxRSVersion());
+    return log().getter(getOptions().getRamlForJaxRSVersion());
   }
 
   @Override
@@ -51,35 +51,35 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   @Override
   @NotNull
   protected File download() {
-    Log.open();
-    Log.info("Cloning " + getDependencyName());
+    log().open();
+    log().info("Cloning " + getDependencyName());
 
-    return Log.close(new Git(Log).shallowClone(GitURL, getDependencyRoot(), getConfiguredVersion()));
+    return log().close(new Git(log()).shallowClone(GitURL, getDependencyRoot(), getConfiguredVersion()));
   }
 
   @Override
   protected void install() {
-    Log.open();
+    log().open();
 
     correctPoms(findPoms());
 
-    Log.info("Compiling " + getDependencyName());
+    log().info("Compiling " + getDependencyName());
 
-    final var mvn = new Maven(Log);
+    final var mvn = new Maven(log());
     final var dir = new File(getBuildTargetDirectory(), "raml-to-jaxrs/raml-to-jaxrs-cli");
 
     mvn.cleanInstall(dir);
     mvn.findOutputJars(dir)
       .filter(f -> f.getName().endsWith("dependencies.jar"))
-      .peek(f -> Log.debug("Installing jar %s", f))
-      .forEach(f -> Util.moveFile(f, new File(getBinRoot(), OutputFile)));
+      .peek(f -> log().debug("Installing jar %s", f))
+      .forEach(f -> util().moveFile(f, new File(getBinRoot(), OutputFile)));
 
-    Log.close();
+    log().close();
   }
 
   @NotNull
   private List<File> findPoms() {
-    Log.open();
+    log().open();
 
     // Version 3.0.7 of raml-for-jax-rs contains 46 pom files
     final var poms = new Stack<File>();
@@ -90,7 +90,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     while (!dirs.empty()) {
       final var dir = dirs.pop();
 
-      Log.debug("Gathering pom files from directory %s", dir);
+      log().debug("Gathering pom files from directory %s", dir);
 
       //noinspection ConstantConditions
       for (final var child : dir.listFiles()) {
@@ -98,26 +98,26 @@ public class InstallRaml4JaxRS extends BinBuildAction {
           if (!child.getName().startsWith(".") && !child.getName().equals("src"))
             dirs.push(child);
         } else if (child.getName().equals("pom.xml")) {
-          Log.debug("Located pom file %s", child);
+          log().debug("Located pom file %s", child);
           poms.add(child);
         }
       }
     }
 
-    return Log.close(poms);
+    return log().close(poms);
   }
 
   private void correctPoms(@NotNull final List<File> poms) {
-    Log.open(poms);
+    log().open(poms);
 
-    Log.info("Patching %s pom files", getDependencyName());
+    log().info("Patching %s pom files", getDependencyName());
 
     for (final var pom : poms) {
-      Log.debug("Patching %s", pom);
+      log().debug("Patching %s", pom);
 
-      Util.overwriteFile(
+      util().overwriteFile(
         pom,
-        VersionMatch.matcher(Util.readFile(pom))
+        VersionMatch.matcher(util().readFile(pom))
           .replaceAll(getConfiguredVersion())
       );
     }
