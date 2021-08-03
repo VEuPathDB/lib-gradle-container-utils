@@ -42,13 +42,10 @@ public abstract class Action extends DefaultTask {
   protected abstract String pluginDescription();
 
   protected void register() {
-    log().open("Action#register()");
-
+    // No logging, logger options are not yet loaded
     setDescription(pluginDescription());
     setGroup(Group);
     getActions().add(t -> execute());
-
-    log().close();
   }
 
   @NotNull
@@ -66,6 +63,7 @@ public abstract class Action extends DefaultTask {
   @NotNull
   @Internal
   protected Options getOptions() {
+    // No logging, logger options are not yet loaded.
     if (options != null)
       return options;
 
