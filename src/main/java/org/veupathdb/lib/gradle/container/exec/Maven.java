@@ -4,7 +4,9 @@ import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class Maven {
   private static final String TargetDir = "target";
@@ -84,7 +86,9 @@ public class Maven {
     }
 
     System.out.printf("Located %d output jars.\n", out.length);
-    Log.debug("Jar Files: {}", (Object) out);
+    if (Log.isDebugEnabled()) {
+      Log.debug("Jar Files: {}", Arrays.stream(out).map(File::getName).collect(Collectors.joining("\n  ", "[\n  ", "\n]")));
+    }
 
     return out;
   }
