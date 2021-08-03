@@ -73,7 +73,7 @@ public class InstallFgpUtil extends VendorBuildAction {
   @Internal
   protected String getConfiguredVersion() {
     final String tmp;
-    return (tmp = getOptions().getFgpUtilVersion()) == null
+    return (tmp = Options.getFgpUtilVersion()) == null
       ? Git.Target.Default.name()
       : tmp;
   }
