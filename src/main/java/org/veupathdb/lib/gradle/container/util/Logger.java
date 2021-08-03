@@ -43,7 +43,7 @@ public class Logger {
   public void open(@Nullable final Object arg1, @Nullable final Object arg2) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s(%s, %s, %s)", stack.getClassName(), stack.getMethodName(), arg1, arg2);
+      log(LogLevelTrace, "%s#%s(%s, %s)", stack.getClassName(), stack.getMethodName(), arg1, arg2);
     }
     call++;
   }

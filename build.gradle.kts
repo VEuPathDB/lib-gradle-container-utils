@@ -9,6 +9,9 @@ version = "1.1.0-SNAPSHOT"
 java {
   sourceCompatibility = JavaVersion.VERSION_14
   targetCompatibility = JavaVersion.VERSION_14
+
+  withSourcesJar()
+  withJavadocJar()
 }
 
 repositories {
