@@ -2,7 +2,7 @@ package org.veupathdb.lib.gradle.container.exec;
 
 import org.veupathdb.lib.gradle.container.util.Logger;
 
-import java.io.*;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Stack;
 import java.util.stream.Collectors;

@@ -8,7 +8,6 @@ import org.veupathdb.lib.gradle.container.config.ServiceProperties;
 import org.veupathdb.lib.gradle.container.util.Logger;
 
 import java.io.File;
-import java.io.IOException;
 
 public abstract class Action extends DefaultTask {
   private static final String Group = "VEuPathDB";

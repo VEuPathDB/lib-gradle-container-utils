@@ -2,9 +2,9 @@ package org.veupathdb.lib.gradle.container.tasks;
 
 import org.gradle.api.tasks.Internal;
 import org.jetbrains.annotations.NotNull;
-import org.veupathdb.lib.gradle.container.tasks.base.VendorBuildAction;
 import org.veupathdb.lib.gradle.container.exec.Git;
 import org.veupathdb.lib.gradle.container.exec.Maven;
+import org.veupathdb.lib.gradle.container.tasks.base.VendorBuildAction;
 
 import java.io.File;
 
