@@ -1,6 +1,7 @@
 package org.veupathdb.lib.gradle.container.config;
 
 import org.jetbrains.annotations.NotNull;
+import org.veupathdb.lib.gradle.container.util.Logger;
 
 import static org.veupathdb.lib.gradle.container.tasks.base.Defaults.*;
 
@@ -24,7 +25,7 @@ public class Options {
   @NotNull
   private String apiDocRoot = DefaultApiDocsRoot;
 
-  private byte logLevel = 1;
+  private byte logLevel = Logger.LogLevelInfo;
 
   /**
    * Returns the currently configured custom vendor directory.
