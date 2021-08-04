@@ -102,7 +102,9 @@ public abstract class Action extends DefaultTask {
 
   @NotNull
   protected Logger log() {
-    return log == null ? (log = new Logger(getOptions().getLogLevel())) : log;
+    return log == null
+      ? (log = new Logger(getOptions().getLogLevel(), RootDir))
+      : log;
   }
 
   @NotNull
