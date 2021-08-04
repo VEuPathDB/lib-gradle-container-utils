@@ -10,3 +10,6 @@ validate:
 publish:
 	@./gradlew publishPluginMavenPublicationToGitHubRepository publishContainer-utilsPluginMarkerMavenPublicationToGitHubRepository
 
+.PHONY: publish-local
+publish-local:
+	@./gradlew publishPluginMavenPublicationToMavenLocal publishContainer-utilsPluginMarkerMavenPublicationToMavenLocal

@@ -91,15 +91,15 @@ public abstract class BuildAction extends Action {
     final var state = determineState();
     switch (state) {
       case StateNew -> {
-        log().info("  Not Found. Installing.");
+        log().info("Not Found. Installing.");
         createBuildRootIfNotExists();
       }
       case StateUpdate -> {
-        log().info("  Version change detected. Updating.");
+        log().info("Version change detected. Updating.");
         clean();
       }
       case StateSkip -> {
-        log().info("  Already up to date. Skipping.");
+        log().info("Already up to date. Skipping.");
         return;
       }
       default -> {
