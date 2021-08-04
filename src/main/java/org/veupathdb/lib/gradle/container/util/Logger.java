@@ -39,15 +39,15 @@ public class Logger {
 
     System.out.printf("LOGGER INSTANTIATED WITH LOG LEVEL %d%n", level);
 
-    if (level >= LogLevelTrace)
-      constructor(level, rootDir);
-
     try {
       this.writer = new BufferedWriter(new FileWriter("/dev/stdout"));
     } catch (IOException e) {
       backupWrite(LogLevelError, "Failed to open stdout.");
       throw new RuntimeException("Failed to open stdout.", e);
     }
+
+    if (level >= LogLevelTrace)
+      constructor(level, rootDir);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,7 +162,6 @@ public class Logger {
    *
    * @param val Passthrough value.
    * @param <T> Type of the passthrough value.
-   *
    * @return The given passthrough value.
    */
   @Contract("null -> null")
@@ -374,9 +373,7 @@ public class Logger {
    *
    * @param in  The input argument to the calling function.
    * @param out The return value from the calling function.
-   *
    * @param <T> The type of the return value from the calling function.
-   *
    * @return Returns the argument {@code out};
    */
   @Contract("_, null -> null")
@@ -515,30 +512,78 @@ public class Logger {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * If {@link #LogLevelDebug} is enabled, prints the given value to stdout.
+   *
+   * @param val Value to print.
+   */
   public void debug(@Nullable final Object val) {
     log(LogLevelDebug, val);
   }
 
+  /**
+   * If {@link #LogLevelDebug} is enabled, expands the template string using the
+   * given argument and prints the result to stdout.
+   *
+   * @param fmt  Template string.
+   * @param val1 Value to inject into the template string.
+   */
   public void debug(@NotNull final String fmt, @Nullable Object val1) {
     log(LogLevelDebug, fmt, val1);
   }
 
+  /**
+   * If {@link #LogLevelDebug} is enabled, expands the template string using the
+   * return value of the given {@code Supplier}s and prints the result to
+   * stdout.
+   *
+   * @param fmt Template string.
+   * @param fn1 Method that will be called to retrieve the first value to inject
+   *            into the template string.  This method will only be called if
+   *            {@link #LogLevelDebug} is enabled.
+   * @param fn2 Method that will be called to retrieve the second value to
+   *            inject into the template string.  This method will only be
+   *            called if {@link #LogLevelDebug} is enabled.
+   */
   public void debug(@NotNull final String fmt, @NotNull Supplier<?> fn1, @NotNull Supplier<?> fn2) {
     log(LogLevelDebug, fmt, fn1, fn2);
   }
 
+  /**
+   * If {@link #LogLevelDebug} is enabled, expands the template string using the
+   * given arguments and prints the result to stdout.
+   *
+   * @param fmt  Template string.
+   * @param val1 First value to inject into the template string.
+   * @param val2 Second value to inject into the template string.
+   */
   public void debug(@NotNull final String fmt, @Nullable Object val1, @Nullable Object val2) {
     log(LogLevelDebug, fmt, val1, val2);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * If the current configured log level is greater than or equal to the given
+   * {@code level}, prints the output of the given {@code Supplier} to stdout.
+   *
+   * @param fn Method that will be called to retrieve the value to print.
+   *           This method will not be called if logging at the specified level
+   *           is not enabled.
+   * @throws NullPointerException if {@code messageSupplier} is {@code null}
+   */
   public void log(final byte level, @NotNull final Supplier<?> fn) {
     if (this.level >= level) {
       write(level, fn.get());
     }
   }
 
+  /**
+   * If the current configured log level is greater than or equal to the given
+   * {@code level}, prints the given value to stdout.
+   *
+   * @param val Value to print.
+   */
   public void log(final byte level, @Nullable final Object val) {
     if (this.level >= level) {
       write(level, val);
@@ -1009,14 +1054,27 @@ public class Logger {
       writer.write(pad());
   }
 
+  /**
+   * Writes messages out using System.out.print*, rather than the default
+   * writer.
+   * <p>
+   * Intended to be used as a fallback when unable to safely use one of the
+   * {@code write(...)} methods.
+   *
+   * @param level Log level.  If the currently configured log level is less than
+   *              this value, this method is a no-op.
+   * @param val   Value to write out.
+   */
   void backupWrite(final byte level, @Nullable final Object val) {
-    System.out.print(timePrefix());
-    System.out.print(levelPrefix(level));
+    if (this.level >= level) {
+      System.out.print(timePrefix());
+      System.out.print(levelPrefix(level));
 
-    if (level >= LogLevelTrace)
-      System.out.print(pad());
+      if (level >= LogLevelTrace)
+        System.out.print(pad());
 
-    System.out.println(val);
+      System.out.println(val);
+    }
   }
 
   private static final char[][] LevelPrefixes = {
