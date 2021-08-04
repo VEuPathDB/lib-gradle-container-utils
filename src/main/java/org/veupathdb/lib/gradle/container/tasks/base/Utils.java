@@ -122,6 +122,8 @@ public class Utils {
       Log.error("Failed to move file " + src + " to " + tgt);
       throw new RuntimeException("Failed to move file " + src + " to " + tgt, e);
     }
+
+    Log.close();
   }
 
   public void moveFile(
