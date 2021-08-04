@@ -32,15 +32,35 @@ public abstract class Action extends DefaultTask {
     this.RootDir = getProject().getRootDir();
   }
 
+  /**
+   * Static initializer for new task instances.
+   * <p>
+   * This method is called by Gradle when instantiating a new {@code Action}
+   * instance.
+   *
+   * @param action New {@code Action} instance, created by Gradle.
+   */
   public static void init(@NotNull final Action action) {
     action.register();
   }
 
+  /**
+   * The primary execution of this Action's functionality.
+   */
   protected abstract void execute();
 
+  /**
+   * Returns a description of this Action to use when rendering Gradle help
+   * text.
+   *
+   * @return The current Action's description.
+   */
   @NotNull
   protected abstract String pluginDescription();
 
+  /**
+   * Register configures the current Action after instantiation.
+   */
   protected void register() {
     // No logging, logger options are not yet loaded
     setDescription(pluginDescription());
@@ -48,6 +68,14 @@ public abstract class Action extends DefaultTask {
     getActions().add(t -> execute());
   }
 
+  /**
+   * Lazily reads and returns the contents of the project's service properties
+   * file.
+   * <p>
+   * The properties file is only read on first call.
+   *
+   * @return This project's service properties.
+   */
   @NotNull
   protected ServiceProperties serviceProperties() {
     log().open("Action#serviceProperties()");

@@ -24,30 +24,72 @@ public class Logger {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * Increments the call stack count and, if trace logging is enabled, prints
+   * the class and method name of the caller.
+   */
   public void open() {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s()", stack.getClassName(), stack.getMethodName());
+      log(
+        LogLevelTrace,
+        "%s#%s()",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        stack.getMethodName()
+      );
     }
     call++;
   }
 
+  /**
+   * Increments the call stack count and, if trace logging is enabled, prints
+   * the class name, method name, and first argument of the caller.
+   *
+   * @param arg1 First argument of the calling method.
+   */
   public void open(@Nullable final Object arg1) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s(%s)", stack.getClassName(), stack.getMethodName(), arg1);
+      log(
+        LogLevelTrace,
+        "%s#%s(%s)",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        stack.getMethodName(), arg1
+      );
     }
     call++;
   }
 
+  /**
+   * Increments the call stack count and, if trace logging is enabled, prints
+   * the class name, method name, and arguments of the caller.
+   *
+   * @param arg1 First argument of the calling method.
+   * @param arg2 Second argument of the calling method.
+   */
   public void open(@Nullable final Object arg1, @Nullable final Object arg2) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s(%s, %s)", stack.getClassName(), stack.getMethodName(), arg1, arg2);
+      log(
+        LogLevelTrace,
+        "%s#%s(%s, %s)",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        stack.getMethodName(),
+        arg1,
+        arg2
+      );
     }
     call++;
   }
 
+  /**
+   * Increments the call stack count and, if trace logging is enabled, prints
+   * the class name, method name, and arguments of the caller.
+   *
+   * @param arg1 First argument of the calling method.
+   * @param arg2 Second argument of the calling method.
+   * @param arg3 Third argument of the calling method.
+   */
   public void open(
     @Nullable final Object arg1,
     @Nullable final Object arg2,
@@ -55,16 +97,36 @@ public class Logger {
   ) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s(%s, %s, %s)", stack.getClassName(), stack.getMethodName(), arg1, arg2, arg3);
+      log(
+        LogLevelTrace,
+        "%s#%s(%s, %s, %s)",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        stack.getMethodName(),
+        arg1,
+        arg2,
+        arg3
+      );
     }
     call++;
   }
 
+  /**
+   * Decrements the call stack count, and if trace logging is enabled, prints
+   * a void return message.
+   */
   public void close() {
     log(LogLevelTrace, "return: void");
     call--;
   }
 
+  /**
+   * Decrements the call stack count and returns the given value.  If trace
+   * logging is enabled, also prints a log statement with the return value.
+   *
+   * @param val Passthrough value.
+   * @param <T> Type of the passthrough value.
+   * @return The given passthrough value.
+   */
   @Contract("null -> null")
   public <T> T close(final T val) {
     log(LogLevelTrace, "return: %s", val);
@@ -76,29 +138,52 @@ public class Logger {
   public <T> T getter(final T val) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s() -> %s", stack.getClassName(), stack.getMethodName(), val);
+      log(
+        LogLevelTrace,
+        "%s#%s() -> %s",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        stack.getMethodName(),
+        val
+      );
     }
+
     return val;
   }
 
   public void constructor(@Nullable final Object arg1) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#new(%s)", stack.getClassName(), arg1);
+      log(
+        LogLevelTrace,
+        "%s#new(%s)",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        arg1
+      );
     }
   }
 
   public void noop() {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s(): no op", stack.getClassName(), stack.getMethodName());
+      log(
+        LogLevelTrace,
+        "%s#%s(): no op",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        stack.getMethodName()
+      );
     }
   }
 
   public void noop(@Nullable final Object arg1) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s(%s): no op", stack.getClassName(), stack.getMethodName(), arg1);
+      log(
+        LogLevelTrace,
+        "%s#%s(%s): no op",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        stack.getMethodName(),
+        arg1
+      );
     }
   }
 
@@ -106,7 +191,14 @@ public class Logger {
   public <T> T map(@Nullable final Object in, @Nullable final T out) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
-      log(LogLevelTrace, "%s#%s(%s): %s", stack.getClassName(), stack.getMethodName(), in, out);
+      log(
+        LogLevelTrace,
+        "%s#%s(%s): %s",
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        stack.getMethodName(),
+        in,
+        out
+      );
     }
 
     return out;
@@ -164,6 +256,15 @@ public class Logger {
 
   public void debug(@NotNull final String fmt, @Nullable Object val1, @Nullable Object val2) {
     log(LogLevelDebug, fmt, val1, val2);
+  }
+
+  public void debug(
+    @NotNull  final String fmt,
+    @Nullable final Object val1,
+    @Nullable final Object val2,
+    @Nullable final Object val3
+  ) {
+    log(LogLevelDebug, fmt, val1, val2, val3);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,6 +353,16 @@ public class Logger {
       System.out.printf(pad(call) + fmt + "%n", val1, val2, val3, val4, val5);
     }
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @Override
+  public String toString() {
+    return "Logger{" +
+      "level=" + level +
+      '}';
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 

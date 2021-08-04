@@ -156,6 +156,7 @@ public class Git {
 
     Log.debug(
       "Checking out target %s in local repo ./%s/%s",
+      target,
       repo.getParentFile().getName(),
       repo.getName()
     );
