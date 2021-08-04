@@ -14,14 +14,14 @@ public abstract class CleanAction extends Action {
   protected abstract boolean filerPredicate(@NotNull final File file);
 
   protected void delete(@NotNull final File file) {
-    log().open("CleanAction#delete(%s)", file);
+    log().open(file);
     util().deleteRecursive(file);
     log().close();
   }
 
   @Override
   protected void execute() {
-    log().open("CleanAction#execute()");
+    log().open();
     for (final var file : Objects.requireNonNull(getTargetDirectory().listFiles()))
       if (filerPredicate(file))
         delete(file);

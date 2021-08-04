@@ -52,7 +52,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   @NotNull
   protected File download() {
     log().open();
-    log().info("Cloning " + getDependencyName());
+    log().info("Cloning {}", this::getDependencyName);
 
     return log().close(new Git(log()).shallowClone(GitURL, getDependencyRoot(), getConfiguredVersion()));
   }
@@ -63,7 +63,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
 
     correctPoms(findPoms());
 
-    log().info("Compiling " + getDependencyName());
+    log().info("Compiling {}", this::getDependencyName);
 
     final var mvn = new Maven(log());
     final var dir = new File(getBuildTargetDirectory(), "raml-to-jaxrs/raml-to-jaxrs-cli");
@@ -90,16 +90,21 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     while (!dirs.empty()) {
       final var dir = dirs.pop();
 
-      log().debug("Gathering pom files from directory %s", dir);
+      log().debug("Gathering pom files from directory {}", dir);
 
       //noinspection ConstantConditions
       for (final var child : dir.listFiles()) {
+
         if (child.isDirectory()) {
+
           if (!child.getName().startsWith(".") && !child.getName().equals("src"))
             dirs.push(child);
+
         } else if (child.getName().equals("pom.xml")) {
-          log().debug("Located pom file %s", child);
+
+          log().debug("Located pom file {}", child);
           poms.add(child);
+
         }
       }
     }
@@ -110,10 +115,10 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   private void correctPoms(@NotNull final List<File> poms) {
     log().open(poms);
 
-    log().info("Patching %s pom files", getDependencyName());
+    log().info("Patching {} pom files", this::getDependencyName);
 
     for (final var pom : poms) {
-      log().debug("Patching %s", pom);
+      log().debug("Patching {}", pom);
 
       util().overwriteFile(
         pom,
@@ -121,5 +126,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
           .replaceAll(getConfiguredVersion())
       );
     }
+
+    log().close();
   }
 }

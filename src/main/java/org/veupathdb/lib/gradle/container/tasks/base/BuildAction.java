@@ -74,7 +74,7 @@ public abstract class BuildAction extends Action {
   @Internal
   @NotNull
   protected File getBuildTargetDirectory() {
-    log().open("BuildAction#getBuildTargetDirectory()");
+    log().open();
 
     if (buildDirectory == null)
       throw new IllegalStateException("Cannot get build directory before it's been created.");
@@ -84,9 +84,9 @@ public abstract class BuildAction extends Action {
 
   @Override
   protected void execute() {
-    log().open("InstallAction#execute()");
+    log().open();
 
-    log().info("Checking " + getDependencyName());
+    log().info("Checking {}", this::getDependencyName);
 
     final var state = determineState();
     switch (state) {
@@ -103,7 +103,7 @@ public abstract class BuildAction extends Action {
         return;
       }
       default -> {
-        log().error("Unrecognized state " + state);
+        log().error("Unrecognized state {}", state);
         throw new RuntimeException("Unrecognized state " + state);
       }
     }
@@ -126,7 +126,7 @@ public abstract class BuildAction extends Action {
    * Deletes the build directory for the installed dependency.
    */
   protected void postBuildCleanup() {
-    log().open("InstallAction#removeBuildDir()");
+    log().open();
     log().debug("Beginning post build cleanup.");
 
     util().deleteRecursive(getBuildTargetDirectory());
@@ -142,7 +142,7 @@ public abstract class BuildAction extends Action {
    * {@link #StateSkip}.
    */
   protected byte determineState() {
-    log().open("BuildAction#determineState()");
+    log().open();
 
     if (!getDependencyRoot().exists() || !getLockFile().exists())
       return log().close(StateNew);
@@ -155,7 +155,7 @@ public abstract class BuildAction extends Action {
   }
 
   protected void writeLockFile() {
-    log().open("BuildAction#writeLockFile()");
+    log().open();
 
     try {
       Files.writeString(
@@ -173,7 +173,7 @@ public abstract class BuildAction extends Action {
   }
 
   protected void createBuildRootIfNotExists() {
-    log().open("BuildAction#createBuildRootIfNotExists()");
+    log().open();
 
     final var dir = getDependencyRoot();
 

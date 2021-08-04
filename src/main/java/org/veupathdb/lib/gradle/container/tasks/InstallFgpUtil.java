@@ -47,7 +47,7 @@ public class InstallFgpUtil extends VendorBuildAction {
     final var targ = Git.Target.of(vers);
 
     if (!targ.isDefault()) {
-      log().info("Switching FgpUtil to " + vers);
+      log().info("Switching FgpUtil to {}", vers);
 
       git.checkout(repo, targ);
     }
@@ -100,10 +100,10 @@ public class InstallFgpUtil extends VendorBuildAction {
   private void fileDelete(@NotNull final File file) {
     log().open(file);
 
-    log().debug("Deleting file %s", file);
+    log().debug("Deleting file {}", file);
 
     if (!file.delete()) {
-      log().error("Failed to delete file " + file);
+      log().error("Failed to delete file {}", file);
       throw new RuntimeException("Failed to delete file " + file);
     }
 

@@ -5,16 +5,25 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
+// TODO: allow configuring threshold for what goes to stdout and what goes to stderr.
 public class Logger {
-  @SuppressWarnings("unused") public static final byte LogLevelNone  = 0;
-  @SuppressWarnings("unused") public static final byte LogLevelError = 1;
-  @SuppressWarnings("unused") public static final byte LogLevelWarn  = 2;
-  @SuppressWarnings("unused") public static final byte LogLevelInfo  = 3;
-  @SuppressWarnings("unused") public static final byte LogLevelDebug = 4;
-  @SuppressWarnings("unused") public static final byte LogLevelTrace = 5;
+  @SuppressWarnings("unused")
+  public static final byte LogLevelNone  = 0;
+  @SuppressWarnings("unused")
+  public static final byte LogLevelError = 1;
+  @SuppressWarnings("unused")
+  public static final byte LogLevelWarn  = 2;
+  @SuppressWarnings("unused")
+  public static final byte LogLevelInfo  = 3;
+  @SuppressWarnings("unused")
+  public static final byte LogLevelDebug = 4;
+  @SuppressWarnings("unused")
+  public static final byte LogLevelTrace = 5;
 
   private final byte           level;
   private final String         projPath;
@@ -28,6 +37,11 @@ public class Logger {
     this.level    = level;
     this.projPath = rootDir.getPath();
 
+    System.out.printf("LOGGER INSTANTIATED WITH LOG LEVEL %d%n", level);
+
+    if (level >= LogLevelTrace)
+      constructor(level, rootDir);
+
     try {
       this.writer = new BufferedWriter(new FileWriter("/dev/stdout"));
     } catch (IOException e) {
@@ -38,6 +52,8 @@ public class Logger {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  private static final String OpenNoArg = "{}#{}()";
+
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
    * the class and method name of the caller.
@@ -47,13 +63,15 @@ public class Logger {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#%s()",
+        OpenNoArg,
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
         stack.getMethodName()
       );
     }
     call++;
   }
+
+  private static final String OpenOneArg = "{}#{}({})";
 
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
@@ -66,13 +84,16 @@ public class Logger {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#%s(%s)",
+        OpenOneArg,
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
-        stack.getMethodName(), arg1
+        stack.getMethodName(),
+        arg1
       );
     }
     call++;
   }
+
+  private static final String OpenTwoArg = "{}#{}({}, {})";
 
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
@@ -86,7 +107,7 @@ public class Logger {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#%s(%s, %s)",
+        OpenTwoArg,
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
         stack.getMethodName(),
         arg1,
@@ -95,6 +116,8 @@ public class Logger {
     }
     call++;
   }
+
+  private static final String OpenThreeArg = "{}#{}({}, {}, {})";
 
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
@@ -113,7 +136,7 @@ public class Logger {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#%s(%s, %s, %s)",
+        OpenThreeArg,
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
         stack.getMethodName(),
         arg1,
@@ -125,8 +148,8 @@ public class Logger {
   }
 
   /**
-   * Decrements the call stack count, and if trace logging is enabled, prints
-   * a void return message.
+   * If {@link #LogLevelTrace} is enabled, prints a void return then decrements
+   * the tree log level.
    */
   public void close() {
     log(LogLevelTrace, "return: void");
@@ -134,8 +157,8 @@ public class Logger {
   }
 
   /**
-   * Decrements the call stack count and returns the given value.  If trace
-   * logging is enabled, also prints a log statement with the return value.
+   * If {@link #LogLevelTrace} is enabled, prints the given return value then
+   * decrements the tree log level.
    *
    * @param val Passthrough value.
    * @param <T> Type of the passthrough value.
@@ -144,18 +167,38 @@ public class Logger {
    */
   @Contract("null -> null")
   public <T> T close(final T val) {
-    log(LogLevelTrace, "return: %s", val);
+    log(LogLevelTrace, "return: {}", val);
     call--;
     return val;
   }
 
+  /**
+   * If {@link #LogLevelTrace} is enabled, prints a getter method signature
+   * including the given return value, returning the passed value.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * class Bar {
+   *   public String getFoo() {
+   *     return log.getter("Hello world");
+   *   }
+   * }
+   *
+   * ////////
+   *
+   * new Bar().getFoo(); // Prints: Bar#getFoo(): Hello world
+   * }</pre>
+   * <p>
+   * This method prints the log at the current tree log level and does not
+   * increment it.
+   */
   @Contract("null -> null")
   public <T> T getter(final T val) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#%s() -> %s",
+        "{}#{}(): {}",
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
         stack.getMethodName(),
         val
@@ -165,36 +208,139 @@ public class Logger {
     return val;
   }
 
+  private static final String ConstructorOneArg = "{}#new({})";
+
+  /**
+   * If {@link #LogLevelTrace} is enabled, prints a constructor method
+   * signature including the given argument value.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * class Bar {
+   *   public Bar(String val) {
+   *     log.constructor(val);
+   *   }
+   * }
+   *
+   * ////////
+   *
+   * new Bar("test"); // Prints: Bar#new(test)
+   * }</pre>
+   * <p>
+   * This method prints the log at the current tree log level and does not
+   * increment it.
+   */
   public void constructor(@Nullable final Object arg1) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#new(%s)",
+        ConstructorOneArg,
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
         arg1
       );
     }
   }
 
+  private static final String ConstructorTwoArg = "{}#new({}, {})";
+
+  /**
+   * If {@link #LogLevelTrace} is enabled, prints a constructor method
+   * signature including the given argument values.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * class Bar {
+   *   public Bar(String arg1, int arg2) {
+   *     log.constructor(arg1, arg2);
+   *   }
+   * }
+   *
+   * ////////
+   *
+   * new Bar("test", 69); // Prints: Bar#new(test, 69)
+   * }</pre>
+   * <p>
+   * This method prints the log at the current tree log level and does not
+   * increment it.
+   */
+  public void constructor(@Nullable final Object arg1, @Nullable final Object arg2) {
+    if (level >= LogLevelTrace) {
+      final var stack = new Exception().getStackTrace()[1];
+      log(
+        LogLevelTrace,
+        ConstructorTwoArg,
+        stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
+        arg1,
+        arg2
+      );
+    }
+  }
+
+  private static final String NoOpNoArg = "{}#{}(): no-op";
+
+  /**
+   * If {@link #LogLevelTrace} is enabled, prints the caller's function
+   * signature.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * class Bar {
+   *   public void foo() {
+   *     log.noop();
+   *   }
+   * }
+   *
+   * ////////
+   *
+   * new Bar().foo(); // Prints: Bar#foo(): no-op
+   * }</pre>
+   * <p>
+   * This method prints the log at the current tree log level and does not
+   * increment it.
+   */
   public void noop() {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#%s(): no op",
+        NoOpNoArg,
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
         stack.getMethodName()
       );
     }
   }
 
+  private static final String NoOpOneArg = "{}#{}({}): no-op";
+
+  /**
+   * If {@link #LogLevelTrace} is enabled, prints the caller's function
+   * signature including the given argument.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * class Bar {
+   *   public void foo(String hello) {
+   *     log.noop(hello);
+   *   }
+   * }
+   *
+   * ////////
+   *
+   * new Bar().foo("gravy"); // Prints: Bar#foo(gravy): no-op
+   * }</pre>
+   * <p>
+   * This method prints the log at the current tree log level and does not
+   * increment it.
+   *
+   * @param arg1 Argument value to render in the noop trace log line.
+   */
   public void noop(@Nullable final Object arg1) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#%s(%s): no op",
+        NoOpOneArg,
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
         stack.getMethodName(),
         arg1
@@ -202,13 +348,44 @@ public class Logger {
     }
   }
 
+  private static final String MapPattern = "{}#{}({}): {}";
+
+  /**
+   * If {@link #LogLevelTrace} is enabled, prints the caller's function
+   * signature including the given argument and return value.
+   * <p>
+   * Intended for use in "mapping" functions (one input, one output).
+   * <p>
+   * Example:
+   * <pre>{@code
+   * class Bar {
+   *   public int foo(String hello) {
+   *     return log.map(hello, Integer.parseInt(hello));
+   *   }
+   * }
+   *
+   * ////////
+   *
+   * new Bar().foo("666"); // Prints: Bar#foo(666): 666
+   * }</pre>
+   * <p>
+   * This method prints the log at the current tree log level and does not
+   * increment it.
+   *
+   * @param in  The input argument to the calling function.
+   * @param out The return value from the calling function.
+   *
+   * @param <T> The type of the return value from the calling function.
+   *
+   * @return Returns the argument {@code out};
+   */
   @Contract("_, null -> null")
   public <T> T map(@Nullable final Object in, @Nullable final T out) {
     if (level >= LogLevelTrace) {
       final var stack = new Exception().getStackTrace()[1];
       log(
         LogLevelTrace,
-        "%s#%s(%s): %s",
+        MapPattern,
         stack.getClassName().substring(stack.getClassName().lastIndexOf('.') + 1),
         stack.getMethodName(),
         in,
@@ -221,24 +398,117 @@ public class Logger {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * If {@link #LogLevelError} is enabled, prints the given value to stdout.
+   *
+   * @param val Value to print.
+   */
   public void error(@Nullable final Object val) {
     log(LogLevelError, val);
   }
 
-  public void error(@NotNull final String fmt, @Nullable Object val1) {
+  /**
+   * If {@link #LogLevelError} is enabled, expands the template string using the
+   * return value of the given {@code Supplier} and prints the result to stdout.
+   *
+   * @param fmt Template string.
+   * @param fn  Method that will be called to retrieve the value to inject
+   *            into the template string.  This method will only be called if
+   *            {@link #LogLevelError} is enabled.
+   */
+  public void error(@NotNull final String fmt, @NotNull final Supplier<?> fn) {
+    log(LogLevelError, fmt, fn);
+  }
+
+  /**
+   * If {@link #LogLevelError} is enabled, expands the template string using the
+   * given argument and prints the result to stdout.
+   *
+   * @param fmt  Template string.
+   * @param val1 Value to inject into the template string.
+   */
+  public void error(@NotNull final String fmt, @Nullable final Object val1) {
     log(LogLevelError, fmt, val1);
+  }
+
+  /**
+   * If {@link #LogLevelError} is enabled, expands the template string using the
+   * given arguments and prints the result to stdout.
+   *
+   * @param fmt  Template string.
+   * @param val1 First value to inject into the template string.
+   * @param val2 Second value to inject into the template string.
+   */
+  public void error(
+    @NotNull final String fmt,
+    @Nullable final Object val1,
+    @Nullable final Object val2
+  ) {
+    log(LogLevelError, fmt, val1, val2);
+  }
+
+  /**
+   * If {@link #LogLevelError} is enabled, expands the template string using the
+   * given arguments and prints the result to stdout.
+   *
+   * @param fmt  Template string.
+   * @param val1 First value to inject into the template string.
+   * @param val2 Second value to inject into the template string.
+   * @param val3 Third value to inject into the template string.
+   */
+  public void error(
+    @NotNull final String fmt,
+    @Nullable final Object val1,
+    @Nullable final Object val2,
+    @Nullable final Object val3
+  ) {
+    log(LogLevelError, fmt, val1, val2, val3);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * If {@link #LogLevelInfo} is enabled, prints the given value to stdout.
+   *
+   * @param val Value to print.
+   */
   public void info(@Nullable final Object val) {
     log(LogLevelInfo, val);
   }
 
+  /**
+   * If {@link #LogLevelInfo} is enabled, prints the output of the given
+   * {@code Supplier} to stdout.
+   *
+   * @param messageSupplier Method that will be called to retrieve the value
+   *                        to print.  This method will only be called if
+   *                        {@link #LogLevelInfo}  is enabled.
+   * @throws NullPointerException if {@code messageSupplier} is {@code null}
+   */
   public void info(@NotNull final Supplier<?> messageSupplier) {
     log(LogLevelInfo, messageSupplier);
   }
 
+  /**
+   * If {@link #LogLevelInfo} is enabled, expands the template string using the
+   * return value of the given {@code Supplier} and prints the result to stdout.
+   *
+   * @param fmt Template string.
+   * @param fn1 Method that will be called to retrieve the value to inject
+   *            into the template string.  This method will only be called if
+   *            {@link #LogLevelInfo} is enabled.
+   */
+  public void info(@NotNull final String fmt, @NotNull Supplier<?> fn1) {
+    log(LogLevelInfo, fmt, fn1);
+  }
+
+  /**
+   * If {@link #LogLevelInfo} is enabled, expands the template string using the
+   * given argument and prints the result to stdout.
+   *
+   * @param fmt  Template string.
+   * @param val1 Value to inject into the template string.
+   */
   public void info(@NotNull final String fmt, @Nullable Object val1) {
     log(LogLevelInfo, fmt, val1);
   }
@@ -259,15 +529,6 @@ public class Logger {
 
   public void debug(@NotNull final String fmt, @Nullable Object val1, @Nullable Object val2) {
     log(LogLevelDebug, fmt, val1, val2);
-  }
-
-  public void debug(
-    @NotNull final String fmt,
-    @Nullable final Object val1,
-    @Nullable final Object val2,
-    @Nullable final Object val3
-  ) {
-    log(LogLevelDebug, fmt, val1, val2, val3);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,12 +562,31 @@ public class Logger {
     }
   }
 
+  /**
+   * If the current configured log level is greater than or equal to the given
+   * {@code level}, expands the template string using the given argument and
+   * prints the result to stdout.
+   *
+   * @param level Log level.
+   * @param fmt   Template string.
+   * @param val1  Value to inject into the template string.
+   */
   public void log(final byte level, @NotNull final String fmt, @Nullable final Object val1) {
     if (this.level >= level) {
       write(level, fmt, val1);
     }
   }
 
+  /**
+   * If the current configured log level is greater than or equal to the given
+   * {@code level}, expands the template string using the given arguments and
+   * prints the result to stdout.
+   *
+   * @param level Log level.
+   * @param fmt   Template string.
+   * @param val1  First value to inject into the template string.
+   * @param val2  Second value to inject into the template string.
+   */
   public void log(
     final byte level,
     @NotNull final String fmt,
@@ -318,6 +598,17 @@ public class Logger {
     }
   }
 
+  /**
+   * If the current configured log level is greater than or equal to the given
+   * {@code level}, expands the template string using the given arguments and
+   * prints the result to stdout.
+   *
+   * @param level Log level.
+   * @param fmt   Template string.
+   * @param val1  First value to inject into the template string.
+   * @param val2  Second value to inject into the template string.
+   * @param val3  Third value to inject into the template string.
+   */
   public void log(
     final byte level,
     @NotNull final String fmt,
@@ -330,6 +621,18 @@ public class Logger {
     }
   }
 
+  /**
+   * If the current configured log level is greater than or equal to the given
+   * {@code level}, expands the template string using the given arguments and
+   * prints the result to stdout.
+   *
+   * @param level Log level.
+   * @param fmt   Template string.
+   * @param val1  First value to inject into the template string.
+   * @param val2  Second value to inject into the template string.
+   * @param val3  Third value to inject into the template string.
+   * @param val4  Fourth value to inject into the template string.
+   */
   public void log(
     final byte level,
     @NotNull final String fmt,
@@ -343,6 +646,19 @@ public class Logger {
     }
   }
 
+  /**
+   * If the current configured log level is greater than or equal to the given
+   * {@code level}, expands the template string using the given arguments and
+   * prints the result to stdout.
+   *
+   * @param level Log level.
+   * @param fmt   Template string.
+   * @param val1  First value to inject into the template string.
+   * @param val2  Second value to inject into the template string.
+   * @param val3  Third value to inject into the template string.
+   * @param val4  Fourth value to inject into the template string.
+   * @param val5  Fifth value to inject into the template string.
+   */
   public void log(
     final byte level,
     @NotNull final String fmt,
@@ -368,15 +684,57 @@ public class Logger {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * Render the given value as a string.
+   * <p>
+   * Special cases:
+   * <table>
+   *   <tr>
+   *     <td>Null input</td>
+   *     <td>Returns {@code "null"}</td>
+   *   </tr>
+   *   <tr>
+   *     <td>String input</td>
+   *     <td>Returns the input value wrapped in quotes.</td>
+   *   </tr>
+   *   <tr>
+   *     <td>File input</td>
+   *     <td>If the file is contained in this project, returns the path relative
+   *     to the project root.  If the file is not contained in this project,
+   *     returns the full path to the file.</td>
+   *   </tr>
+   *   <tr>
+   *     <td>Path input</td>
+   *     <td>If the path is contained in this project, returns the path relative
+   *     to the project root.  If the path is not contained in this project,
+   *     returns the full path.</td>
+   *   </tr>
+   *   <tr>
+   *     <td>Array input</td>
+   *     <td>Returns the array printed in a format similar to that of
+   *     {@link Arrays#toString()}</td>
+   *   </tr>
+   * </table>
+   * <p>
+   * All other input values will be printed via {@link Object#toString()}
+   *
+   * @param val Value to stringify.
+   * @return Stringified value.
+   */
   @NotNull
-  private String stringify(@Nullable final Object val) {
+  String stringify(@Nullable final Object val) {
     final String tmp;
 
     if (val == null)
       return "null";
 
     if (val instanceof String)
-      return (String) val;
+      return '"' + (String) val + '"';
+
+    final var cls = val.getClass();
+
+    if (cls.isPrimitive())
+      return String.valueOf(val);
 
     if (val instanceof File)
       if ((tmp = ((File) val).getPath()).startsWith(projPath))
@@ -390,7 +748,11 @@ public class Logger {
       else
         return tmp;
 
-    return String.valueOf(val);
+    if (val.getClass().isArray()) {
+      return arrayToString(val);
+    }
+
+    return '"' + val.toString() + '"';
   }
 
   @NotNull
@@ -423,7 +785,7 @@ public class Logger {
     var rem = time;
 
     while (rem > 0) {
-      buf[pos--] = (char) (rem % 10);
+      buf[pos--] = (char) (rem % 10 + '0');
       rem /= 10;
     }
   }
@@ -463,8 +825,8 @@ public class Logger {
     @Nullable final Object val2
   ) {
     final var count = 2;
-    var ind = 0;
-    var pos = 0;
+    var       ind   = 0;
+    var       pos   = 0;
 
     try {
       writePrefix(level);
@@ -492,8 +854,8 @@ public class Logger {
     @Nullable final Object val3
   ) {
     final var count = 3;
-    var ind = 0;
-    var pos = 0;
+    var       ind   = 0;
+    var       pos   = 0;
 
     try {
       writePrefix(level);
@@ -526,8 +888,8 @@ public class Logger {
     @Nullable final Object val4
   ) {
     final var count = 4;
-    var ind = 0;
-    var pos = 0;
+    var       ind   = 0;
+    var       pos   = 0;
 
     try {
       writePrefix(level);
@@ -565,8 +927,8 @@ public class Logger {
     @Nullable final Object val5
   ) {
     final var count = 5;
-    var ind = 0;
-    var pos = 0;
+    var       ind   = 0;
+    var       pos   = 0;
 
     try {
       writePrefix(level);
@@ -609,7 +971,7 @@ public class Logger {
       backupWrite(LogLevelWarn, "Logger: " + count + " parameters provided but there are " + (
         ind == 0
           ? "no placeholders in format string."
-          : "only " + ind+1 + " placeholders in format string"
+          : "only " + ind + 1 + " placeholders in format string"
       ));
       writer.write(fmt);
       return -1;
@@ -621,6 +983,23 @@ public class Logger {
     return pos + ISize;
   }
 
+  String arrayToString(@NotNull final Object arr) {
+    final var len = Array.getLength(arr);
+
+    if (len == 0) {
+      return "[]";
+    }
+
+    final var out = new StringBuilder(10 * len);
+
+    out.append('[');
+    out.append(Array.get(arr, 0));
+    for (var i = 1; i < len; i++) {
+      out.append(", ").append(Array.get(arr, i));
+    }
+
+    return out.toString();
+  }
 
   void writePrefix(final byte level) throws IOException {
     writer.write(timePrefix());

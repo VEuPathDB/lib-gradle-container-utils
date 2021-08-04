@@ -39,7 +39,7 @@ public class Maven {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
       }
     } catch (Exception e) {
-      Log.error("Failed to build maven project in " + workDir);
+      Log.error("Failed to build maven project in {}", workDir);
       throw new RuntimeException("Failed to build maven project in " + workDir, e);
     }
 
@@ -84,7 +84,7 @@ public class Maven {
       }
     }
 
-    Log.info("Located %d output jars.", jarFiles.size());
+    Log.info("Located {} output jars.", jarFiles.size());
 
     return Log.close(StreamSupport.stream(new StackIterator<>(jarFiles), false));
   }

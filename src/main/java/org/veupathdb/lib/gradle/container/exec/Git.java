@@ -1,6 +1,7 @@
 package org.veupathdb.lib.gradle.container.exec;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.veupathdb.lib.gradle.container.util.Logger;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class Git {
   public File clone(@NotNull final String url, @NotNull final File parent) {
     Log.open(url, parent);
 
-    Log.debug("Performing a full clone of %s", url);
+    Log.debug("Performing a full clone of {}", url);
 
     try {
       final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, url}, new String[0], parent);
@@ -47,7 +48,7 @@ public class Git {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()).trim());
       }
     } catch (Exception e) {
-      Log.error("Failed to clone " + url + " into dir " + parent);
+      Log.error("Failed to clone {} into dir {}", url, parent);
       throw new RuntimeException("Failed to clone " + url + " into dir " + parent + url, e);
     }
 
@@ -70,7 +71,7 @@ public class Git {
   public File shallowClone(@NotNull final String url, @NotNull final File parent) {
     Log.open(url, parent);
 
-    Log.debug("Performing a shallow clone of %s", url);
+    Log.debug("Performing a shallow clone of {}", url);
 
     try {
       final var proc = Runtime.getRuntime().exec(new String[]{Command, Clone, FQuiet, FDepth, "1", url}, new String[0], parent);
@@ -79,7 +80,7 @@ public class Git {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()).trim());
       }
     } catch (Exception e) {
-      Log.error("Failed to clone " + url + " into dir " + parent);
+      Log.error("Failed to clone {} into dir {}", url, parent);
       throw new RuntimeException("Failed to clone " + url + " into dir " + parent + url, e);
     }
 
@@ -97,7 +98,7 @@ public class Git {
   ) {
     Log.open(url, parent, branch);
 
-    Log.debug("Performing a full clone of %s at branch %s", url, branch);
+    Log.debug("Performing a full clone of {} at branch {}", url, branch);
 
     try {
       final var proc = Runtime.getRuntime()
@@ -110,7 +111,7 @@ public class Git {
       if (proc.waitFor() != 0)
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()).trim());
     } catch (Exception e) {
-      Log.error("Failed to clone " + url + " at branch " + branch + " into dir " + parent);
+      Log.error("Failed to clone {} at branch {} into dir {}", url, branch, parent);
       throw new RuntimeException("Failed to clone " + url + " at branch " + branch + " into dir " + parent, e);
     }
 
@@ -128,7 +129,7 @@ public class Git {
   ) {
     Log.open(url, parent, branch);
 
-    Log.debug("Performing a shallow clone of %s at branch %s", url, branch);
+    Log.debug("Performing a shallow clone of {} at branch {}", url, branch);
 
     try {
       final var proc = Runtime.getRuntime()
@@ -141,7 +142,7 @@ public class Git {
       if (proc.waitFor() != 0)
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()).trim());
     } catch (Exception e) {
-      Log.error("Failed to clone " + url + " at branch " + branch + " into dir " + parent);
+      Log.error("Failed to clone {} at branch {} into dir {}", url, branch, parent);
       throw new RuntimeException("Failed to clone " + url + " at branch " + branch + " into dir " + parent, e);
     }
 
@@ -154,12 +155,7 @@ public class Git {
   public void checkout(@NotNull final File repo, @NotNull final Target target) {
     Log.open(repo, target);
 
-    Log.debug(
-      "Checking out target %s in local repo ./%s/%s",
-      target,
-      repo.getParentFile().getName(),
-      repo.getName()
-    );
+    Log.debug("Checking out target {} in local repo {}", target, repo);
 
     try {
       final var proc = Runtime.getRuntime()
@@ -169,7 +165,7 @@ public class Git {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
       }
     } catch (Exception e) {
-      Log.error("Failed to checkout " + target + " in repo " + repo);
+      Log.error("Failed to checkout {} in repo {}", target, repo);
       throw new RuntimeException("Failed to checkout " + target + " in repo " + repo, e);
     }
 
@@ -177,9 +173,6 @@ public class Git {
   }
 
   private static boolean isDefault(@NotNull final String branchName) {
-    if (branchName == null)
-      throw new NullPointerException("Branch name cannot be null");
-
     for (final var branch : DefaultBranches)
       if (branch.equals(branchName))
         return true;
@@ -188,26 +181,49 @@ public class Git {
   }
 
   public interface Target {
-    Target Default = () -> "main";
+    Target Default = new TargetImpl("main");
 
-    static Target of(final String branchName) {
+    @NotNull
+    static Target of(@Nullable final String branchName) {
       if (branchName == null)
         return Default;
 
       if (Git.isDefault(branchName))
         return Default;
 
-      return () -> branchName;
+      return new TargetImpl(branchName);
     }
 
+    @NotNull
     String name();
 
     default boolean isDefault() {
       return Git.isDefault(name());
     }
 
-    default boolean is(final Target other) {
+    default boolean is(@NotNull final Target other) {
       return this == other || this.name().equals(other.name());
+    }
+  }
+
+  private static final class TargetImpl implements Target {
+    @NotNull
+    private final String name;
+
+    private TargetImpl(@NotNull final String name) {
+      this.name = name;
+    }
+
+    @Override
+    @NotNull
+    public String name() {
+      return name;
+    }
+
+    @Override
+    @NotNull
+    public String toString() {
+      return "Target{name=" + name + "}";
     }
   }
 }

@@ -36,7 +36,7 @@ public abstract class ExecAction extends Action {
 
   @Override
   protected void execute() {
-    log().open("ExecAction#execute()");
+    log().open();
 
     final var com = new ProcessBuilder(getCommandName());
 
@@ -56,7 +56,7 @@ public abstract class ExecAction extends Action {
 
     try {
       log().debug(
-        "\n  Executing:\n    %s\n  In directory:\n    %s",
+        "\n  Executing:\n    {}\n  In directory:\n    {}",
         () -> String.join(" ", com.command()),
         com::directory
       );
@@ -67,11 +67,11 @@ public abstract class ExecAction extends Action {
       status = proc.waitFor();
       if (status != 0) {
         final var err = new String(proc.getErrorStream().readAllBytes());
-        log().error("Command " + getCommandName() + " execution failed with status code " + status + ": " + err);
+        log().error("Command {} execution failed with status code {}: {}", getCommandName(), status, err);
         throw new RuntimeException("Command " + getCommandName() + " execution failed with status code " + status + ": " + err);
       }
     } catch (IOException | InterruptedException e) {
-      log().error("Command " + getCommandName() + " execution failed");
+      log().error("Command {} execution failed", this::getCommandName);
       throw new RuntimeException("Command " + getCommandName() + " execution failed", e);
     }
 

@@ -34,7 +34,7 @@ public class Utils {
     try (final var stream = new FileInputStream(new File(projectRoot, PropFileName))) {
       props.load(stream);
     } catch (IOException e) {
-      Log.error("Failed to read project's %s file.", PropFileName);
+      Log.error("Failed to read project's {} file.", PropFileName);
       throw new RuntimeException("Failed to read project's prop file.", e);
     }
 
@@ -46,7 +46,7 @@ public class Utils {
 
     if (!target.isDirectory()) {
       if (!target.delete()) {
-        Log.error("Failed to delete file " + target);
+        Log.error("Failed to delete file {}", target);
         throw new RuntimeException("Failed to delete file " + target);
       }
 
@@ -70,7 +70,7 @@ public class Utils {
           dels.push(child);
         } else {
           if (!child.delete()) {
-            Log.error("Failed to delete file " + child);
+            Log.error("Failed to delete file {}", child);
             throw new RuntimeException("Failed to delete file " + child);
           }
 
@@ -83,14 +83,14 @@ public class Utils {
       final var del = dels.pop();
 
       if (!del.delete()) {
-        Log.error("Failed to delete directory " + del);
+        Log.error("Failed to delete directory {}", del);
         throw new RuntimeException("Failed to delete directory " + del);
       }
 
       dirsDeleted++;
     }
 
-    Log.debug("Deleted %d files and %d directories", filesDeleted, dirsDeleted);
+    Log.debug("Deleted {} files and {} directories", filesDeleted, dirsDeleted);
 
     Log.close();
   }
@@ -100,12 +100,12 @@ public class Utils {
 
     if (!dir.exists()) {
       if (!dir.mkdirs()) {
-        Log.error("Failed to create docs directory " + dir);
+        Log.error("Failed to create docs directory {}", dir);
         throw new RuntimeException("Failed to create docs directory " + dir);
       }
     } else {
       if (!dir.isDirectory()) {
-        Log.error("Path " + dir + " exists but is not a directory");
+        Log.error("Path {} exists but is not a directory", dir);
         throw new RuntimeException("Path " + dir + " exists but is not a directory");
       }
     }
@@ -119,7 +119,7 @@ public class Utils {
     try {
       Files.move(src.toPath(), tgt.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      Log.error("Failed to move file " + src + " to " + tgt);
+      Log.error("Failed to move file {} to {}", src, tgt);
       throw new RuntimeException("Failed to move file " + src + " to " + tgt, e);
     }
 
@@ -136,14 +136,14 @@ public class Utils {
     try {
       Files.copy(src.toPath(), tgt1.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      Log.error("Failed to copy file " + src + " to " + tgt1);
+      Log.error("Failed to copy file {} to {}", src, tgt1);
       throw new RuntimeException("Failed to copy file " + src + " to " + tgt1, e);
     }
 
     try {
       Files.move(src.toPath(), tgt2.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      Log.error("Failed to move file " + src + " to " + tgt2);
+      Log.error("Failed to move file {} to {}", src, tgt2);
       throw new RuntimeException("Failed to move file " + src + " to " + tgt2, e);
     }
 
@@ -151,13 +151,13 @@ public class Utils {
   }
 
   public void moveFilesTo(@NotNull final File tgtDir, @NotNull final Stream<File> srcFiles) {
-    Log.open("Utils#moveFilesTo(File, Stream<File>)");
+    Log.open(tgtDir, srcFiles);
 
     if (!tgtDir.exists()) {
-      Log.error("Cannot move files to dir " + tgtDir + ".  Directory does not exist.");
+      Log.error("Cannot move files to dir {}.  Directory does not exist.", tgtDir);
       throw new RuntimeException("Cannot move files to dir " + tgtDir + ".  Directory does not exist.");
     } else if (!tgtDir.isDirectory()) {
-      Log.error("Cannot move files to path " + tgtDir + ".  Path does not point to a directory.");
+      Log.error("Cannot move files to path {}.  Path does not point to a directory.", tgtDir);
       throw new RuntimeException("Cannot move files to path " + tgtDir + ".  Path does not point to a directory.");
     }
 
@@ -173,7 +173,7 @@ public class Utils {
     try {
       return Log.close(Files.readString(src.toPath()));
     } catch (IOException e) {
-      Log.error("Failed to read contents of file " + src);
+      Log.error("Failed to read contents of file {}", src);
       throw new RuntimeException("Failed to read contents of file " + src, e);
     }
   }
@@ -189,7 +189,7 @@ public class Utils {
         StandardOpenOption.CREATE
       );
     } catch (IOException e) {
-      Log.error("Failed to write contents to file " + tgt);
+      Log.error("Failed to write contents to file {}", tgt);
       throw new RuntimeException("Failed to write contents to file " + tgt, e);
     }
 
@@ -198,7 +198,7 @@ public class Utils {
 
   @NotNull
   public Stream<File> listChildren(@NotNull final File root) {
-    Log.open("Utils#listChildren(root = %s)", root);
+    Log.open(root);
 
     if (!root.exists() || !root.isDirectory()) {
       return Stream.empty();

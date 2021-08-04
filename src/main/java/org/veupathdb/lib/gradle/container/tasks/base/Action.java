@@ -78,7 +78,7 @@ public abstract class Action extends DefaultTask {
    */
   @NotNull
   protected ServiceProperties serviceProperties() {
-    log().open("Action#serviceProperties()");
+    log().open();
 
     if (svcProps != null)
       return svcProps;
