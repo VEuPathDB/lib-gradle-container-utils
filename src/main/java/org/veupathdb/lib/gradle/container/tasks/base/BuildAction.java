@@ -100,6 +100,7 @@ public abstract class BuildAction extends Action {
       }
       case StateSkip -> {
         log().info("Already up to date. Skipping.");
+        log().close();
         return;
       }
       default -> {

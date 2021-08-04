@@ -31,7 +31,7 @@ public class GenerateJaxRS extends BinExecAction {
 
     args.addAll(Arrays.asList(
       "-jar",                  InstallRaml4JaxRS.OutputFile,
-      new File(RootDir.getParentFile(), getOptions().getApiDocRoot()).getName(),
+      new File(RootDir, getOptions().getApiDocRoot()).getPath(),
       "--directory",           "../src/main/java",
       "--generate-types-with", "jackson",
       "--model-package",       base + "model",

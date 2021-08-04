@@ -25,6 +25,16 @@ public class Logger {
   @SuppressWarnings("unused")
   public static final byte LogLevelTrace = 5;
 
+  private static final String OpenNoArg         = "{}#{}()";
+  private static final String OpenOneArg        = "{}#{}({})";
+  private static final String OpenTwoArg        = "{}#{}({}, {})";
+  private static final String OpenThreeArg      = "{}#{}({}, {}, {})";
+  private static final String ConstructorOneArg = "{}#new({})";
+  private static final String ConstructorTwoArg = "{}#new({}, {})";
+  private static final String NoOpNoArg         = "{}#{}(): no-op";
+  private static final String NoOpOneArg        = "{}#{}({}): no-op";
+  private static final String MapPattern        = "{}#{}({}): {}";
+
   private final byte           level;
   private final String         projPath;
   private final BufferedWriter writer;
@@ -32,27 +42,16 @@ public class Logger {
 
   private int call;
 
+
   public Logger(final byte level, final File rootDir) {
     this.start    = System.currentTimeMillis();
     this.level    = level;
     this.projPath = rootDir.getPath();
+    this.writer   = new BufferedWriter(new PrintWriter(System.out));
 
-    System.out.printf("LOGGER INSTANTIATED WITH LOG LEVEL %d%n", level);
-
-    try {
-      this.writer = new BufferedWriter(new FileWriter("/dev/stdout"));
-    } catch (IOException e) {
-      backupWrite(LogLevelError, "Failed to open stdout.");
-      throw new RuntimeException("Failed to open stdout.", e);
-    }
-
-    if (level >= LogLevelTrace)
-      constructor(level, rootDir);
+    constructor(level, rootDir);
   }
-
   ////////////////////////////////////////////////////////////////////////////////////////////////
-
-  private static final String OpenNoArg = "{}#{}()";
 
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
@@ -70,8 +69,6 @@ public class Logger {
     }
     call++;
   }
-
-  private static final String OpenOneArg = "{}#{}({})";
 
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
@@ -92,8 +89,6 @@ public class Logger {
     }
     call++;
   }
-
-  private static final String OpenTwoArg = "{}#{}({}, {})";
 
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
@@ -116,8 +111,6 @@ public class Logger {
     }
     call++;
   }
-
-  private static final String OpenThreeArg = "{}#{}({}, {}, {})";
 
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
@@ -207,8 +200,6 @@ public class Logger {
     return val;
   }
 
-  private static final String ConstructorOneArg = "{}#new({})";
-
   /**
    * If {@link #LogLevelTrace} is enabled, prints a constructor method
    * signature including the given argument value.
@@ -240,8 +231,6 @@ public class Logger {
       );
     }
   }
-
-  private static final String ConstructorTwoArg = "{}#new({}, {})";
 
   /**
    * If {@link #LogLevelTrace} is enabled, prints a constructor method
@@ -276,8 +265,6 @@ public class Logger {
     }
   }
 
-  private static final String NoOpNoArg = "{}#{}(): no-op";
-
   /**
    * If {@link #LogLevelTrace} is enabled, prints the caller's function
    * signature.
@@ -309,8 +296,6 @@ public class Logger {
       );
     }
   }
-
-  private static final String NoOpOneArg = "{}#{}({}): no-op";
 
   /**
    * If {@link #LogLevelTrace} is enabled, prints the caller's function
@@ -346,8 +331,6 @@ public class Logger {
       );
     }
   }
-
-  private static final String MapPattern = "{}#{}({}): {}";
 
   /**
    * If {@link #LogLevelTrace} is enabled, prints the caller's function
@@ -774,7 +757,7 @@ public class Logger {
       return "null";
 
     if (val instanceof String)
-      return '"' + (String) val + '"';
+      return (String) val;
 
     final var cls = val.getClass();
 
@@ -797,7 +780,7 @@ public class Logger {
       return arrayToString(val);
     }
 
-    return '"' + val.toString() + '"';
+    return val.toString();
   }
 
   @NotNull
@@ -852,7 +835,14 @@ public class Logger {
   void write(final byte level, @NotNull final String fmt, @Nullable final Object val) {
     try {
       writePrefix(level);
-      inject(0, 0, 1, fmt, val);
+
+      final var pos = inject(0, 0, 1, fmt, val);
+
+      if (pos == -1) {
+        writer.write(fmt);
+      } else {
+        writer.write(fmt.substring(pos));
+      }
 
       writer.newLine();
       writer.flush();
@@ -872,6 +862,7 @@ public class Logger {
     final var count = 2;
     var       ind   = 0;
     var       pos   = 0;
+    var       prev  = 0;
 
     try {
       writePrefix(level);
@@ -879,7 +870,14 @@ public class Logger {
       pos = inject(pos, ind++, count, fmt, val1);
 
       if (pos > -1) {
-        inject(pos, ind, count, fmt, val2);
+        prev = pos;
+        pos = inject(pos, ind, count, fmt, val2);
+      }
+
+      if (pos == -1) {
+        writer.write(fmt.substring(prev));
+      } else {
+        writer.write(fmt.substring(pos));
       }
 
       writer.newLine();
@@ -901,6 +899,7 @@ public class Logger {
     final var count = 3;
     var       ind   = 0;
     var       pos   = 0;
+    var       prev  = 0;
 
     try {
       writePrefix(level);
@@ -908,11 +907,19 @@ public class Logger {
       pos = inject(pos, ind++, count, fmt, val1);
 
       if (pos > -1) {
+        prev = pos;
         pos = inject(pos, ind++, count, fmt, val2);
       }
 
       if (pos > -1) {
-        inject(pos, ind, count, fmt, val3);
+        prev = pos;
+        pos = inject(pos, ind, count, fmt, val3);
+      }
+
+      if (pos == -1) {
+        writer.write(fmt.substring(prev));
+      } else {
+        writer.write(fmt.substring(pos));
       }
 
       writer.newLine();
@@ -935,6 +942,7 @@ public class Logger {
     final var count = 4;
     var       ind   = 0;
     var       pos   = 0;
+    var       prev  = 0;
 
     try {
       writePrefix(level);
@@ -942,15 +950,24 @@ public class Logger {
       pos = inject(pos, ind++, count, fmt, val1);
 
       if (pos > -1) {
+        prev = pos;
         pos = inject(pos, ind++, count, fmt, val2);
       }
 
       if (pos > -1) {
+        prev = pos;
         pos = inject(pos, ind++, count, fmt, val3);
       }
 
       if (pos > -1) {
-        inject(pos, ind, count, fmt, val4);
+        prev = pos;
+        pos = inject(pos, ind, count, fmt, val4);
+      }
+
+      if (pos == -1) {
+        writer.write(fmt.substring(prev));
+      } else {
+        writer.write(fmt.substring(pos));
       }
 
       writer.newLine();
@@ -974,26 +991,39 @@ public class Logger {
     final var count = 5;
     var       ind   = 0;
     var       pos   = 0;
+    var       prev  = 0;
 
     try {
       writePrefix(level);
+      backupWrite(LogLevelError, fmt);
 
       pos = inject(pos, ind++, count, fmt, val1);
 
       if (pos > -1) {
+        prev = pos;
         pos = inject(pos, ind++, count, fmt, val2);
       }
 
       if (pos > -1) {
+        prev = pos;
         pos = inject(pos, ind++, count, fmt, val3);
       }
 
       if (pos > -1) {
+        prev = pos;
         pos = inject(pos, ind++, count, fmt, val4);
       }
 
-      if (pos > -1)
-        inject(pos, ind, count, fmt, val5);
+      if (pos > -1) {
+        prev = pos;
+        pos = inject(pos, ind, count, fmt, val5);
+      }
+
+      if (pos == -1) {
+        writer.write(fmt.substring(prev));
+      } else {
+        writer.write(fmt.substring(pos));
+      }
 
       writer.newLine();
       writer.flush();
@@ -1004,25 +1034,24 @@ public class Logger {
   }
 
   int inject(
-    final int x,
-    final int ind,
+    final int start,
+    final int index,
     final int count,
     @NotNull final String fmt,
     @Nullable final Object val
   ) throws IOException {
-    final var pos = fmt.indexOf(Inject, x);
+    final var pos = fmt.indexOf(Inject, start);
 
     if (pos < 0) {
       backupWrite(LogLevelWarn, "Logger: " + count + " parameters provided but there are " + (
-        ind == 0
+        index == 0
           ? "no placeholders in format string."
-          : "only " + ind + 1 + " placeholders in format string"
+          : "only " + index + 1 + " placeholders in format string"
       ));
-      writer.write(fmt);
       return -1;
     }
 
-    writer.write(fmt.substring(x, pos));
+    writer.write(fmt.substring(start, pos));
     writer.write(stringify(val));
 
     return pos + ISize;
@@ -1042,6 +1071,7 @@ public class Logger {
     for (var i = 1; i < len; i++) {
       out.append(", ").append(Array.get(arr, i));
     }
+    out.append(']');
 
     return out.toString();
   }
@@ -1050,7 +1080,7 @@ public class Logger {
     writer.write(timePrefix());
     writer.write(levelPrefix(level));
 
-    if (level >= LogLevelTrace)
+    if (this.level >= LogLevelTrace)
       writer.write(pad());
   }
 
@@ -1066,15 +1096,13 @@ public class Logger {
    * @param val   Value to write out.
    */
   void backupWrite(final byte level, @Nullable final Object val) {
-    if (this.level >= level) {
-      System.out.print(timePrefix());
-      System.out.print(levelPrefix(level));
+    System.out.print(timePrefix());
+    System.out.print(levelPrefix(level));
 
-      if (level >= LogLevelTrace)
-        System.out.print(pad());
+    if (this.level >= LogLevelTrace)
+      System.out.print(pad());
 
-      System.out.println(val);
-    }
+    System.out.println(val);
   }
 
   private static final char[][] LevelPrefixes = {
@@ -1092,19 +1120,19 @@ public class Logger {
   private static final String   com     = "  |- ";
   private static final String[] padding = {
     "",
-    "  |- ",
-    "  |   |- ",
-    "  |   |   |- ",
-    "  |   |   |   |- ",
-    "  |   |   |   |   |- ",
-    "  |   |   |   |   |   |- ",
-    "  |   |   |   |   |   |   |- ",
-    "  |   |   |   |   |   |   |   |- ",
-    "  |   |   |   |   |   |   |   |   |- ",
-    "  |   |   |   |   |   |   |   |   |   |- ",
-    "  |   |   |   |   |   |   |   |   |   |   |- ",
-    "  |   |   |   |   |   |   |   |   |   |   |   |- ",
-    "  |   |   |   |   |   |   |   |   |   |   |   |   |- ",
-    "  |   |   |   |   |   |   |   |   |   |   |   |   |   |- ",
+    " |- ",
+    " |   |- ",
+    " |   |   |- ",
+    " |   |   |   |- ",
+    " |   |   |   |   |- ",
+    " |   |   |   |   |   |- ",
+    " |   |   |   |   |   |   |- ",
+    " |   |   |   |   |   |   |   |- ",
+    " |   |   |   |   |   |   |   |   |- ",
+    " |   |   |   |   |   |   |   |   |   |- ",
+    " |   |   |   |   |   |   |   |   |   |   |- ",
+    " |   |   |   |   |   |   |   |   |   |   |   |- ",
+    " |   |   |   |   |   |   |   |   |   |   |   |   |- ",
+    " |   |   |   |   |   |   |   |   |   |   |   |   |   |- ",
   };
 }
