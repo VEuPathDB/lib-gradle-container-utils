@@ -1,3 +1,262 @@
 = Gradle Container Build Utils
+:source-highlighter: highlightjs
+:icons: font
+
+// Project version
+:p-version: 1.2.0
+
+// Options List
+:o-vendorDir: vendorDirectory
+:o-fgputilVersion: fgpUtilVersion
+:o-ramlForJaxRsVersion: ramlForJaxRSVersion
+:o-binDirectory: binDirectory
+:o-rootApiDef: apiDocRoot
+:o-logLevel: logLevel
+:o-repoDocsDir: repoDocsDirectory
+
+// Footnotes
+:fn-nb: footnote:nb["Necessary" means that either the dependency has not yet been installed, or the version that is installed differs from the version currently set in the `build.gradle.kts` file.]
 
 A set of utils to assist in building gradle based containerized services.
+
+== Tasks
+
+The following tasks/targets are added to Gradle by this plugin.
+
+
+:t-install-fgputil: fgputilInstall
+=== `{t-install-fgputil}`
+
+WARNING: This task will be renamed to `install-fgputil` in v2+
+
+Downloads, compiles, and installs FgpUtil when necessary{fn-nb}.  By default,
+this task will use the latest commit to FgpUtil's default git branch, but this
+can be configured in your `build.gradle.kts` file where you can choose any valid
+commit hash, git tag, or branch name to build from.
+
+Additionally, this task is automatically registered as a dependency of Gradle's
+built-in compile tasks, meaning FgpUtil will be automatically installed or
+updated (when necessary{fn-nb}) on project build.
+
+==== Options
+
+(See <<Options,All Options>>)
+
+The following options impact the `{t-install-fgputil}` task:
+
+`{o-fgputilVersion} = <String>`:: The target git commit, git tag, or branch name
+to install or build.  This may be changed at any time and FgpUtil will be
+rebuilt on next call to a built-in Gradle compile task, or to the
+`{t-install-fgputil}` task itself.
++
+Default: `"master"`
+
+`{o-vendorDir} = <String>`:: Name of the output directory/path that the compiled
+FgpUtil jars will be placed in.
++
+Default: `"vendor"`
+
+
+:t-uninstall-fgputil: fgputilUninstall
+=== `{t-uninstall-fgputil}`
+
+WARNING: This task will be renamed to `uninstall-fgputil` in v2+
+
+Removes any artifacts or files related to FgpUtil present in the configured
+`{o-vendorDir}`.
+
+==== Options
+
+(See <<Options,All Options>>)
+
+The following options impact the `{t-uninstall-fgputil}` task:
+
+`{o-vendorDir} = <String>`:: Name of the directory/path from which FgpUtil
+outputs will be removed from.
++
+Default: `"vendor"`
+
+
+:t-install-raml4jaxrs: ramlGenInstall
+=== `{t-install-raml4jaxrs}`
+
+WARNING: This task will be renamed to `install-raml-gen` in v2+
+
+Downloads, compiles, and installs Raml for Jax RS when necessary{fn-nb}.  By
+default, this task will use Raml for Jax RS v3.0.7, but this can be configured
+in your project's `build.gradle.kts` file where you can choose any valid git
+tag to install.
+
+Additionally, this task is automatically registered as a dependency of the task
+<<`{t-generate-jaxrs}`>>, meaning that Raml for Jax RS will be automatically
+updated or installed by running that task.
+
+==== Options
+
+(See <<Options,All Options>>)
+
+The following options impact the `{t-install-raml4jaxrs}` task:
+
+`{o-ramlForJaxRsVersion} = <String>`:: The target git tag to install or build.
+This may be changed at any time and Raml for Jax RS will be rebuilt on next call
+to `{t-generate-jaxrs}`, or to the `{t-install-raml4jaxrs}` task itself.
++
+Default: `"3.0.7"`
+
+`{o-binDirectory} = <String>`:: Name of the output directory/path that the
+compiled Raml for Jax RS jars will be placed in.
++
+Default: `".bin"`
+
+
+:t-uninstall-raml4jaxrs: ramlGenUninstall
+=== `{t-uninstall-raml4jaxrs}`
+
+WARNING: This task will be renamed to `uninstall-raml-gen` in v2+
+
+Removes any artifacts or files related to Raml for Jax RS present in the
+configured `{o-binDirectory}`.
+
+==== Options
+
+(See <<Options,All Options>>)
+
+The following options impact the `{t-uninstall-raml4jaxrs}` task:
+
+`{o-binDirectory} = <String>`:: Name of the directory/path from which Raml for Jax
+RS outputs will be removed from.
++
+Default: `".bin"`
+
+
+
+:t-generate-jaxrs: generate-jaxrs
+=== `{t-generate-jaxrs}`
+
+Runs the Raml for Jax RS code generator on the RAML file defined by the option
+`{o-rootApiDef}`.
+
+==== Options
+
+(See <<Options,All Options>>)
+
+The following options impact the `{t-generate-jaxrs}` task:
+
+`{o-rootApiDef} = <String>`:: Path to the root API definition file relative to
+the root directory of the Gradle project.
++
+Default: `"api.raml"`
+
+`{o-binDirectory} = <String>`:: Path to the directory containing the compiled
+Raml for Jax RS jars.
++
+Default: `".bin"`
+
+
+
+:t-generate-raml-docs: generate-raml-docs
+=== `{t-generate-raml-docs}`
+
+Runs the API Doc generation tool(s) on the RAML file defined by the option
+`{o-rootApiDef}`
+
+==== Options
+
+(See <<Options,All Options>>)
+
+The following options impact the `{t-generate-raml-docs}` task:
+
+`{o-rootApiDef} = <String>`:: Path to the root API definition file relative to
+the root directory of the Gradle project.
++
+Default: `"api.raml"`
+
+`{o-repoDocsDir} = <String>`:: Path to the git repo docs directory relative to
+the root directory of the Gradle project.
++
+Default: `"docs"`
+
+
+
+== Options
+
+Options for this plugin are defined in a special closure named `containerBuild`
+that may be added to the root level of your project's `build.gradle.kts` file.
+
+.Example build.gradle.kts
+[source, kotlin, linenums, subs="attributes"]
+----
+plugins {
+  java
+  id("org.veupathdb.lib.gradle.container.container-utils") version "{p-version}"
+}
+
+containerBuild {
+  // Options go here.
+}
+----
+
+[cols="3m,2m,2m,9"]
+|===
+h| Option h| Type h| Default h| Purpose
+
+| {o-vendorDir}
+| String
+| "vendor"
+| Controls the output directory for vendored dependencies.  More specifically
+  defines where vendored dependencies built by this plugin will be placed after
+  build. +
+  +
+  Paths are relative to the root directory of the current Gradle project.
+
+| {o-fgputilVersion}
+| String
+| "master"
+| Sets the target git commit hash, tag, or branch of FgpUtil to build this
+  project against.  If this value is changed after FgpUtil has been
+  built/installed, it will be rebuilt on the next compile or call to the task
+  `{t-install-fgputil}`
+
+| {o-ramlForJaxRsVersion}
+| String
+| "3.0.7"
+| Sets the target git tag or branch (but not commit hash) of the version of
+  Raml for Jax RS to use when generating code from the RAML API spec.  If this
+  value is changed after Raml for Jax RS has been built/installed, it will be
+  rebuilt on next call to `{t-generate-jaxrs}` or `{t-install-raml4jaxrs}`.
+
+| {o-binDirectory}
+| String
+| ".bin"
+| Sets the target output/binary directory for tools and utilities this build
+  depends on. +
+  +
+  Paths are relative to the root directory of the current Gradle project.
+
+| {o-repoDocsDir}
+| String
+| "docs"
+| Sets the output directory for generated docs. +
+  +
+  Paths are relative to the root directory of the current Gradle project.
+
+| {o-rootApiDef}
+| String
+| "api.raml"
+| Sets the name of the root api definition file. +
+  +
+  Paths are relative to the root directory of the current Gradle project.
+
+| {o-logLevel}
+| int
+| 3 (LogLevelInfo)
+| Sets the log verbosity for this plugin (not Gradle or any other plugins). +
+  +
+  Options are: +
+  `0 = LogLevelNone` +
+  `1 = LogLevelError` +
+  `2 = LogLevelWarn` +
+  `3 = LogLevelInfo` +
+  `4 = LogLevelDebug` +
+  `5 = LogLevelTrace`
+|===
