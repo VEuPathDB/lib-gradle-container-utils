@@ -20,7 +20,7 @@ public abstract class CleanAction extends Action {
   }
 
   @Override
-  protected void execute() {
+  public void execute() {
     log().open();
     for (final var file : Objects.requireNonNull(getTargetDirectory().listFiles()))
       if (filerPredicate(file))

@@ -22,7 +22,7 @@ public class GenerateRamlDocs extends ExecAction {
 
   @Override
   @NotNull
-  protected String pluginDescription() {
+  public String pluginDescription() {
     return "Generates HTML documentation from the RAML API spec.";
   }
 

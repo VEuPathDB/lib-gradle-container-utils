@@ -11,7 +11,7 @@ public class UninstallFgpUtil extends VendorCleanAction {
 
   @Override
   @NotNull
-  protected String pluginDescription() {
+  public String pluginDescription() {
     return "Removes FgpUtil jars from the dependency directory.";
   }
 

@@ -3,6 +3,7 @@ package org.veupathdb.lib.gradle.container.util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
 import java.io.*;
 import java.lang.reflect.Array;
@@ -12,18 +13,13 @@ import java.util.function.Supplier;
 
 // TODO: allow configuring threshold for what goes to stdout and what goes to stderr.
 public class Logger {
-  @SuppressWarnings("unused")
   public static final byte LogLevelNone  = 0;
-  @SuppressWarnings("unused")
   public static final byte LogLevelError = 1;
-  @SuppressWarnings("unused")
   public static final byte LogLevelWarn  = 2;
-  @SuppressWarnings("unused")
   public static final byte LogLevelInfo  = 3;
-  @SuppressWarnings("unused")
   public static final byte LogLevelDebug = 4;
-  @SuppressWarnings("unused")
   public static final byte LogLevelTrace = 5;
+  public static final byte LogLevelFatal = 0;
 
   private static final String OpenNoArg         = "{}#{}()";
   private static final String OpenOneArg        = "{}#{}({})";
@@ -51,6 +47,37 @@ public class Logger {
 
     constructor(level, rootDir);
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public byte getLogLevel() {
+    return level;
+  }
+
+  public boolean isTrace() {
+    return level >= LogLevelTrace;
+  }
+
+  public boolean debugEnabled() {
+    return level >= LogLevelDebug;
+  }
+
+  public boolean isInfo() {
+    return level >= LogLevelInfo;
+  }
+
+  public boolean isWarn() {
+    return level >= LogLevelWarn;
+  }
+
+  public boolean isError() {
+    return level >= LogLevelError;
+  }
+
+  public boolean isDisabled() {
+    return level == LogLevelNone;
+  }
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
@@ -546,6 +573,32 @@ public class Logger {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
+  public <T> T fatal(@NotNull final Throwable val) {
+    write(writer, LogLevelFatal, val.getMessage());
+
+    throw new RuntimeException(val);
+  }
+
+  public <T> T fatal(@Nullable final Object val) {
+    final var buf = new StringWriter(64);
+
+    write(new BufferedWriter(buf), LogLevelFatal, val);
+    write(writer, LogLevelFatal, buf.toString());
+
+    throw new RuntimeException(buf.toString());
+  }
+
+  public void fatal(@NotNull final Throwable err, @Nullable final Object val) {
+    final var buf = new StringWriter(64);
+
+    write(new BufferedWriter(buf), LogLevelFatal, val);
+    write(writer, LogLevelFatal, buf.toString());
+
+    throw new RuntimeException(buf.toString(), err);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+
   /**
    * If the current configured log level is greater than or equal to the given
    * {@code level}, prints the output of the given {@code Supplier} to stdout.
@@ -793,11 +846,11 @@ public class Logger {
   }
 
   char[] levelPrefix(final byte level) {
-    return LevelPrefixes[level - 1];
+    return LevelPrefixes[level];
   }
 
   // Max execution time of 9,999,999ms or 4.444444 hours.
-  private final char[] timeBuffer = {'[', '0', '0', '0', '0', '0', '0', '0', ']', ' '};
+  private static final char[] timeBuffer = {'[', '0', '0', '0', '0', '0', '0', '0', ']', ' '};
 
   char[] timePrefix() {
     final var line = new char[timeBuffer.length];
@@ -821,6 +874,10 @@ public class Logger {
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
   void write(final byte level, @Nullable final Object val) {
+    write(writer, level, val);
+  }
+
+  void write(@NotNull final BufferedWriter writer, final byte level, @Nullable final Object val) {
     try {
       writePrefix(level);
 
@@ -828,11 +885,25 @@ public class Logger {
       writer.newLine();
       writer.flush();
     } catch (IOException e) {
-      e.printStackTrace();
+      backupWrite(LogLevelError, "Failed to write to stdout");
+      throw new RuntimeException("Failed to write to stdout", e);
     }
   }
 
-  void write(final byte level, @NotNull final String fmt, @Nullable final Object val) {
+  void write(
+    @Range(from = 0, to = 5) final byte   level,
+    @NotNull                 final String fmt,
+    @Nullable                final Object val
+  ) {
+    write(writer, level, fmt, val);
+  }
+
+  void write(
+    @NotNull                 final BufferedWriter writer,
+    @Range(from = 0, to = 5) final byte           level,
+    @NotNull                 final String         fmt,
+    @Nullable                final Object         val
+  ) {
     try {
       writePrefix(level);
 
@@ -847,13 +918,22 @@ public class Logger {
       writer.newLine();
       writer.flush();
     } catch (IOException e) {
-      backupWrite(LogLevelError, "Failed to write to stdout");
-      throw new RuntimeException("Failed to write to stdout", e);
+      fatal(e, "Failed to write to stdout");
     }
+  }
+
+  void write(
+    final byte level,
+    @NotNull final String fmt,
+    @Nullable final Object val1,
+    @Nullable final Object val2
+  ) {
+    write(writer, level, fmt, val1, val2);
   }
 
   @SuppressWarnings("DuplicatedCode")
   void write(
+    @NotNull final BufferedWriter writer,
     final byte level,
     @NotNull final String fmt,
     @Nullable final Object val1,
@@ -1040,6 +1120,17 @@ public class Logger {
     @NotNull final String fmt,
     @Nullable final Object val
   ) throws IOException {
+    return inject(writer, start, index, count, fmt, val);
+  }
+
+  int inject(
+    @NotNull final BufferedWriter writer,
+    final int start,
+    final int index,
+    final int count,
+    @NotNull final String fmt,
+    @Nullable final Object val
+  ) throws IOException {
     final var pos = fmt.indexOf(Inject, start);
 
     if (pos < 0) {
@@ -1077,6 +1168,13 @@ public class Logger {
   }
 
   void writePrefix(final byte level) throws IOException {
+    writePrefix(writer, level);
+  }
+
+  void writePrefix(
+    @NotNull final Writer writer,
+    final byte level
+  ) throws IOException {
     writer.write(timePrefix());
     writer.write(levelPrefix(level));
 
@@ -1106,6 +1204,7 @@ public class Logger {
   }
 
   private static final char[][] LevelPrefixes = {
+    "[FATAL] ".toCharArray(),
     "[ERROR] ".toCharArray(),
     " [WARN] ".toCharArray(),
     " [INFO] ".toCharArray(),

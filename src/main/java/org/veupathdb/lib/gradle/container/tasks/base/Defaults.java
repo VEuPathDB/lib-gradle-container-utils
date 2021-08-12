@@ -7,4 +7,5 @@ public class Defaults {
   public static final String DefaultFgpUtilVersion      = "master";
   public static final String DefaultRamlForJaxRSVersion = "3.0.7";
   public static final String DefaultApiDocsRoot         = "api.raml";
+  public static final String DefaultProjectPackage      = "org.veupathdb.service.demo";
 }

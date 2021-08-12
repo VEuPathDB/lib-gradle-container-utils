@@ -10,7 +10,7 @@ public class UninstallRaml4JaxRS extends BinCleanAction {
 
   @Override
   @NotNull
-  protected String pluginDescription() {
+  public String pluginDescription() {
     return "Uninstalls the Raml for Jax RS tooling.";
   }
 

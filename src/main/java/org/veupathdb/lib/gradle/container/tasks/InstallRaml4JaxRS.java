@@ -33,7 +33,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
 
   @Override
   @NotNull
-  protected String pluginDescription() {
+  public String pluginDescription() {
     return "Builds and installs the Raml for JaxRS generator.";
   }
 

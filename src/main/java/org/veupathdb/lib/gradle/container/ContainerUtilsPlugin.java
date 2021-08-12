@@ -5,6 +5,7 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.veupathdb.lib.gradle.container.config.Options;
 import org.veupathdb.lib.gradle.container.tasks.*;
+import org.veupathdb.lib.gradle.container.tasks.base.Action;
 
 public class ContainerUtilsPlugin implements Plugin<Project> {
   public static final String ExtensionName = "containerBuild";
@@ -25,6 +26,9 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     tasks.create(GenerateJaxRS.TaskName, GenerateJaxRS.class, GenerateJaxRS::init);
     tasks.create(GenerateRamlDocs.TaskName, GenerateRamlDocs.class, GenerateRamlDocs::init);
 
+    tasks.create(JaxRSDiscriminatorPatch.TaskName, JaxRSDiscriminatorPatch.class, JaxRSDiscriminatorPatch::init);
+    tasks.create(JaxRSEnumValuePatch.TaskName, JaxRSEnumValuePatch.class, JaxRSEnumValuePatch::init);
+
     project.afterEvaluate(ContainerUtilsPlugin::afterEvaluate);
   }
 
@@ -37,7 +41,14 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
 
     // Make sure that Raml for Jax RS is installed before attempting to generate
     // java types.
-    tasks.getByName(GenerateJaxRS.TaskName).dependsOn(tasks.getByName(InstallRaml4JaxRS.TaskName));
 
+    final var genJaxrs = tasks.getByName(GenerateJaxRS.TaskName);
+
+    genJaxrs.dependsOn(tasks.getByName(InstallRaml4JaxRS.TaskName));
+
+    genJaxrs.finalizedBy(
+      JaxRSDiscriminatorPatch.TaskName,
+      JaxRSEnumValuePatch.TaskName
+    );
   }
 }

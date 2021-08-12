@@ -1,6 +1,7 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +29,9 @@ public abstract class Action extends DefaultTask {
   @Nullable
   private Options options;
 
+  @Nullable
+  private JavaPluginExtension javaPluginExtension;
+
   protected Action() {
     this.RootDir = getProject().getRootDir();
   }
@@ -47,7 +51,7 @@ public abstract class Action extends DefaultTask {
   /**
    * The primary execution of this Action's functionality.
    */
-  protected abstract void execute();
+  public abstract void execute();
 
   /**
    * Returns a description of this Action to use when rendering Gradle help
@@ -56,7 +60,7 @@ public abstract class Action extends DefaultTask {
    * @return The current Action's description.
    */
   @NotNull
-  protected abstract String pluginDescription();
+  public abstract String pluginDescription();
 
   /**
    * Register configures the current Action after instantiation.
@@ -98,6 +102,17 @@ public abstract class Action extends DefaultTask {
     return options = (Options) getProject()
       .getExtensions()
       .getByName(ContainerUtilsPlugin.ExtensionName);
+  }
+
+  @NotNull
+  @Internal
+  protected JavaPluginExtension getJavaPluginExtension() {
+    if (javaPluginExtension != null)
+      return javaPluginExtension;
+
+    return javaPluginExtension = getProject()
+      .getExtensions()
+      .getByType(JavaPluginExtension.class);
   }
 
   @NotNull

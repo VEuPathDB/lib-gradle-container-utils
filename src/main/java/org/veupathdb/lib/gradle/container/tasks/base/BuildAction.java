@@ -83,7 +83,7 @@ public abstract class BuildAction extends Action {
   }
 
   @Override
-  protected void execute() {
+  public void execute() {
     log().open();
 
     log().info("Checking {}", this::getDependencyName);

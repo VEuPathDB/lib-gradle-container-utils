@@ -12,7 +12,7 @@ public class GenerateJaxRS extends BinExecAction {
 
   @Override
   @NotNull
-  protected String pluginDescription() {
+  public String pluginDescription() {
     return "Generates JaxRS Java code based on the project's RAML API spec.";
   }
 

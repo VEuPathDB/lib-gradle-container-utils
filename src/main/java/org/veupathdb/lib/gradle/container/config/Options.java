@@ -3,6 +3,8 @@ package org.veupathdb.lib.gradle.container.config;
 import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.util.Logger;
 
+import java.util.Objects;
+
 import static org.veupathdb.lib.gradle.container.tasks.base.Defaults.*;
 
 @SuppressWarnings("unused")
@@ -24,6 +26,9 @@ public class Options {
 
   @NotNull
   private String apiDocRoot = DefaultApiDocsRoot;
+
+  @NotNull
+  private String projectPackage = DefaultProjectPackage;
 
   private byte logLevel = Logger.LogLevelInfo;
 
@@ -50,7 +55,7 @@ public class Options {
    * @param directory Target vendor directory.
    */
   public void setVendorDirectory(@NotNull final String directory) {
-    this.vendorDirectory = directory;
+    this.vendorDirectory = Objects.requireNonNull(directory);
   }
 
   /**
@@ -86,7 +91,7 @@ public class Options {
    *                this project.
    */
   public void setFgpUtilVersion(@NotNull final String version) {
-    this.fgpUtilVersion = version;
+    this.fgpUtilVersion = Objects.requireNonNull(version);
   }
 
   /**
@@ -114,34 +119,84 @@ public class Options {
    * @param branch Raml for Jax RS branch name.
    */
   public void setRamlForJaxRSVersion(@NotNull final String branch) {
-    this.ramlForJaxRSVersion = branch;
+    this.ramlForJaxRSVersion = Objects.requireNonNull(branch);
   }
 
+  /**
+   * Returns the currently configured relative bin directory where external
+   * tools will be kept and executed from.
+   *
+   * @return Currently configured bin directory.
+   */
   @NotNull
   public String getBinDirectory() {
     return binDirectory;
   }
 
+  /**
+   * Configures the relative path to a bin directory where external tools will
+   * be installed to and executed from.
+   * <p>
+   * If this directory does not already exist, it will be created when
+   * installing an external tool.
+   *
+   * @param directory Relative bin directory path.
+   */
   public void setBinDirectory(@NotNull final String directory) {
-    this.binDirectory = directory;
+    this.binDirectory = Objects.requireNonNull(directory);
   }
 
+  /**
+   * Returns the currently configured relative directory where git repository
+   * level documentation is/will be stored.
+   * <p>
+   * Generally this is a directory named "docs" in the root directory of the
+   * repo.
+   *
+   * @return The currently configured repo docs location.
+   */
   @NotNull
   public String getRepoDocsDirectory() {
     return repoDocsDirectory;
   }
 
+  /**
+   * Configures the relative path to the git repository documentation is/will be
+   * stored.
+   * <p>
+   * Generally this is a directory named "docs" in the root directory of the
+   * repo.
+   * <p>
+   * If this directory does not already exist, it will be created when
+   * generating docs.
+   *
+   * @param directory Relative repo docs directory path.
+   */
   public void setRepoDocsDirectory(@NotNull final String directory) {
-    this.repoDocsDirectory = directory;
+    this.repoDocsDirectory = Objects.requireNonNull(directory);
   }
 
+  /**
+   * Returns the configured relative path to the current project's root API
+   * definition file (RAML, or OpenAPI).
+   *
+   * @return The configured relative path to the current project's root API
+   * definition file.
+   */
   @NotNull
   public String getApiDocRoot() {
     return apiDocRoot;
   }
 
+  /**
+   * Configures the relative path to the current project's root API definition
+   * file (RAML or OpenAPI).
+   *
+   * @param apiDocFile Relative path to the current project's root API
+   *                   definition file.
+   */
   public void setApiDocRoot(@NotNull final String apiDocFile) {
-    this.apiDocRoot = apiDocFile;
+    this.apiDocRoot = Objects.requireNonNull(apiDocFile);
   }
 
   public byte getLogLevel() {
@@ -150,6 +205,15 @@ public class Options {
 
   public void setLogLevel(byte logLevel) {
     this.logLevel = logLevel;
+  }
+
+  @NotNull
+  public String getProjectPackage() {
+    return projectPackage;
+  }
+
+  public void setProjectPackage(@NotNull final String projectPackage) {
+    this.projectPackage = Objects.requireNonNull(projectPackage);
   }
 
   @Override
@@ -161,6 +225,7 @@ public class Options {
       ", binDirectory='" + binDirectory + '\'' +
       ", repoDocsDirectory='" + repoDocsDirectory + '\'' +
       ", apiDocRoot='" + apiDocRoot + '\'' +
+      ", projectPackage='" + projectPackage + '\'' +
       ", logLevel=" + logLevel +
       '}';
   }

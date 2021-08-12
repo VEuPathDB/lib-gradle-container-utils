@@ -35,7 +35,7 @@ public abstract class ExecAction extends Action {
   }
 
   @Override
-  protected void execute() {
+  public void execute() {
     log().open();
 
     final var com = new ProcessBuilder(getCommandName());

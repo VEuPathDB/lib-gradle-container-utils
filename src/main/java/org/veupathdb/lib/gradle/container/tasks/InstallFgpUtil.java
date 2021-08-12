@@ -24,7 +24,7 @@ public class InstallFgpUtil extends VendorBuildAction {
 
   @Override
   @NotNull
-  protected String pluginDescription() {
+  public String pluginDescription() {
     return "Download, build, and vendor FgpUtil";
   }
 
