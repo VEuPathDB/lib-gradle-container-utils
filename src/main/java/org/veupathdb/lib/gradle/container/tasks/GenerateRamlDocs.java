@@ -1,18 +1,20 @@
 package org.veupathdb.lib.gradle.container.tasks;
 
 import org.jetbrains.annotations.NotNull;
+import org.veupathdb.lib.gradle.container.config.RedirectConfig;
 import org.veupathdb.lib.gradle.container.tasks.base.ExecAction;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class GenerateRamlDocs extends ExecAction {
 
   public static final String TaskName = "generate-raml-docs";
 
   private static final String SrcDocsDir = "src/main/resources";
-  private static final String OutputFile = "api.html";
+  private static final File OutputFile = new File("api.html");
 
   @Override
   @NotNull
@@ -43,8 +45,8 @@ public class GenerateRamlDocs extends ExecAction {
 
   @Override
   @NotNull
-  protected File getStdOutRedirect() {
-    return log().getter(new File(RootDir, OutputFile));
+  protected Optional<RedirectConfig> getStdOutRedirect() {
+    return log().getter(Optional.of(RedirectConfig.toFile(OutputFile)));
   }
 
   @Override
@@ -54,9 +56,9 @@ public class GenerateRamlDocs extends ExecAction {
     log().debug("Copying generated docs to target doc directories");
 
     util().moveFile(
-      getStdOutRedirect(),
-      new File(util().getOrCreateDir(new File(RootDir, getOptions().getRepoDocsDirectory())), OutputFile),
-      new File(util().getOrCreateDir(new File(RootDir, SrcDocsDir)), OutputFile)
+      OutputFile,
+      new File(util().getOrCreateDir(new File(RootDir, getOptions().getRepoDocsDirectory())), OutputFile.getName()),
+      new File(util().getOrCreateDir(new File(RootDir, SrcDocsDir)), OutputFile.getName())
     );
 
     log().close();

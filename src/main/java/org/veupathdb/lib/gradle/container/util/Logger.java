@@ -31,6 +31,8 @@ public class Logger {
   private static final String NoOpOneArg        = "{}#{}({}): no-op";
   private static final String MapPattern        = "{}#{}({}): {}";
 
+  private static final boolean isTTY = System.getenv("DOCKER") == null;
+
   private final byte           level;
   private final String         projPath;
   private final BufferedWriter writer;
@@ -583,7 +585,7 @@ public class Logger {
     final var buf = new StringWriter(64);
 
     write(new BufferedWriter(buf), LogLevelFatal, val);
-    write(writer, LogLevelFatal, buf.toString());
+    write(writer, buf.toString());
 
     throw new RuntimeException(buf.toString());
   }
@@ -592,7 +594,30 @@ public class Logger {
     final var buf = new StringWriter(64);
 
     write(new BufferedWriter(buf), LogLevelFatal, val);
-    write(writer, LogLevelFatal, buf.toString());
+    write(writer, buf.toString());
+
+    throw new RuntimeException(buf.toString(), err);
+  }
+
+  public void fatal(@NotNull final Throwable err, @NotNull final String fmt, @Nullable final Object val) {
+    final var buf = new StringWriter(64);
+
+    write(new BufferedWriter(buf), LogLevelFatal, fmt, val);
+    write(writer, buf.toString());
+
+    throw new RuntimeException(buf.toString(), err);
+  }
+
+  public void fatal(
+    @NotNull final Throwable err,
+    @NotNull final String fmt,
+    @Nullable final Object val1,
+    @Nullable final Object val2
+  ) {
+    final var buf = new StringWriter(64);
+
+    write(new BufferedWriter(buf), LogLevelFatal, fmt, val1, val2);
+    write(writer, buf.toString());
 
     throw new RuntimeException(buf.toString(), err);
   }
@@ -885,8 +910,19 @@ public class Logger {
       writer.newLine();
       writer.flush();
     } catch (IOException e) {
-      backupWrite(LogLevelError, "Failed to write to stdout");
+      backupWrite(LogLevelFatal, "Failed to write to stdout");
       throw new RuntimeException("Failed to write to stdout", e);
+    }
+  }
+
+  void write(@NotNull final BufferedWriter writer, @Nullable final Object val) {
+    try {
+      writer.write(String.valueOf(val));
+      writer.newLine();
+      writer.flush();
+    } catch (IOException e) {
+      backupWrite(LogLevelFatal, "Failed to write to stdout.");
+      throw new RuntimeException("Failed to write to stdout.", e);
     }
   }
 
@@ -1176,7 +1212,14 @@ public class Logger {
     final byte level
   ) throws IOException {
     writer.write(timePrefix());
-    writer.write(levelPrefix(level));
+
+    if (isTTY) {
+      writer.write(ColorPrefixes[level]);
+      writer.write(levelPrefix(level));
+      writer.write(ColorReset);
+    } else {
+      writer.write(levelPrefix(level));
+    }
 
     if (this.level >= LogLevelTrace)
       writer.write(pad());
@@ -1202,6 +1245,17 @@ public class Logger {
 
     System.out.println(val);
   }
+
+  private static final char[][] ColorPrefixes = {
+    "\u001B[31m".toCharArray(), // Fatal
+    "\u001B[91m".toCharArray(), // Error
+    "\u001B[93m".toCharArray(), // Warning
+    "\u001B[37m".toCharArray(), // Info
+    "\u001B[94m".toCharArray(), // Debug
+    "\u001B[90m".toCharArray(), // Trace
+  };
+
+  private static final char[] ColorReset = "\u001B[39m".toCharArray();
 
   private static final char[][] LevelPrefixes = {
     "[FATAL] ".toCharArray(),

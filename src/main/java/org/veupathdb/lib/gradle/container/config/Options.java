@@ -30,6 +30,9 @@ public class Options {
   @NotNull
   private String projectPackage = DefaultProjectPackage;
 
+  @NotNull
+  private String dockerContext = DefaultDockerContext;
+
   private byte logLevel = Logger.LogLevelInfo;
 
   /**
@@ -214,6 +217,15 @@ public class Options {
 
   public void setProjectPackage(@NotNull final String projectPackage) {
     this.projectPackage = Objects.requireNonNull(projectPackage);
+  }
+
+  @NotNull
+  public String getDockerContext() {
+    return dockerContext;
+  }
+
+  public void setDockerContext(@NotNull String dockerContext) {
+    this.dockerContext = Objects.requireNonNull(dockerContext);
   }
 
   @Override

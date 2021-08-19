@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "org.veupathdb.lib"
-version = "1.3.0"
+version = "1.4.0"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_14
@@ -17,6 +17,7 @@ java {
 }
 
 repositories {
+  mavenLocal()
   mavenCentral()
 }
 
@@ -30,7 +31,7 @@ gradlePlugin {
 }
 
 dependencies {
-  implementation("org.jetbrains:annotations:21.0.1")
+  implementation("org.jetbrains", "annotations", "21.0.1")
 }
 
 publishing {

@@ -29,6 +29,8 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     tasks.create(JaxRSDiscriminatorPatch.TaskName, JaxRSDiscriminatorPatch.class, JaxRSDiscriminatorPatch::init);
     tasks.create(JaxRSEnumValuePatch.TaskName, JaxRSEnumValuePatch.class, JaxRSEnumValuePatch::init);
 
+    tasks.create(DockerBuild.TaskName, DockerBuild.class, DockerBuild::init);
+
     project.afterEvaluate(ContainerUtilsPlugin::afterEvaluate);
   }
 
