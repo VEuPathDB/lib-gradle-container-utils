@@ -82,7 +82,7 @@ h| Option h| Type h| Default h| Purpose
 | Controls the output directory for vendored dependencies.  More specifically
 defines where vendored dependencies built by this plugin will be placed after
 build. +
-+
+ +
 Paths are relative to the root directory of the current Gradle project.
 
 | {o-fgputilVersion}
@@ -120,7 +120,7 @@ Paths are relative to the root directory of the current Gradle project.
 | String
 | "api.raml"
 | Sets the name of the root api definition file. +
-+
+ +
 Paths are relative to the root directory of the current Gradle project.
 
 | {o-logLevel}
