@@ -23,7 +23,7 @@ A set of utils to assist in building gradle based containerized services.
 
 The following tasks/targets are added to Gradle by this plugin.
 
-.gradle tasks
+.`$ gradle tasks`
 [source]
 ----
 VEuPathDB tasks
