@@ -23,6 +23,22 @@ A set of utils to assist in building gradle based containerized services.
 
 The following tasks/targets are added to Gradle by this plugin.
 
+.gradle tasks
+[source]
+----
+VEuPathDB tasks
+---------------
+build-docker         - Builds this project's docker image.  WARNING: This task requires that your user is a member of the "docker" group.
+fgputilInstall       - Download, build, and vendor FgpUtil
+fgputilUninstall     - Removes FgpUtil jars from the dependency directory.
+generate-jaxrs       - Generates JaxRS Java code based on the project's RAML API spec.
+generate-raml-docs   - Generates HTML documentation from the RAML API spec.
+patch-discriminators - Patches the generated JaxRS classes by correcting invalid discriminator types.
+patch-enums          - Adds a getter for the internal value for Raml for Jax RS generated enum types.
+ramlGenInstall       - Builds and installs the Raml for JaxRS generator.
+ramlGenUninstall     - Uninstalls the Raml for Jax RS tooling.
+----
+
 
 :t-install-fgputil: fgputilInstall
 === `{t-install-fgputil}`
