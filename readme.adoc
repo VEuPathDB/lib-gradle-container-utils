@@ -123,6 +123,19 @@ Paths are relative to the root directory of the current Gradle project.
  +
 Paths are relative to the root directory of the current Gradle project.
 
+| {o-project-package}
+| String
+| (value from service.properties)
+| Sets the package path for the base package of the current project. +
+ +
+This setting is for use with future updates.  For now this value should be
+provided in the `service.properties` file.
+
+| {o-docker-context}
+| String
+| "."
+| Build context for this project's root Dockerfile.
+
 | {o-logLevel}
 | int
 | 3 (LogLevelInfo)
