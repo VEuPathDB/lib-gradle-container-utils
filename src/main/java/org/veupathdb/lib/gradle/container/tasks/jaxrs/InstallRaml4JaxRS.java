@@ -1,21 +1,25 @@
-package org.veupathdb.lib.gradle.container.tasks;
+package org.veupathdb.lib.gradle.container.tasks.jaxrs;
 
 import org.jetbrains.annotations.NotNull;
-import org.veupathdb.lib.gradle.container.exec.Git;
+import org.veupathdb.lib.gradle.container.exec.git.Git;
 import org.veupathdb.lib.gradle.container.exec.Maven;
-import org.veupathdb.lib.gradle.container.tasks.base.BinBuildAction;
+import org.veupathdb.lib.gradle.container.tasks.base.build.BinBuildAction;
 
 import java.io.File;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
+/**
+ * RAML 4 Jax-RS Generator Installation
+ *
+ * @since 1.1.0
+ */
 public class InstallRaml4JaxRS extends BinBuildAction {
 
-  public static final String TaskName = "ramlGenInstall";
+  public static final String TaskName = "install-raml-4-jax-rs";
 
   static final String  LockFile     = "raml4jaxrs.lock";
-  static final String  GitURL       = "https://github.com/mulesoft-labs/raml-for-jax-rs.git";
   static final Pattern VersionMatch = Pattern.compile("\\d+\\.\\d+\\.\\d+-SNAPSHOT");
   static final String  OutputFile   = "raml-to-jaxrs.jar";
 
@@ -38,12 +42,6 @@ public class InstallRaml4JaxRS extends BinBuildAction {
   }
 
   @Override
-  @NotNull
-  protected String getConfiguredVersion() {
-    return log().getter(getOptions().getRamlForJaxRSVersion());
-  }
-
-  @Override
   protected void clean() {
 
   }
@@ -54,7 +52,11 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     log().open();
     log().info("Cloning {}", this::getDependencyName);
 
-    return log().close(new Git(log()).shallowClone(GitURL, getDependencyRoot(), getConfiguredVersion()));
+    return log().close(new Git(log()).shallowClone(
+      buildConfiguration().getUrl(),
+      getDependencyRoot(),
+      buildConfiguration().getTargetVersion()
+    ));
   }
 
   @Override
@@ -77,6 +79,19 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     log().close();
   }
 
+  @Override
+  protected Raml4JaxRSBuildConfig buildConfiguration() {
+    return getOptions().getRaml4JaxRSConfig();
+  }
+
+  /**
+   * Locates all the pom.xml files in the cloned raml-4-jax-rs Git repo.
+   *
+   * @return A list of all the pom.xml files in the cloned raml-4-jax-rs Git
+   * repo.
+   *
+   * @since 1.1.0
+   */
   @NotNull
   private List<File> findPoms() {
     log().open();
@@ -112,6 +127,14 @@ public class InstallRaml4JaxRS extends BinBuildAction {
     return log().close(poms);
   }
 
+  /**
+   * Monkey-patches the pom files in the given list to fix a build error from
+   * bad version values in the cloned pom files.
+   *
+   * @param poms Pom files to patch.
+   *
+   * @since 1.1.0
+   */
   private void correctPoms(@NotNull final List<File> poms) {
     log().open(poms);
 
@@ -123,7 +146,7 @@ public class InstallRaml4JaxRS extends BinBuildAction {
       util().overwriteFile(
         pom,
         VersionMatch.matcher(util().readFile(pom))
-          .replaceAll(getConfiguredVersion())
+          .replaceAll(buildConfiguration().getTargetVersion())
       );
     }
 

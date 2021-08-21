@@ -158,6 +158,11 @@ public class RedirectConfig {
   }
 
   @NotNull
+  public static RedirectConfig toFile(@NotNull String file) {
+    return new RedirectConfig(new File(Objects.requireNonNull(file)));
+  }
+
+  @NotNull
   public static RedirectConfig toFile(@NotNull File file) {
     return new RedirectConfig(Objects.requireNonNull(file));
   }

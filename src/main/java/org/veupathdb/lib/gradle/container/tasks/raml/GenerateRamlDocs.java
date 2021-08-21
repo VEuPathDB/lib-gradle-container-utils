@@ -1,20 +1,24 @@
-package org.veupathdb.lib.gradle.container.tasks;
+package org.veupathdb.lib.gradle.container.tasks.raml;
 
 import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.config.RedirectConfig;
-import org.veupathdb.lib.gradle.container.tasks.base.ExecAction;
+import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecAction;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Generate RAML Documentation
+ * <p>
+ * Generates HTML API documentation from the project's root API RAML file.
+ *
+ * @since 1.1.0
+ */
 public class GenerateRamlDocs extends ExecAction {
 
   public static final String TaskName = "generate-raml-docs";
-
-  private static final String SrcDocsDir = "src/main/resources";
-  private static final File OutputFile = new File("api.html");
 
   @Override
   @NotNull
@@ -46,7 +50,7 @@ public class GenerateRamlDocs extends ExecAction {
   @Override
   @NotNull
   protected Optional<RedirectConfig> getStdOutRedirect() {
-    return log().getter(Optional.of(RedirectConfig.toFile(OutputFile)));
+    return log().getter(Optional.of(RedirectConfig.toFile(execConfiguration().getApiDocFileName())));
   }
 
   @Override
@@ -55,12 +59,19 @@ public class GenerateRamlDocs extends ExecAction {
 
     log().debug("Copying generated docs to target doc directories");
 
+    final var conf = execConfiguration();
+
     util().moveFile(
-      OutputFile,
-      new File(util().getOrCreateDir(new File(RootDir, getOptions().getRepoDocsDirectory())), OutputFile.getName()),
-      new File(util().getOrCreateDir(new File(RootDir, SrcDocsDir)), OutputFile.getName())
+      new File(conf.getApiDocFileName()),
+      new File(util().getOrCreateDir(new File(RootDir, conf.getRepoDocsDir())), conf.getApiDocFileName()),
+      new File(util().getOrCreateDir(new File(RootDir, conf.getResourceDocsDir())), conf.getApiDocFileName())
     );
 
     log().close();
+  }
+
+  @Override
+  protected @NotNull GenRamlConfig execConfiguration() {
+    return getOptions().getGenerateRamlDocsConfig();
   }
 }

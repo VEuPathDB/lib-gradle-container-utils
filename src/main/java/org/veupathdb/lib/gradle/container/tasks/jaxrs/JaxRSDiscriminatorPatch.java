@@ -1,4 +1,4 @@
-package org.veupathdb.lib.gradle.container.tasks;
+package org.veupathdb.lib.gradle.container.tasks.jaxrs;
 
 import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.tasks.base.JaxRSSourceAction;

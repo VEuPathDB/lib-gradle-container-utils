@@ -1,23 +1,23 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
 import org.jetbrains.annotations.NotNull;
-import org.veupathdb.lib.gradle.container.config.ServiceProperties;
 import org.veupathdb.lib.gradle.container.util.Logger;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.Stack;
 import java.util.stream.Stream;
 
+/**
+ * General Utilities
+ *
+ * @since 1.1.0
+ */
 public class Utils {
-  private static final String PropFileName = "service.properties";
-
   private final Logger Log;
 
   Utils(Logger log) {
@@ -25,22 +25,16 @@ public class Utils {
     Log = log;
   }
 
-  @NotNull
-  public ServiceProperties loadServiceProperties(@NotNull final File projectRoot) {
-    Log.open(projectRoot);
-
-    final var props = new Properties();
-
-    try (final var stream = new FileInputStream(new File(projectRoot, PropFileName))) {
-      props.load(stream);
-    } catch (IOException e) {
-      Log.error("Failed to read project's {} file.", PropFileName);
-      throw new RuntimeException("Failed to read project's prop file.", e);
-    }
-
-    return Log.close(new ServiceProperties(props));
-  }
-
+  /**
+   * Deletes the given target file/directory.
+   * <p>
+   * If the given {@code File} represents a directory, the directory tree
+   * will be recursively deleted.
+   *
+   * @param target File/directory to delete.
+   *
+   * @since 1.1.0
+   */
   public void deleteRecursive(@NotNull final File target) {
     Log.open(target);
 
@@ -95,6 +89,16 @@ public class Utils {
     Log.close();
   }
 
+  /**
+   * Ensures the directory represented by the given {@code File} exists and is
+   * a directory.
+   *
+   * @param dir Target directory to check and create if needed.
+   *
+   * @return The input {@code File}.
+   *
+   * @since 1.1.0
+   */
   public File getOrCreateDir(@NotNull final File dir) {
     Log.open(dir);
 
@@ -113,6 +117,15 @@ public class Utils {
     return Log.close(dir);
   }
 
+  /**
+   * Moves the given source file to the path represented by the given target
+   * {@code File}s.
+   *
+   * @param src Source file to move.
+   * @param tgt Target new location.
+   *
+   * @since 1.1.0
+   */
   public void moveFile(@NotNull final File src, @NotNull final File tgt) {
     Log.open(src, tgt);
 
@@ -126,6 +139,16 @@ public class Utils {
     Log.close();
   }
 
+  /**
+   * Moves the given source file to both the paths represented by the given
+   * target {@code File}s.
+   *
+   * @param src  Source file to move.
+   * @param tgt1 Target location 1.
+   * @param tgt2 Target location 2.
+   *
+   * @since 1.1.0
+   */
   public void moveFile(
     @NotNull final File src,
     @NotNull final File tgt1,
@@ -136,29 +159,35 @@ public class Utils {
     try {
       Files.copy(src.toPath(), tgt1.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      Log.error("Failed to copy file {} to {}", src, tgt1);
-      throw new RuntimeException("Failed to copy file " + src + " to " + tgt1, e);
+      Log.fatal(e, "Failed to copy file {} to {}", src, tgt1);
     }
 
     try {
       Files.move(src.toPath(), tgt2.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      Log.error("Failed to move file {} to {}", src, tgt2);
-      throw new RuntimeException("Failed to move file " + src + " to " + tgt2, e);
+      Log.fatal(e, "Failed to move file {} to {}", src, tgt2);
     }
 
     Log.close();
   }
 
+  /**
+   * Moves the files in the given stream to the target parent directory.
+   *
+   * @param tgtDir   Target directory into which the files in the given stream
+   *                 will be moved.
+   * @param srcFiles Stream containing 0 or more files to move to the given
+   *                 target directory.
+   *
+   * @since 1.1.0
+   */
   public void moveFilesTo(@NotNull final File tgtDir, @NotNull final Stream<File> srcFiles) {
     Log.open(tgtDir, srcFiles);
 
     if (!tgtDir.exists()) {
-      Log.error("Cannot move files to dir {}.  Directory does not exist.", tgtDir);
-      throw new RuntimeException("Cannot move files to dir " + tgtDir + ".  Directory does not exist.");
+      Log.fatal("Cannot move files to dir {}.  Directory does not exist.", tgtDir);
     } else if (!tgtDir.isDirectory()) {
-      Log.error("Cannot move files to path {}.  Path does not point to a directory.", tgtDir);
-      throw new RuntimeException("Cannot move files to path " + tgtDir + ".  Path does not point to a directory.");
+      Log.fatal("Cannot move files to path {}.  Path does not point to a directory.", tgtDir);
     }
 
     srcFiles.forEach(f -> moveFile(f, new File(tgtDir, f.getName())));
@@ -166,6 +195,15 @@ public class Utils {
     Log.close();
   }
 
+  /**
+   * Reads the contents of the given {@code File} into a string.
+   *
+   * @param src File to read.
+   *
+   * @return The contents of the target file as a string.
+   *
+   * @since 1.1.0
+   */
   @NotNull
   public String readFile(@NotNull final File src) {
     Log.open(src);
@@ -173,11 +211,21 @@ public class Utils {
     try {
       return Log.close(Files.readString(src.toPath()));
     } catch (IOException e) {
-      Log.error("Failed to read contents of file {}", src);
-      throw new RuntimeException("Failed to read contents of file " + src, e);
+      return Log.fatal(e, "Failed to read contents of file {}", src);
     }
   }
 
+  /**
+   * Writes the given string contents to the given file, overwriting anything
+   * the target file previously contained.
+   * <p>
+   * If the target file did not previously exist, it will be created.
+   *
+   * @param tgt     Target file to write to.
+   * @param content Contents to write to the target file.
+   *
+   * @since 1.1.0
+   */
   public void overwriteFile(@NotNull final File tgt, @NotNull final String content) {
     Log.open(tgt, "...");
 
@@ -189,13 +237,24 @@ public class Utils {
         StandardOpenOption.CREATE
       );
     } catch (IOException e) {
-      Log.error("Failed to write contents to file {}", tgt);
-      throw new RuntimeException("Failed to write contents to file " + tgt, e);
+      Log.fatal(e, "Failed to write contents to file {}", tgt);
     }
 
     Log.close();
   }
 
+  /**
+   * Returns a stream of the direct child files of the given target directory.
+   * <p>
+   * If the given target directory does not exist, or is not a directory, an
+   * empty stream will be returned.
+   *
+   * @param root Target directory.
+   *
+   * @return A stream containing the direct children of the given directory.
+   *
+   * @since 1.1.0
+   */
   @NotNull
   public Stream<File> listChildren(@NotNull final File root) {
     Log.open(root);

@@ -9,10 +9,16 @@ import java.util.Spliterator;
 import java.util.Stack;
 import java.util.function.Consumer;
 
-public class StackIterator<T> implements Iterable<T>, Iterator<T>, Spliterator<T> {
-  @NotNull
-  private final Stack<T> stack;
-
+/**
+ * Iterator Wrapping a {@link Stack} instance.
+ *
+ * @param <T> Generic type of this iterator and of the wrapped {@code Stack}
+ *            instance.
+ *
+ * @since 1.1.0
+ */
+public record StackIterator<T>(
+  @NotNull Stack<T> stack) implements Iterable<T>, Iterator<T>, Spliterator<T> {
   public StackIterator(@NotNull Stack<T> stack) {
     this.stack = stack;
   }

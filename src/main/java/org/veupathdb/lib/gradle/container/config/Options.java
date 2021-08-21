@@ -1,182 +1,198 @@
 package org.veupathdb.lib.gradle.container.config;
 
+import org.gradle.api.Action;
 import org.jetbrains.annotations.NotNull;
+import org.veupathdb.lib.gradle.container.tasks.docker.DockerConfig;
+import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecConfiguration;
+import org.veupathdb.lib.gradle.container.tasks.fgputil.FgpUtilConfiguration;
+import org.veupathdb.lib.gradle.container.tasks.base.build.GlobalBinBuildConfiguration;
+import org.veupathdb.lib.gradle.container.tasks.base.build.GlobalBuildConfiguration;
+import org.veupathdb.lib.gradle.container.tasks.base.build.GlobalVendorBuildConfiguration;
+import org.veupathdb.lib.gradle.container.tasks.jaxrs.Raml4JaxRSBuildConfig;
+import org.veupathdb.lib.gradle.container.tasks.raml.GenRamlConfig;
 import org.veupathdb.lib.gradle.container.util.Logger;
 
 import java.util.Objects;
 
 import static org.veupathdb.lib.gradle.container.tasks.base.Defaults.*;
 
+/**
+ * Gradle Plugin Extension
+ * <p>
+ * Allows the configuration of the various tasks in this plugin as well as base
+ * options for building the project.
+ *
+ * @since 1.0.0
+ */
 @SuppressWarnings("unused")
 public class Options {
-  @NotNull
-  private String vendorDirectory = DefaultVendorDirectory;
+
+  private final ProjectConfiguration           project            = new ProjectConfiguration();
+  private final FgpUtilConfiguration           fgputil            = new FgpUtilConfiguration();
+  private final GlobalBinBuildConfiguration    globalBinConfig    = new GlobalBinBuildConfiguration();
+  private final GlobalVendorBuildConfiguration globalVendorConfig = new GlobalVendorBuildConfiguration();
+  private final Raml4JaxRSBuildConfig          raml4jaxrs         = new Raml4JaxRSBuildConfig();
+  private final ExecConfiguration              generateJaxRS      = new ExecConfiguration();
+  private final GenRamlConfig                  generateRamlDocs   = new GenRamlConfig();
+  private final DockerConfig                   docker             = new DockerConfig();
 
   @NotNull
-  private String fgpUtilVersion = DefaultFgpUtilVersion;
-
-  @NotNull
-  private String ramlForJaxRSVersion = DefaultRamlForJaxRSVersion;
-
-  @NotNull
-  private String binDirectory = DefaultBinDirectory;
-
-  @NotNull
-  private String repoDocsDirectory = DefaultDocsDirectory;
-
-  @NotNull
-  private String apiDocRoot = DefaultApiDocsRoot;
-
-  @NotNull
-  private String projectPackage = DefaultProjectPackage;
-
-  @NotNull
-  private String dockerContext = DefaultDockerContext;
+  private String rootApiDefinition = DefaultApiDocsRoot;
 
   private byte logLevel = Logger.LogLevelInfo;
 
   /**
-   * Returns the currently configured custom vendor directory.
-   * <p>
-   * <b>Note</b>: If this directory doesn't already exist, on first vendored
-   * dependency installation, it will be created.
+   * Modify the service project's settings.
    *
-   * @return The currently configured custom vendor directory.  {@code null} if
-   * no custom directory has been set and the default is being used.
+   * @param configure Action that will be called with a project configuration
+   *                  instance.
    */
-  @NotNull
-  public String getVendorDirectory() {
-    return vendorDirectory;
+  public void project(@NotNull Action<? super ProjectConfiguration> configure) {
+    configure.execute(project);
   }
 
   /**
-   * Sets the target directory for building and storing vendored dependencies.
-   * <p>
-   * <b>Note</b>: If this directory doesn't already exist, on first vendored
-   * dependency installation, it will be created.
+   * Returns the service project's configuration.
    *
-   * @param directory Target vendor directory.
+   * @return The service project's configuration.
    */
-  public void setVendorDirectory(@NotNull final String directory) {
-    this.vendorDirectory = Objects.requireNonNull(directory);
+  public ProjectConfiguration getProjectConfig() {
+    return project;
   }
 
   /**
-   * Returns the currently configured target FgpUtil tag, branch, or commit.
-   * <p>
-   * This value determines what version of FgpUtil will be used when building
-   * this project.  If this value changes after FgpUtil has already been built
-   * and vendored, run the installation command again to update.
-   * <p>
-   * <b>Note</b>: If this value is a branch name it will only build that branch
-   * once.  If new commits are available to FgpUtil that are desired, run the
-   * FgpUtil uninstallation command, then run the installation again.
+   * Modify the service project's FgpUtil dependency settings.
    *
-   * @return The currently configured target FgpUtil tag, branch, or commit.
+   * @param configure Action that will be called with the FgpUtil configuration.
    */
-  @NotNull
-  public String getFgpUtilVersion() {
-    return fgpUtilVersion;
+  public void fgputil(Action<? super FgpUtilConfiguration> configure) {
+    configure.execute(fgputil);
   }
 
   /**
-   * Configures the target FgpUtil tag, branch, or commit to use when building
-   * this project.
-   * <p>
-   * If updating this value after FgpUtil has already been built and vendored,
-   * run the installation command again to update.
-   * <p>
-   * <b>Note</b>: If this value is a branch name it will only build that branch
-   * once.  If new commits are available to FgpUtil that are desired, run the
-   * FgpUtil uninstallation command, then run the installation again.
+   * Returns the service project's FgpUtil dependency settings.
    *
-   * @param version FgpUtil tag, branch, or commit to use when building
-   *                this project.
+   * @return The service project's FgpUtil dependency settings.
    */
-  public void setFgpUtilVersion(@NotNull final String version) {
-    this.fgpUtilVersion = Objects.requireNonNull(version);
+  public FgpUtilConfiguration getFgpUtilConfig() {
+    return fgputil;
   }
 
   /**
-   * Returns the currently configured target Raml for Jax RS branch.
-   * <p>
-   * This value allows overriding the default Raml for Jax RS branch
+   * Modify the service project's build dependency build configuration.
+   *
+   * @param configure Action that will be called with the build dependency
+   *                  config.
+   */
+  public void binBuilds(Action<? super GlobalBuildConfiguration> configure) {
+    configure.execute(globalBinConfig);
+  }
+
+  /**
+   * Returns the service project's build dependency build configuration.
+   *
+   * @return The service project's build dependency build configuration.
+   */
+  public GlobalBinBuildConfiguration getGlobalBinConfig() {
+    return globalBinConfig;
+  }
+
+  /**
+   * Modify the service project's vendor dependency build configuration.
+   *
+   * @param configure Action that will be called with the vendor dependency
+   *                  config.
+   */
+  public void vendorBuilds(Action<? super GlobalVendorBuildConfiguration> configure) {
+    configure.execute(globalVendorConfig);
+  }
+
+  /**
+   * Returns the service project's vendor dependency build configuration.
+   *
+   * @return The service project's vendor dependency build configuration.
+   */
+  public GlobalVendorBuildConfiguration getGlobalVendorConfig() {
+    return globalVendorConfig;
+  }
+
+  /**
+   * Modify the service project's RAML 4 Jax-RS code generator build
    * configuration.
-   * <p>
-   * If updating this value after Raml for Jax RS has already been installed,
-   * run the installation command again to update.
    *
-   * @return The currently configured override Raml for Jax RS branch.
+   * @param configure Action that will be called with the RAML 4 Jax-RS build
+   *                  config.
    */
-  @NotNull
-  public String getRamlForJaxRSVersion() {
-    return ramlForJaxRSVersion;
+  public void raml4jaxrs(Action<? super Raml4JaxRSBuildConfig> configure) {
+    configure.execute(raml4jaxrs);
   }
 
   /**
-   * Configures an override for the target branch of Raml for Jax RS.
-   * <p>
-   * If updating this value after Raml for Jax RS has already been installed,
-   * run the installation command again to update.
+   * Returns the service project's RAML 4 Jax-RS code generator build
+   * configuration.
    *
-   * @param branch Raml for Jax RS branch name.
+   * @return the service project's RAML 4 Jax-RS code generator build
+   * configuration.
    */
-  public void setRamlForJaxRSVersion(@NotNull final String branch) {
-    this.ramlForJaxRSVersion = Objects.requireNonNull(branch);
+  public Raml4JaxRSBuildConfig getRaml4JaxRSConfig() {
+    return raml4jaxrs;
   }
 
   /**
-   * Returns the currently configured relative bin directory where external
-   * tools will be kept and executed from.
+   * Modify the service project's Jax-RS code generation configuration.
    *
-   * @return Currently configured bin directory.
+   * @param configure Action that will be called with the service project's
+   *                  Jax-RS code generation config.
    */
-  @NotNull
-  public String getBinDirectory() {
-    return binDirectory;
+  public void generateJaxRS(Action<? super ExecConfiguration> configure) {
+    configure.execute(generateJaxRS);
   }
 
   /**
-   * Configures the relative path to a bin directory where external tools will
-   * be installed to and executed from.
-   * <p>
-   * If this directory does not already exist, it will be created when
-   * installing an external tool.
+   * Returns the service project's Jax-RS code generation configuration.
    *
-   * @param directory Relative bin directory path.
+   * @return The service project's Jax-RS code generation configuration.
    */
-  public void setBinDirectory(@NotNull final String directory) {
-    this.binDirectory = Objects.requireNonNull(directory);
+  public ExecConfiguration getGenerateJaxRSConfig() {
+    return generateJaxRS;
   }
 
   /**
-   * Returns the currently configured relative directory where git repository
-   * level documentation is/will be stored.
-   * <p>
-   * Generally this is a directory named "docs" in the root directory of the
-   * repo.
+   * Modify the service project's API documentation generation configuration.
    *
-   * @return The currently configured repo docs location.
+   * @param configure Action that will be called with the service project's
+   *                  API doc generation config.
    */
-  @NotNull
-  public String getRepoDocsDirectory() {
-    return repoDocsDirectory;
+  public void generateRamlDocs(Action<? super GenRamlConfig> configure) {
+    configure.execute(generateRamlDocs);
   }
 
   /**
-   * Configures the relative path to the git repository documentation is/will be
-   * stored.
-   * <p>
-   * Generally this is a directory named "docs" in the root directory of the
-   * repo.
-   * <p>
-   * If this directory does not already exist, it will be created when
-   * generating docs.
+   * Returns the service project's API documentation generation configuration.
    *
-   * @param directory Relative repo docs directory path.
+   * @return The service project's API documentation generation configuration.
    */
-  public void setRepoDocsDirectory(@NotNull final String directory) {
-    this.repoDocsDirectory = Objects.requireNonNull(directory);
+  public GenRamlConfig getGenerateRamlDocsConfig() {
+    return generateRamlDocs;
+  }
+
+  /**
+   * Modify the service project's Docker build configuration.
+   *
+   * @param configure Action that will be called with the service project's
+   *                  Docker build config.
+   */
+  public void docker(Action<? super DockerConfig> configure) {
+    configure.execute(docker);
+  }
+
+  /**
+   * Returns the service project's Docker build configuration.
+   *
+   * @return The service project's Docker build configuration.
+   */
+  public DockerConfig getDockerConfig() {
+    return docker;
   }
 
   /**
@@ -185,10 +201,12 @@ public class Options {
    *
    * @return The configured relative path to the current project's root API
    * definition file.
+   *
+   * @since 2.0.0
    */
   @NotNull
-  public String getApiDocRoot() {
-    return apiDocRoot;
+  public String getRootApiDefinition() {
+    return rootApiDefinition;
   }
 
   /**
@@ -197,48 +215,48 @@ public class Options {
    *
    * @param apiDocFile Relative path to the current project's root API
    *                   definition file.
+   *
+   * @since 2.0.0
    */
-  public void setApiDocRoot(@NotNull final String apiDocFile) {
-    this.apiDocRoot = Objects.requireNonNull(apiDocFile);
+  public void setRootApiDefinition(@NotNull final String apiDocFile) {
+    this.rootApiDefinition = Objects.requireNonNull(apiDocFile);
   }
 
+  /**
+   * Returns the currently configured log level value.
+   *
+   * @return The currently configured log level value.
+   *
+   * @since 1.1.0
+   */
   public byte getLogLevel() {
     return logLevel;
   }
 
+  /**
+   * Configures the log level value.
+   *
+   * @param logLevel New log level.
+   *
+   * @since 1.1.0
+   */
   public void setLogLevel(byte logLevel) {
     this.logLevel = logLevel;
-  }
-
-  @NotNull
-  public String getProjectPackage() {
-    return projectPackage;
-  }
-
-  public void setProjectPackage(@NotNull final String projectPackage) {
-    this.projectPackage = Objects.requireNonNull(projectPackage);
-  }
-
-  @NotNull
-  public String getDockerContext() {
-    return dockerContext;
-  }
-
-  public void setDockerContext(@NotNull String dockerContext) {
-    this.dockerContext = Objects.requireNonNull(dockerContext);
   }
 
   @Override
   public String toString() {
     return "Options{" +
-      "vendorDirectory='" + vendorDirectory + '\'' +
-      ", fgpUtilVersion='" + fgpUtilVersion + '\'' +
-      ", ramlForJaxRSVersion='" + ramlForJaxRSVersion + '\'' +
-      ", binDirectory='" + binDirectory + '\'' +
-      ", repoDocsDirectory='" + repoDocsDirectory + '\'' +
-      ", apiDocRoot='" + apiDocRoot + '\'' +
-      ", projectPackage='" + projectPackage + '\'' +
+      "rootApiDefinition='" + rootApiDefinition + '\'' +
       ", logLevel=" + logLevel +
+      ", project=" + project +
+      ", fgputil=" + fgputil +
+      ", globalBinConfig=" + globalBinConfig +
+      ", globalVendorConfig=" + globalVendorConfig +
+      ", raml4jaxrs=" + raml4jaxrs +
+      ", generateJaxRS=" + generateJaxRS +
+      ", generateRamlDocs=" + generateRamlDocs +
+      ", docker=" + docker +
       '}';
   }
 }

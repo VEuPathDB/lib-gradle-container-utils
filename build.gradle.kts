@@ -4,11 +4,11 @@ plugins {
 }
 
 group = "org.veupathdb.lib"
-version = "1.4.0"
+version = "2.0.0-SNAPSHOT-1"
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_14
-  targetCompatibility = JavaVersion.VERSION_14
+  sourceCompatibility = JavaVersion.VERSION_16
+  targetCompatibility = JavaVersion.VERSION_16
 
   if (project.hasProperty("full-publish")) {
     withSourcesJar()

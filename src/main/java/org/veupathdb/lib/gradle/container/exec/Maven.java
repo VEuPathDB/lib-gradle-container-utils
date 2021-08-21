@@ -9,6 +9,13 @@ import java.util.Stack;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * Maven Wrapper
+ * <p>
+ * Provides methods for running Maven targets.
+ *
+ * @since 1.0.0
+ */
 public class Maven {
   private static final String TargetDir = "target";
 
@@ -27,6 +34,13 @@ public class Maven {
     Log = log;
   }
 
+  /**
+   * Executes {@code mvn clean install} in the given target directory.
+   *
+   * @param workDir Command target directory.
+   *
+   * @since 1.0.0
+   */
   public void cleanInstall(@NotNull final File workDir) {
     Log.open(workDir);
 
@@ -39,13 +53,21 @@ public class Maven {
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
       }
     } catch (Exception e) {
-      Log.error("Failed to build maven project in {}", workDir);
-      throw new RuntimeException("Failed to build maven project in " + workDir, e);
+      Log.fatal(e, "Failed to build maven project in {}", workDir);
     }
 
     Log.close();
   }
 
+  /**
+   * Recursively locates all the jar files in the given directory.
+   *
+   * @param workDir Target directory to crawl for jar files.
+   *
+   * @return A stream containing zero or more located jar files.
+   *
+   * @since 1.1.0
+   */
   @NotNull
   public Stream<File> findOutputJars(@NotNull final File workDir) {
     Log.open(workDir);

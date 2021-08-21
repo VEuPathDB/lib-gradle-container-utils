@@ -1,4 +1,4 @@
-package org.veupathdb.lib.gradle.container.tasks.base;
+package org.veupathdb.lib.gradle.container.tasks.base.exec;
 
 import org.gradle.api.tasks.Internal;
 import org.jetbrains.annotations.NotNull;
@@ -6,17 +6,17 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 /**
- * Bin Clean Action
+ * Bin Exec Action
  * <p>
- * Base class for build/bin dependency clean tasks.
+ * Base class for build/bin dependency execution tasks.
  *
  * @since 1.1.0
  */
-public abstract class BinCleanAction extends CleanAction {
+public abstract class BinExecAction extends ExecAction {
   @Override
   @Internal
   @NotNull
-  protected File getTargetDirectory() {
+  protected File getWorkDirectory() {
     return log().getter(new File(RootDir, getOptions().getGlobalBinConfig().getBinDirectory()));
   }
 }

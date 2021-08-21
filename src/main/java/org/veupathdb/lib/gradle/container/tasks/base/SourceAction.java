@@ -21,7 +21,7 @@ public abstract class SourceAction extends Action {
   protected Stream<File> getProjectSourceDirectories() {
     log().open();
 
-    final var projectPath = getOptions().getProjectPackage().replace('.', '/');
+    final var projectPath = projectConfig().getProjectPackage().replace('.', '/');
     log().debug("Project path: {}", projectPath);
 
     return log().close(getSourceDirectories()

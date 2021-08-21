@@ -1,20 +1,27 @@
-package org.veupathdb.lib.gradle.container.tasks;
+package org.veupathdb.lib.gradle.container.tasks.fgputil;
 
-import org.gradle.api.tasks.Internal;
 import org.jetbrains.annotations.NotNull;
-import org.veupathdb.lib.gradle.container.exec.Git;
+import org.veupathdb.lib.gradle.container.exec.git.Git;
 import org.veupathdb.lib.gradle.container.exec.Maven;
-import org.veupathdb.lib.gradle.container.tasks.base.VendorBuildAction;
+import org.veupathdb.lib.gradle.container.exec.git.GitTarget;
+import org.veupathdb.lib.gradle.container.tasks.base.build.VendorBuildAction;
 
 import java.io.File;
 
+/**
+ * FgpUtil Installation
+ * <p>
+ * Downloads, compiles, and installs FgpUtil into a project's configured vendor
+ * directory.
+ *
+ * @since 1.0.0
+ */
 public class InstallFgpUtil extends VendorBuildAction {
 
-  public static final String TaskName = "fgputilInstall";
+  public static final String TaskName = "install-fgputil";
 
   private static final String TargetName = "FgpUtil";
   private static final String LockFile   = "fgputil.lock";
-  private static final String URL        = "https://github.com/VEuPathDB/FgpUtil";
 
   @Override
   @NotNull
@@ -42,9 +49,9 @@ public class InstallFgpUtil extends VendorBuildAction {
     log().info("Cloning FgpUtil");
 
     final var git  = new Git(log());
-    final var repo = git.clone(URL, getDependencyRoot());
-    final var vers = getConfiguredVersion();
-    final var targ = Git.Target.of(vers);
+    final var repo = git.clone(buildConfiguration().getUrl(), getDependencyRoot());
+    final var vers = buildConfiguration().getTargetVersion();
+    final var targ = GitTarget.of(vers);
 
     if (!targ.isDefault()) {
       log().info("Switching FgpUtil to {}", vers);
@@ -69,13 +76,6 @@ public class InstallFgpUtil extends VendorBuildAction {
   }
 
   @Override
-  @Internal
-  @NotNull
-  protected String getConfiguredVersion() {
-    return log().getter(getOptions().getFgpUtilVersion());
-  }
-
-  @Override
   protected void install() {
     log().open();
 
@@ -91,22 +91,47 @@ public class InstallFgpUtil extends VendorBuildAction {
     log().close();
   }
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////
+  @Override
+  protected FgpUtilConfiguration buildConfiguration() {
+    return getOptions().getFgpUtilConfig();
+  }
 
+  //
+  //
+  // Internal Methods
+  //
+  //
+
+  /**
+   * Predicate that tests whether the given input file is FgpUtil related.
+   *
+   * @param file File to test.
+   *
+   * @return Whether the file is FgpUtil related.
+   *
+   * @since 1.1.0
+   */
   private boolean fileFilter(@NotNull final File file) {
     return log().map(file, file.isFile() && file.getName().startsWith("fgputil"));
   }
 
+  /**
+   * Deletes the given target file.
+   *
+   * @param file File to delete.
+   *
+   * @since 1.1.0
+   */
   private void fileDelete(@NotNull final File file) {
     log().open(file);
 
     log().debug("Deleting file {}", file);
 
     if (!file.delete()) {
-      log().error("Failed to delete file {}", file);
-      throw new RuntimeException("Failed to delete file " + file);
+      log().fatal("Failed to delete file {}", file);
     }
 
     log().close();
   }
+
 }
