@@ -20,6 +20,7 @@ import org.veupathdb.lib.gradle.container.util.JarFileFilter;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 
 /**
@@ -137,11 +138,16 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     @NotNull Project project,
     @NotNull Jar jar
   ) {
-    jar.from(project.getConfigurations()
-      .getByName("runtimeClasspath")
-      .getFiles()
-      .stream()
+    jar.from(
+      StreamSupport.stream(
+        project.getConfigurations()
+          .getByName("runtimeClasspath")
+          .getAsFileTree()
+          .spliterator(),
+        false
+      )
       .flatMap(JarFileFilter.expandFiles(project))
+      .peek(f -> project.getLogger().info("{}", f))
       .toArray());
   }
 

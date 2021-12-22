@@ -14,9 +14,11 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
   public void execute() {
     log().open();
 
-    log().debug("Patching enum files.");
+    log().info("Patching resource files.");
     getGeneratedSourceDirectories()
-      .filter(f -> f.getPath().contains("resources"))
+      .map(File::listFiles)
+      .flatMap(Arrays::stream)
+      .filter(f -> f.getPath().contains("resources") || f.getPath().contains("support"))
       .map(File::listFiles)
       .flatMap(Arrays::stream)
       .filter(this::onlyRelevant)
@@ -78,6 +80,7 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
         }
 
         writer.write(line);
+        writer.write('\n');
       }
 
       writer.flush();

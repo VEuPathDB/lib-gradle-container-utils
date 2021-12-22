@@ -31,7 +31,7 @@ public class JarFileFilter {
         return Stream.of(file);
 
       return project.zipTree(file)
-        .filter(JarFileFilter::excludeJarFiles)
+//        .filter(JarFileFilter::excludeJarFiles)
         .getFiles()
         .stream();
     };
