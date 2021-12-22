@@ -16,7 +16,7 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
 
     log().debug("Patching enum files.");
     getGeneratedSourceDirectories()
-      .filter(f -> f.getName().contains("resources"))
+      .filter(f -> f.getPath().contains("resources"))
       .map(File::listFiles)
       .flatMap(Arrays::stream)
       .filter(this::onlyRelevant)
@@ -44,18 +44,16 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
   }
 
   private boolean onlyRelevant(@NotNull final File test) {
-    log().open(test);
-
     try (final var reader = new BufferedReader(new FileReader(test))) {
       String line;
 
       while ((line= reader.readLine()) != null) {
         if (line.startsWith("import javax.ws")) {
-          return log().close(true);
+          return true;
         }
 
-        if (line.contains(" interface ")) {
-          return log().close(false);
+        if (line.startsWith("public interface ")) {
+          return false;
         }
       }
 
@@ -63,12 +61,10 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
       log().fatal(e);
     }
 
-    return log().close(false);
+    return false;
   }
 
   private void patchContents(@NotNull final File from, @NotNull final File to) {
-    log().open(from, to);
-
     try (
       final var reader = new BufferedReader(new FileReader(from));
       final var writer = new BufferedWriter(new FileWriter(to))
@@ -88,13 +84,9 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
     } catch (IOException e) {
       log().fatal(e);
     }
-
-    log().close();
   }
 
   private @NotNull File makeTmpFile(@NotNull final File mirror) {
-    log().close(mirror);
-
     final var newFile = new File(mirror.getParentFile(), "_" + mirror.getName());
 
     try {
@@ -103,6 +95,6 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
       return log().fatal(e);
     }
 
-    return log().close(newFile);
+    return newFile;
   }
 }
