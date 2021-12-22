@@ -25,15 +25,12 @@ public class JarFileFilter {
   };
 
   @NotNull
-  public static Function<File, Stream<File>> expandFiles(@NotNull Project project) {
+  public static Function<File, Stream<Object>> expandFiles(@NotNull Project project) {
     return file -> {
       if (file.isDirectory())
         return Stream.of(file);
 
-      return project.zipTree(file)
-//        .filter(JarFileFilter::excludeJarFiles)
-        .getFiles()
-        .stream();
+      return Stream.of(project.zipTree(file));
     };
   }
 

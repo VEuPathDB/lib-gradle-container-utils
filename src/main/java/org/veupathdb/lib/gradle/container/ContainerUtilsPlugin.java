@@ -2,6 +2,7 @@ package org.veupathdb.lib.gradle.container;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
@@ -18,8 +19,10 @@ import org.veupathdb.lib.gradle.container.tasks.jaxrs.*;
 import org.veupathdb.lib.gradle.container.tasks.raml.GenerateRamlDocs;
 import org.veupathdb.lib.gradle.container.util.JarFileFilter;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 
 
@@ -138,17 +141,15 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     @NotNull Project project,
     @NotNull Jar jar
   ) {
-    jar.from(
-      StreamSupport.stream(
-        project.getConfigurations()
-          .getByName("runtimeClasspath")
-          .getAsFileTree()
-          .spliterator(),
-        false
-      )
+    jar.from(project.getConfigurations()
+      .getByName("runtimeClasspath")
+      .getAll()
+      .stream()
+      .filter(Configuration::isCanBeResolved)
+      .flatMap(c -> StreamSupport.stream(c.spliterator(), false))
       .flatMap(JarFileFilter.expandFiles(project))
-      .peek(f -> project.getLogger().info("{}", f))
-      .toArray());
+      .toArray()
+    );
   }
 
   private static final TestLogEvent[] Events = {
