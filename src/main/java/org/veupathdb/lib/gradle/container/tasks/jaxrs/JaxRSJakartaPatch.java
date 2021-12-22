@@ -21,6 +21,8 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
       .flatMap(Arrays::stream)
       .filter(this::onlyRelevant)
       .forEach(this::patch);
+
+    log().close();
   }
 
   @Override
@@ -29,25 +31,31 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
   }
 
   private void patch(@NotNull final File file) {
+    log().open(file);
+
     final var tmpFile = makeTmpFile(file);
 
     patchContents(file, tmpFile);
 
     file.delete();
     tmpFile.renameTo(file);
+
+    log().close();
   }
 
   private boolean onlyRelevant(@NotNull final File test) {
+    log().open(test);
+
     try (final var reader = new BufferedReader(new FileReader(test))) {
       String line;
 
       while ((line= reader.readLine()) != null) {
         if (line.startsWith("import javax.ws")) {
-          return true;
+          return log().close(true);
         }
 
         if (line.contains(" interface ")) {
-          return false;
+          return log().close(false);
         }
       }
 
@@ -55,10 +63,12 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
       log().fatal(e);
     }
 
-    return false;
+    return log().close(false);
   }
 
   private void patchContents(@NotNull final File from, @NotNull final File to) {
+    log().open(from, to);
+
     try (
       final var reader = new BufferedReader(new FileReader(from));
       final var writer = new BufferedWriter(new FileWriter(to))
@@ -78,9 +88,13 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
     } catch (IOException e) {
       log().fatal(e);
     }
+
+    log().close();
   }
 
   private @NotNull File makeTmpFile(@NotNull final File mirror) {
+    log().close(mirror);
+
     final var newFile = new File(mirror.getParentFile(), "_" + mirror.getName());
 
     try {
@@ -89,6 +103,6 @@ public class JaxRSJakartaPatch extends JaxRSSourceAction {
       return log().fatal(e);
     }
 
-    return newFile;
+    return log().close(newFile);
   }
 }
