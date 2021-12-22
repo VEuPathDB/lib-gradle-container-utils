@@ -48,17 +48,21 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     // Register Tasks
     final var tasks = project.getTasks();
 
+    // FgpUtil
     tasks.create(InstallFgpUtil.TaskName, InstallFgpUtil.class, InstallFgpUtil::init);
     tasks.create(UninstallFgpUtil.TaskName, UninstallFgpUtil.class, UninstallFgpUtil::init);
 
+    // Raml4JaxRS
     tasks.create(InstallRaml4JaxRS.TaskName, InstallRaml4JaxRS.class, InstallRaml4JaxRS::init);
     tasks.create(UninstallRaml4JaxRS.TaskName, UninstallRaml4JaxRS.class, UninstallRaml4JaxRS::init);
 
     tasks.create(GenerateJaxRS.TaskName, GenerateJaxRS.class, GenerateJaxRS::init);
     tasks.create(GenerateRamlDocs.TaskName, GenerateRamlDocs.class, GenerateRamlDocs::init);
 
+    // Raml4JaxRS Cleanup
     tasks.create(JaxRSDiscriminatorPatch.TaskName, JaxRSDiscriminatorPatch.class, JaxRSDiscriminatorPatch::init);
     tasks.create(JaxRSEnumValuePatch.TaskName, JaxRSEnumValuePatch.class, JaxRSEnumValuePatch::init);
+    tasks.create(JaxRSJakartaPatch.TaskName, JaxRSJakartaPatch.class, JaxRSJakartaPatch::init);
 
     tasks.create(DockerBuild.TaskName, DockerBuild.class, DockerBuild::init);
 
@@ -94,7 +98,8 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
 
     genJaxrs.finalizedBy(
       JaxRSDiscriminatorPatch.TaskName,
-      JaxRSEnumValuePatch.TaskName
+      JaxRSEnumValuePatch.TaskName,
+      JaxRSJakartaPatch.TaskName
     );
   }
 
