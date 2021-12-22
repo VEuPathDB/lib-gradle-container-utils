@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.Arrays;
 
 public class JaxRSJakartaPatch extends JaxRSSourceAction {
-  public static final String TaskName = "jakarta-patch";
+  public static final String TaskName = "patch-jakarta";
 
   @Override
   @SuppressWarnings("ConstantConditions")
