@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.veupathdb.lib.gradle.container.config.Options;
 import org.veupathdb.lib.gradle.container.tasks.*;
 import org.veupathdb.lib.gradle.container.tasks.docker.DockerBuild;
-import org.veupathdb.lib.gradle.container.tasks.fgputil.InstallFgpUtil;
+import org.veupathdb.lib.gradle.container.tasks.fgputil.DownloadFgpUtil;
 import org.veupathdb.lib.gradle.container.tasks.fgputil.UninstallFgpUtil;
 import org.veupathdb.lib.gradle.container.tasks.jaxrs.*;
 import org.veupathdb.lib.gradle.container.tasks.raml.GenerateRamlDocs;
@@ -48,7 +48,7 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
     // Register Tasks
     final var tasks = project.getTasks();
 
-    tasks.create(InstallFgpUtil.TaskName, InstallFgpUtil.class, InstallFgpUtil::init);
+    tasks.create(DownloadFgpUtil.TaskName, DownloadFgpUtil.class, DownloadFgpUtil::init);
     tasks.create(UninstallFgpUtil.TaskName, UninstallFgpUtil.class, UninstallFgpUtil::init);
 
     tasks.create(InstallRaml4JaxRS.TaskName, InstallRaml4JaxRS.class, InstallRaml4JaxRS::init);
@@ -83,7 +83,7 @@ public class ContainerUtilsPlugin implements Plugin<Project> {
 
     // Make sure InstallFgpUtil is called before any compile tasks.
     tasks.withType(JavaCompile.class)
-      .forEach(t -> t.dependsOn(tasks.getByName(InstallFgpUtil.TaskName)));
+      .forEach(t -> t.dependsOn(tasks.getByName(DownloadFgpUtil.TaskName)));
 
     // Make sure that Raml for Jax RS is installed before attempting to generate
     // java types.

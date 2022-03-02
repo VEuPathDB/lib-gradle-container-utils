@@ -50,6 +50,8 @@ public class Maven {
       final var proc = cmd.start();
 
       if (proc.waitFor() != 0) {
+        System.out.println(new String(proc.getInputStream().readAllBytes()));
+
         throw new RuntimeException(new String(proc.getErrorStream().readAllBytes()));
       }
     } catch (Exception e) {
