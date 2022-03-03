@@ -1,18 +1,28 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
   `java-gradle-plugin`
   `maven-publish`
+  kotlin("jvm") version "1.6.10"
 }
 
 group = "org.veupathdb.lib"
-version = "2.2.0"
+version = "3.0.0-SNAPSHOT-1"
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_16
-  targetCompatibility = JavaVersion.VERSION_16
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(16))
+  }
 
   if (project.hasProperty("full-publish")) {
     withSourcesJar()
     withJavadocJar()
+  }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+  kotlinOptions {
+    jvmTarget = "16"
   }
 }
 
@@ -31,6 +41,8 @@ gradlePlugin {
 }
 
 dependencies {
+  implementation(kotlin("stdlib"))
+  implementation(kotlin("stdlib-jdk8"))
   implementation("org.jetbrains", "annotations", "21.0.1")
 }
 
@@ -72,27 +84,3 @@ publishing {
     }
   }
 }
-
-//// Add a source set for the functional test suite
-//val functionalTestSourceSet = sourceSets.create("functionalTest") {
-//}
-
-//gradlePlugin.testSourceSets(functionalTestSourceSet)
-//configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
-//
-//// Add a task to run the functional tests
-//val functionalTest by tasks.registering(Test::class) {
-//  testClassesDirs = functionalTestSourceSet.output.classesDirs
-//  classpath = functionalTestSourceSet.runtimeClasspath
-//  useJUnitPlatform()
-//}
-//
-//tasks.check {
-//  // Run the functional tests as part of `check`
-//  dependsOn(functionalTest)
-//}
-//
-//tasks.test {
-//  // Use JUnit Platform for unit tests.
-//  useJUnitPlatform()
-//}
