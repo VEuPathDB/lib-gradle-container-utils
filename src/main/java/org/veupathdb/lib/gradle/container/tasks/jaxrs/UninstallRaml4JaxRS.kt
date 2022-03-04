@@ -1,9 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks.jaxrs
 
-import org.jetbrains.annotations.NotNull
 import org.veupathdb.lib.gradle.container.tasks.base.BinCleanAction
-import org.veupathdb.lib.gradle.container.tasks.jaxrs.InstallRaml4JaxRS
-
 import java.io.File
 
 /**
@@ -14,7 +11,7 @@ import java.io.File
  *
  * @since 1.1.0
  */
-class UninstallRaml4JaxRS : BinCleanAction() {
+open class UninstallRaml4JaxRS : BinCleanAction() {
 
   companion object {
     const val TaskName = "uninstall-raml-4-jax-rs"

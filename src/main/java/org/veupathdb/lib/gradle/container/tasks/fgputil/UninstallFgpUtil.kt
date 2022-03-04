@@ -12,7 +12,7 @@ import java.io.File
  *
  * @since 1.0.0
  */
-class UninstallFgpUtil : VendorCleanAction() {
+open class UninstallFgpUtil : VendorCleanAction() {
 
   companion object {
     const val TaskName = "uninstall-fgputil"

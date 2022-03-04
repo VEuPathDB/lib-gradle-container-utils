@@ -15,7 +15,7 @@ import org.veupathdb.lib.gradle.container.tasks.base.Action;
  * use Gradle for all tasks.
  */
 @Deprecated("Will be removed after makefile has been shifted to gradle.")
-class PrintPackage : Action() {
+open class PrintPackage : Action() {
 
   companion object {
     const val TaskName = "print-package";

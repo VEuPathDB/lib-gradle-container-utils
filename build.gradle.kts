@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.veupathdb.lib"
-version = "3.0.0-SNAPSHOT-1"
+version = "3.0.0-SNAPSHOT-17"
 
 java {
   toolchain {
@@ -41,9 +41,9 @@ gradlePlugin {
 }
 
 dependencies {
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
   implementation(kotlin("stdlib"))
   implementation(kotlin("stdlib-jdk8"))
-  implementation("org.jetbrains", "annotations", "21.0.1")
 }
 
 publishing {

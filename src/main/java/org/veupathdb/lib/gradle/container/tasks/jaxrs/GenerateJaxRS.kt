@@ -13,7 +13,7 @@ import java.util.Arrays
  *
  * @since 1.1.0
  */
-class GenerateJaxRS : BinExecAction() {
+open class GenerateJaxRS : BinExecAction() {
 
   companion object {
     const val TaskName = "generate-jaxrs"

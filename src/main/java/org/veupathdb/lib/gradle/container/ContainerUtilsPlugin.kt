@@ -1,15 +1,12 @@
 package org.veupathdb.lib.gradle.container
 
-import groovy.lang.Closure
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.jetbrains.annotations.NotNull
 import org.veupathdb.lib.gradle.container.config.Options
 import org.veupathdb.lib.gradle.container.tasks.*
 import org.veupathdb.lib.gradle.container.tasks.base.Action
@@ -19,9 +16,6 @@ import org.veupathdb.lib.gradle.container.tasks.fgputil.UninstallFgpUtil
 import org.veupathdb.lib.gradle.container.tasks.jaxrs.*
 import org.veupathdb.lib.gradle.container.tasks.raml.GenerateRamlDocs
 import org.veupathdb.lib.gradle.container.util.JarFileFilter
-
-import java.util.Arrays
-import java.util.Optional
 
 
 /**
@@ -92,11 +86,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
     configureTestLogging(project)
     configureRepositories(project, opts)
 
-    val tasks = project.getTasks()
-
-    // Make sure InstallFgpUtil is called before any compile tasks.
-    tasks.withType(JavaCompile::class.java)
-      .forEach { t -> t.dependsOn(tasks.getByName(DownloadFgpUtil.TaskName)) }
+    val tasks = project.tasks
 
       // Make sure that Raml for Jax RS is installed before attempting to generate
     // java types.
@@ -120,30 +110,26 @@ class ContainerUtilsPlugin : Plugin<Project> {
     project.logger.debug("Configuring jar tasks.")
     val conf = opts.project
 
-    for (jar in project.tasks.withType(Jar::class.java)) {
-      jar.configure(object: Closure<Any?>(jar) {
-        fun doCall(): Any? {
-          jar.logger.debug("Applying config to jar task {}.", jar)
+    project.tasks.getByName("jar") { jar ->
+      jar as Jar
 
-          // Set DuplicateStrategy
-          jar.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+      jar.logger.debug("Applying config to jar task {}.", jar)
 
-          // Set Archive Name
-          jar.archiveFileName.set("service.jar")
+      // Set DuplicateStrategy
+      jar.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-          // Apply changes needed to build a fat jar
-          configureFatJar(project, jar)
+      // Set Archive Name
+      jar.archiveFileName.set("service.jar")
 
-          // Set Manifest Attributes
-          val attrs = jar.manifest.attributes
+      // Apply changes needed to build a fat jar
+      configureFatJar(project, jar)
 
-          attrs["Main-Class"] = conf.projectPackage + "." + conf.mainClassName
-          attrs["Implementation-Title"] = conf.name
-          attrs["Implementation-Version"] = conf.version
+      // Set Manifest Attributes
+      val attrs = jar.manifest.attributes
 
-          return null
-        }
-      })
+      attrs["Main-Class"] = conf.projectPackage + "." + conf.mainClassName
+      attrs["Implementation-Title"] = conf.name
+      attrs["Implementation-Version"] = conf.version
     }
   }
 
@@ -152,11 +138,13 @@ class ContainerUtilsPlugin : Plugin<Project> {
     jar: Jar
   ) {
     jar.from(project.configurations
-      .getByName("runtimeClasspath")
-      .files
-      .stream()
-      .flatMap(JarFileFilter.expandFiles(project))
-      .toArray())
+      .getByName("runtimeClasspath").map {
+        println("  ${it.name}")
+
+        if (it.isDirectory) it else project.zipTree(it).matching {
+          it.exclude { f -> JarFileFilter.excludeJarFiles(f) }
+        }
+      })
   }
 
 
@@ -184,7 +172,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
       mar.name = "GitHubPackages"
       mar.url = project.uri("https://maven.pkg.github.com/veupathdb/maven-packages")
 
-      var creds = mar.credentials
+      val creds = mar.credentials
 
       creds.username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
       creds.password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")

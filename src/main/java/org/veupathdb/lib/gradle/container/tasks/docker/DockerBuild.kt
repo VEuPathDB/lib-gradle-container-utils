@@ -17,7 +17,7 @@ import java.util.Arrays
  * TODO: This should tag the built image as :latest, and then add an additional
  *       tag using the version from the project config.
  */
-class DockerBuild : ExecAction() {
+open class DockerBuild : ExecAction() {
 
   companion object {
     const val TaskName = "build-docker"

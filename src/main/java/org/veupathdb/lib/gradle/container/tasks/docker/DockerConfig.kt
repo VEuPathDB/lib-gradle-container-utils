@@ -11,7 +11,7 @@ import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecConfiguration;
  */
 @SuppressWarnings("unused")
 class DockerConfig(
-  imageName: String = "demo-service",
-  context: String = ".",
-  dockerFile: String = "Dockerfile",
+  var imageName:  String = "demo-service",
+  var context:    String = ".",
+  var dockerFile: String = "Dockerfile",
 ) : ExecConfiguration()

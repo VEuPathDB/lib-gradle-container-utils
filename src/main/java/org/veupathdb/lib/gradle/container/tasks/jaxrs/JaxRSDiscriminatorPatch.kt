@@ -6,7 +6,7 @@ import java.io.*
 import java.util.Arrays
 import java.util.Locale
 
-class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
+open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
 
   companion object {
     private const val LogModelDirCheck = "Testing generated model dir {}"

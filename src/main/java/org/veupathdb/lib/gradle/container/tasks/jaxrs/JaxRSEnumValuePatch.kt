@@ -6,7 +6,7 @@ import java.io.*
 import java.util.Arrays
 import java.util.Locale
 
-class JaxRSEnumValuePatch : JaxRSSourceAction() {
+open class JaxRSEnumValuePatch : JaxRSSourceAction() {
 
   companion object {
     const val TaskName = "patch-enums"

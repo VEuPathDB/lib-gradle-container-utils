@@ -1,10 +1,6 @@
 package org.veupathdb.lib.gradle.container.util
 
-import org.gradle.api.Project
-import java.io.File
-
-import java.util.stream.Stream
-import java.util.function.Function
+import org.gradle.api.file.FileTreeElement
 
 /**
  * Methods for filtering files merged into fat jars.
@@ -16,30 +12,20 @@ import java.util.function.Function
 object JarFileFilter {
 
   @JvmStatic
-  private val JarExclusionExtensions = arrayOf(
-    FileFilter.contains("log4j").and(FileFilter.contains(".dat")),
-    FileFilter.endsWith(".sf"),
-    FileFilter.endsWith(".dsa"),
-    FileFilter.endsWith(".rsa"),
-    FileFilter.endsWith(".md"),
+  private val JarExclusionExtensions = arrayOf<(String) -> Boolean>(
+    { it.contains("log4j") && it.contains(".dat") },
+    { it.endsWith(".sf") },
+    { it.endsWith(".dsa") },
+    { it.endsWith(".rsa") },
+    { it.endsWith(".md") },
   )
 
   @JvmStatic
-  fun expandFiles(project: Project) =
-    Function<File, Stream<File>> { file ->
-      if (file.isDirectory)
-        return@Function Stream.of(file)
+  fun excludeJarFiles(file: FileTreeElement): Boolean {
+    val name = file.name.toLowerCase()
 
-      return@Function project.zipTree(file)
-        .filter(JarFileFilter::excludeJarFiles)
-        .files
-        .stream()
-    }
-
-  @JvmStatic
-  fun excludeJarFiles(file: File): Boolean {
     for (filter in JarExclusionExtensions) {
-      if (filter.test(file))
+      if (filter(name))
         return false
     }
 

@@ -17,7 +17,7 @@ import java.util.Optional
  *
  * @since 1.1.0
  */
-class GenerateRamlDocs : ExecAction() {
+open class GenerateRamlDocs : ExecAction() {
 
   companion object {
     const val TaskName = "generate-raml-docs"

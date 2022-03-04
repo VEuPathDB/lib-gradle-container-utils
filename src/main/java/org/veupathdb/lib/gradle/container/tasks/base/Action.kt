@@ -40,8 +40,10 @@ abstract class Action : DefaultTask() {
     }
   }
 
+  @get:Internal
   protected val RootDir: File = project.rootDir
 
+  @get:Internal
   protected val util by lazy { Utils(log) }
 
   @get:Internal
@@ -79,6 +81,7 @@ abstract class Action : DefaultTask() {
    *
    * @since 1.1.0
    */
+  @get:Internal
   abstract val pluginDescription: String
 
   //

@@ -1,6 +1,5 @@
 package org.veupathdb.lib.gradle.container.util
 
-import org.jetbrains.annotations.Contract
 import java.io.*
 import java.lang.reflect.Array
 import java.nio.file.Path
@@ -428,7 +427,6 @@ class Logger(level: Level, rootDir: File) {
    *
    * @since 1.1.0
    */
-  @Contract("null -> null")
   fun <T> getter(value: T): T {
     if (this.logLevel >= Level.Trace) {
       val stack = Exception().stackTrace[1]
@@ -621,7 +619,6 @@ class Logger(level: Level, rootDir: File) {
    *
    * @since 1.1.0
    */
-  @Contract("_, null -> null")
   fun <T> map(input: Any?, output: T): T {
     if (this.logLevel >= Level.Trace) {
       val stack = Exception().stackTrace[1]
@@ -826,7 +823,6 @@ class Logger(level: Level, rootDir: File) {
   // Without an exception
   //
 
-  @Contract(value = "_ -> fail", pure = true)
   fun <T>  fatal(value: Any?): T {
     val buf = StringWriter (64)
 
@@ -852,7 +848,6 @@ class Logger(level: Level, rootDir: File) {
    * @throws RuntimeException Thrown after the log is written.
    * @since 2.0.0
    */
-  @Contract(value = "_, _ -> fail", pure = true)
   fun <T> fatal(fmt: String, value: Any?): T {
     val buf = StringWriter(128)
 
@@ -1256,7 +1251,6 @@ class Logger(level: Level, rootDir: File) {
    *
    * @since 1.1.0
    */
-  @Contract(mutates = "param1")
   internal fun fillTime(buf: CharArray, time: Long) {
     var pos = buf.size - 3
     var rem = time

@@ -12,7 +12,7 @@ import java.util.Stack
  *
  * @since 1.1.0
  */
-class InstallRaml4JaxRS : BinBuildAction() {
+open class InstallRaml4JaxRS : BinBuildAction() {
 
   companion object {
     private const val LockFile = "raml4jaxrs.lock"

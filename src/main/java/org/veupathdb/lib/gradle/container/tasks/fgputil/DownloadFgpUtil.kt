@@ -10,7 +10,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.Arrays
 
-class DownloadFgpUtil : Action() {
+open class DownloadFgpUtil : Action() {
 
   companion object {
     const val TaskName = "download-fgputil"
@@ -53,13 +53,17 @@ class DownloadFgpUtil : Action() {
 
   override fun execute() {
     for (i in opts.targets) {
-      val url = String.format(ReleaseUrl, "download/$tag/$i")
-      val res = HttpClient.newHttpClient().send(
-        HttpRequest.newBuilder(URI.create(url))
-          .GET()
-          .build(),
-        HttpResponse.BodyHandlers.ofInputStream()
-      )
+      val url = String.format(ReleaseUrl, "download/$tag/${i.value}")
+      log.info("Downloading dependency: $url")
+      val res = HttpClient.newBuilder()
+        .followRedirects(HttpClient.Redirect.ALWAYS)
+        .build()
+        .send(
+          HttpRequest.newBuilder(URI.create(url))
+            .GET()
+            .build(),
+          HttpResponse.BodyHandlers.ofInputStream()
+        )
 
       val file = File(vendorDir, i.value)
       file.delete()
@@ -67,6 +71,7 @@ class DownloadFgpUtil : Action() {
 
       FileOutputStream(file).use {
         res.body().transferTo(it)
+        it.flush()
       }
     }
   }

@@ -22,16 +22,16 @@ import org.veupathdb.lib.gradle.container.util.Logger
  * @since 1.0.0
  */
 @Suppress("unused")
-class Options {
+open class Options {
 
-  val project      = ProjectConfiguration()
-  val fgputil      = FgpUtilConfiguration()
-  val binBuilds    = GlobalBinBuildConfiguration()
-  val vendorBuilds = GlobalVendorBuildConfiguration()
-  val raml4jaxrs         = Raml4JaxRSBuildConfig()
-  val generateJaxRS      = GenRamlConfig()
-  val generateRamlDocs   = GenRamlConfig()
-  val docker             = DockerConfig()
+  val project          = ProjectConfiguration()
+  val fgputil          = FgpUtilConfiguration()
+  val binBuilds        = GlobalBinBuildConfiguration()
+  val vendorBuilds     = GlobalVendorBuildConfiguration()
+  val raml4jaxrs       = Raml4JaxRSBuildConfig()
+  val generateJaxRS    = GenRamlConfig()
+  val generateRamlDocs = GenRamlConfig()
+  val docker           = DockerConfig()
 
   var rootApiDefinition = DefaultApiDocsRoot
 
