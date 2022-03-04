@@ -42,6 +42,7 @@ abstract class ExecAction : Action() {
   @Internal
   protected abstract fun getCommandName(): String
 
+  @get:Internal
   protected abstract val execConfiguration: ExecConfiguration
 
   //
