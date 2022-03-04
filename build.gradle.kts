@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.veupathdb.lib"
-version = "3.0.0-SNAPSHOT-17"
+version = "3.0.0"
 
 java {
   toolchain {
