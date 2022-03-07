@@ -1,12 +1,16 @@
 package org.veupathdb.lib.gradle.container.tasks.base;
 
+/**
+ * Static configuration of option defaults.
+ *
+ * @since 1.1.0
+ *
+ * @deprecated This class is being removed as the global options type is
+ * dissolved into smaller targeted option sets which define their own defaults.
+ */
+@Deprecated
 public class Defaults {
-  public static final String DefaultBinDirectory        = ".bin";
-  public static final String DefaultVendorDirectory     = "vendor";
-  public static final String DefaultDocsDirectory       = "docs";
-  public static final String DefaultFgpUtilVersion      = "master";
-  public static final String DefaultRamlForJaxRSVersion = "3.0.7";
+
+  @Deprecated
   public static final String DefaultApiDocsRoot         = "api.raml";
-  public static final String DefaultProjectPackage      = "org.veupathdb.service.demo";
-  public static final String DefaultDockerContext       = ".";
 }
