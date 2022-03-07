@@ -103,6 +103,7 @@ abstract class ExecAction : Action() {
   protected open fun appendEnvironment(env: MutableMap<String, String>) {
     log.open()
     env.putAll(execConfiguration.environment)
+    env["PATH"] = System.getenv("PATH")
     log.close()
   }
 
