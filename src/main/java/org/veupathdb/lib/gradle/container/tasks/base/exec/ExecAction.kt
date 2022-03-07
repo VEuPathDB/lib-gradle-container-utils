@@ -138,8 +138,8 @@ abstract class ExecAction : Action() {
 
       // Configure the pipe for the command's stdout.  If no custom
       // configuration is provided, pipe stdout to /dev/null
-      var pipe = getStdOutRedirect() ?: RedirectConfig.toDevNull()
-      pipe.forStdOut(proc)
+      var pipe: RedirectConfig? = getStdOutRedirect() ?: RedirectConfig.toDevNull()
+      pipe!!.forStdOut(proc)
 
       // Prepare a buffer that may be used to collect the process' stderr if
       // no custom configuration is provided.
@@ -147,7 +147,7 @@ abstract class ExecAction : Action() {
 
       // If a custom stderr configuration is provided, pipe the target command's
       // stderr to the configured location.
-      pipe = getStdErrRedirect()!!
+      pipe = getStdErrRedirect()
       if (pipe != null)
         pipe.forStdErr(proc)
       // Else append it to the byte buffer to use when logging the error in the
