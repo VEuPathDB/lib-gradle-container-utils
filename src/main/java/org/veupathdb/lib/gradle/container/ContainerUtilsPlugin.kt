@@ -10,6 +10,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.veupathdb.lib.gradle.container.config.Options
 import org.veupathdb.lib.gradle.container.tasks.*
 import org.veupathdb.lib.gradle.container.tasks.base.Action
+import org.veupathdb.lib.gradle.container.tasks.check.CheckEnv
 import org.veupathdb.lib.gradle.container.tasks.docker.DockerBuild
 import org.veupathdb.lib.gradle.container.tasks.fgputil.DownloadFgpUtil
 import org.veupathdb.lib.gradle.container.tasks.fgputil.UninstallFgpUtil
@@ -53,7 +54,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
     project.extensions.create(ExtensionName, Options::class.java)
 
     // Register Tasks
-    val tasks = project.getTasks()
+    val tasks = project.tasks
 
     tasks.create(DownloadFgpUtil.TaskName, DownloadFgpUtil::class.java, Action::init)
     tasks.create(UninstallFgpUtil.TaskName, UninstallFgpUtil::class.java, Action::init)
@@ -70,6 +71,8 @@ class ContainerUtilsPlugin : Plugin<Project> {
     tasks.create(DockerBuild.TaskName, DockerBuild::class.java, Action::init)
 
     tasks.create(PrintPackage.TaskName, PrintPackage::class.java, Action::init)
+
+    tasks.create(CheckEnv.TaskName, CheckEnv::class.java, Action::init)
 
     project.afterEvaluate { x -> afterEvaluate(x) }
   }
