@@ -16,7 +16,6 @@ import org.veupathdb.lib.gradle.container.tasks.fgputil.DownloadFgpUtil
 import org.veupathdb.lib.gradle.container.tasks.fgputil.UninstallFgpUtil
 import org.veupathdb.lib.gradle.container.tasks.jaxrs.*
 import org.veupathdb.lib.gradle.container.tasks.raml.GenerateRamlDocs
-import org.veupathdb.lib.gradle.container.util.JarFileFilter
 
 
 /**
@@ -124,9 +123,6 @@ class ContainerUtilsPlugin : Plugin<Project> {
       // Set Archive Name
       jar.archiveFileName.set("service.jar")
 
-      // Apply changes needed to build a fat jar
-      configureFatJar(project, jar)
-
       // Set Manifest Attributes
       val attrs = jar.manifest.attributes
 
@@ -135,21 +131,6 @@ class ContainerUtilsPlugin : Plugin<Project> {
       attrs["Implementation-Version"] = conf.version
     }
   }
-
-  private fun configureFatJar(
-    project: Project,
-    jar: Jar
-  ) {
-    jar.from(project.configurations
-      .getByName("runtimeClasspath").map {
-        println("  ${it.name}")
-
-        if (it.isDirectory) it else project.zipTree(it).matching {
-          it.exclude { f -> JarFileFilter.excludeJarFiles(f) }
-        }
-      })
-  }
-
 
   private fun configureTestLogging(project: Project) {
     val events = Events.asList()
