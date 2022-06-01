@@ -84,12 +84,6 @@ open class DockerBuild : ExecAction() {
     //
     //
 
-    @JvmStatic
-    private val StdOutFile = File("docker-stdout.log")
-
-    @JvmStatic
-    private val StdErrFile = File("docker-stderr.log")
-
     private const val Dockerfile = "Dockerfile"
   }
 
@@ -116,11 +110,6 @@ open class DockerBuild : ExecAction() {
     log.close()
   }
 
-  override fun postExec() {
-    StdErrFile.delete()
-    StdOutFile.delete()
-  }
-
   @Internal
   override fun getWorkDirectory() = RootDir
 
@@ -130,10 +119,10 @@ open class DockerBuild : ExecAction() {
   override val pluginDescription get() = TaskDescription
 
   @Internal
-  override fun getStdOutRedirect() = RedirectConfig.toFile(StdOutFile)
+  override fun getStdOutRedirect() = RedirectConfig.toStdOut()
 
   @Internal
-  override fun getStdErrRedirect() = RedirectConfig.toFile(StdErrFile)
+  override fun getStdErrRedirect() = RedirectConfig.toStdErr()
 
   override fun appendArguments(args: MutableList<String>) {
     log.open()
