@@ -3,15 +3,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   `java-gradle-plugin`
   `maven-publish`
-  kotlin("jvm") version "1.6.10"
+  kotlin("jvm") version "1.6.21"
 }
 
 group = "org.veupathdb.lib"
-version = "3.3.0"
+version = "3.4.0"
 
 java {
   toolchain {
-    languageVersion.set(JavaLanguageVersion.of(16))
+    languageVersion.set(JavaLanguageVersion.of(17))
   }
 
   if (project.hasProperty("full-publish")) {
@@ -22,7 +22,7 @@ java {
 
 tasks.withType<KotlinCompile>().configureEach {
   kotlinOptions {
-    jvmTarget = "16"
+    jvmTarget = "17"
   }
 }
 
@@ -41,7 +41,7 @@ gradlePlugin {
 }
 
 dependencies {
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21")
   implementation(kotlin("stdlib"))
   implementation(kotlin("stdlib-jdk8"))
 }
