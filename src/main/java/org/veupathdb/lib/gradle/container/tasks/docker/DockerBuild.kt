@@ -72,8 +72,6 @@ open class DockerBuild : ExecAction() {
 
     private const val FlagFile = "--file"
 
-    private const val FlagNoCache = "--no-cache"
-
     private const val FlagImageName = "--tag"
 
     private const val FlagBuildArg = "--build-arg"
@@ -130,7 +128,6 @@ open class DockerBuild : ExecAction() {
     // Append mandatory args/flags.
     args.addAll(Arrays.asList(
       ArgBuild,
-      FlagNoCache,
       FlagFile,
       getDockerFile().getPath(),
       FlagImageName,
@@ -158,7 +155,7 @@ open class DockerBuild : ExecAction() {
 
   private fun getDockerFile() = File(execConfiguration.context, Dockerfile)
 
-  private fun makeDockerImageName() = log.getter(execConfiguration.imageName)
+  private fun makeDockerImageName() = log.getter(execConfiguration.imageName ?: throw IllegalArgumentException("imageName must be specified in DockerConfig"))
 
   private fun findGithubUsername(): String {
     log.open()
