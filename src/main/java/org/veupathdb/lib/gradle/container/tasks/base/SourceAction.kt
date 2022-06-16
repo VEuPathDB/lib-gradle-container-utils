@@ -111,7 +111,7 @@ abstract class SourceAction : Action() {
     override val found = false
   }
 
-  protected class FullSearchResult(
+  protected data class FullSearchResult(
     override val file: File,
     override val line: Int
   ) : SourceSearchResult {
