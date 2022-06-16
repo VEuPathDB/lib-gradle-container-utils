@@ -4,6 +4,9 @@ import java.io.*
 import java.lang.reflect.Array
 import java.nio.file.Path
 
+private operator fun (() -> Logger.Level).compareTo(lvl: Logger.Level) =
+  this().compareTo(lvl)
+
 /**
  * Plugin Tree Logger.
  * <p>
@@ -14,7 +17,7 @@ import java.nio.file.Path
  */
 // TODO: allow configuring threshold for what goes to stdout and what goes to stderr.
 @Suppress("unused")
-class Logger(level: Level, rootDir: File) {
+class Logger(level: () -> Level, rootDir: File) {
 
   /**
    * @since 3.0.0
@@ -217,7 +220,7 @@ class Logger(level: Level, rootDir: File) {
    *
    * @since 1.1.0
    */
-  val logLevel: Level = level
+  val logLevel: () -> Level = level
 
   /**
    * Project path.
@@ -273,7 +276,7 @@ class Logger(level: Level, rootDir: File) {
 
   val isError get() = this.logLevel >= Level.Error
 
-  val isDisabled get() = this.logLevel == Level.None
+  val isDisabled get() = this.logLevel() == Level.None
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -47,7 +47,7 @@ abstract class Action : DefaultTask() {
   protected val util by lazy { Utils(log) }
 
   @get:Internal
-  protected val log by lazy { Logger(options.logLevel, RootDir) }
+  protected val log by lazy { Logger(options::logLevel, RootDir) }
 
   @get:Internal
   protected val options by lazy {

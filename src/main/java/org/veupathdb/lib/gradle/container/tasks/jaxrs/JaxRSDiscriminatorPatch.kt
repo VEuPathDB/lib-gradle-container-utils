@@ -15,7 +15,7 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
 
     private const val  DiscTypeNameLine = "  String _DISCRIMINATOR_TYPE_NAME = "
 
-    private const val DiscriminatorTypeName        = "_DISCRIMINATOR_TYPE_NAME"
+    private const val DiscriminatorTypeName = "_DISCRIMINATOR_TYPE_NAME"
 
     private const val InterfaceOldLinePrefix = "  String $DiscriminatorTypeName = \""
 
@@ -36,9 +36,11 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
   override fun execute() {
     log.open()
 
+    // Get a list of all the generated "my.package.path.generated.model" dirs.
     var stream = getGeneratedSourceDirectories()
       .map { File(it, ModelDir) }
 
+    // Filter the list of directories down to only those that actually exist.
     stream = if (log.isDebug) {
       stream.peek(newFileLogger(LogModelDirCheck))
         .filter(File::exists)
@@ -47,6 +49,8 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
       stream.filter(File::exists)
     }
 
+    // Expand the stream to all the files in each directory, then filter the
+    // expanded file stream down to only files that appear to be interfaces.
     stream = stream.map(File::listFiles)
       .flatMap(Arrays::stream)
       // Filter out implementation files
@@ -58,6 +62,7 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
       stream = stream.peek(newFileLogger(LogJavaFileCheck))
     }
 
+    // Sift through each file looking for
     val iterator = stream.map(this::testFile)
       .filter(SourceSearchResult::found)
       .iterator()
@@ -116,7 +121,12 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
             writer.write(DiscriminatorTypeName)
             writer.write(" = ")
 
-            val value = parseValue(lineText)
+            // Get the string value currently assigned to the
+            // _DISCRIMINATOR_TYPE_NAME property.
+            val value = parseDiscriminatorTypeStringValue(lineText)
+              // Trim out any underscores (the raml to jaxrs generator does this
+              // when converting RAML types to java classes).
+              .replace("_", "")
 
             // If the value is just the interface name, it's the root type and
             // should not have a value.  Set it to null.
@@ -155,7 +165,26 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
     }
   }
 
-  private fun parseValue(line: String) =
+  /**
+   * Parses the string value out of a raw `_DISCRIMINATOR_TYPE_NAME` line.
+   *
+   * Example Input:
+   * ```
+   *   String _DISCRIMINATOR_TYPE_NAME = "API_Variable";
+   * ```
+   *
+   * Example Output:
+   * ```
+   * API_Variable
+   * ```
+   *
+   * @param line Line of java source code containing the
+   * `_DISCRIMINATOR_TYPE_NAME` definition.
+   *
+   * @return The string value assigned to the original
+   * `_DISCRIMINATOR_TYPE_NAME` property.
+   */
+  private fun parseDiscriminatorTypeStringValue(line: String) =
     line.substring(InterfaceOldLinePrefixLength, line.lastIndexOf('"'))
 
   /**
@@ -230,9 +259,9 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
 
     // TODO: is this backwards?  Aren't these the built-in types?
     return log.close(when (type) {
-      "String", "Byte", "Short", "Integer", "Long", "Float", "Double" -> true
-      "byte", "short", "int", "long", "float", "double"               -> true
-      else                                                            -> false
+      "String", "Byte", "Short", "Integer", "Long", "Float", "Double" -> false
+      "byte", "short", "int", "long", "float", "double"               -> false
+      else                                                            -> true
     })
   }
 
