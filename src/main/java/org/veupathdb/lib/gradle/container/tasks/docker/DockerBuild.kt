@@ -76,13 +76,6 @@ open class DockerBuild : ExecAction() {
 
     private const val FlagBuildArg = "--build-arg"
 
-    //
-    //
-    // Command Relevant Files
-    //
-    //
-
-    private const val Dockerfile = "Dockerfile"
   }
 
   //
@@ -153,7 +146,7 @@ open class DockerBuild : ExecAction() {
   //
   //
 
-  private fun getDockerFile() = File(execConfiguration.context, Dockerfile)
+  private fun getDockerFile() = File(execConfiguration.context, execConfiguration.dockerFile)
 
   private fun makeDockerImageName() = log.getter(execConfiguration.imageName ?: throw IllegalArgumentException("imageName must be specified in DockerConfig"))
 
