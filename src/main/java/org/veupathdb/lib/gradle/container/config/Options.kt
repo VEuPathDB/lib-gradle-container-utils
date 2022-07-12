@@ -4,7 +4,6 @@ import org.gradle.api.Action
 import org.veupathdb.lib.gradle.container.tasks.base.Defaults.DefaultApiDocsRoot
 import org.veupathdb.lib.gradle.container.tasks.docker.DockerConfig
 import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecConfiguration
-import org.veupathdb.lib.gradle.container.tasks.fgputil.FgpUtilConfiguration
 import org.veupathdb.lib.gradle.container.tasks.base.build.GlobalBinBuildConfiguration
 import org.veupathdb.lib.gradle.container.tasks.base.build.GlobalBuildConfiguration
 import org.veupathdb.lib.gradle.container.tasks.base.build.GlobalVendorBuildConfiguration
@@ -25,7 +24,6 @@ import org.veupathdb.lib.gradle.container.util.Logger
 open class Options {
 
   val project          = ProjectConfiguration()
-  val fgputil          = FgpUtilConfiguration()
   val binBuilds        = GlobalBinBuildConfiguration()
   val vendorBuilds     = GlobalVendorBuildConfiguration()
   val raml4jaxrs       = Raml4JaxRSBuildConfig()
@@ -45,14 +43,6 @@ open class Options {
    */
   fun project(configure: Action<in ProjectConfiguration>) =
     configure.execute(project)
-
-  /**
-   * Modify the service project's FgpUtil dependency settings.
-   *
-   * @param configure Action that will be called with the FgpUtil configuration.
-   */
-  fun fgputil(configure: Action<in FgpUtilConfiguration>) =
-    configure.execute(fgputil)
 
   /**
    * Modify the service project's build dependency build configuration.
@@ -113,7 +103,6 @@ open class Options {
       "rootApiDefinition='" + rootApiDefinition + '\'' +
       ", logLevel=" + logLevel +
       ", project=" + project +
-      ", fgputil=" + fgputil +
       ", globalBinConfig=" + binBuilds +
       ", globalVendorConfig=" + vendorBuilds +
       ", raml4jaxrs=" + raml4jaxrs +
