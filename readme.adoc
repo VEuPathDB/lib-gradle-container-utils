@@ -3,7 +3,7 @@
 :icons: font
 
 // Project version
-:p-version: 3.0.1
+:p-version: 3.4.3
 
 // Options List
 :o-vendorDir: vendorDirectory
@@ -18,8 +18,6 @@
 
 // Tasks
 :t-build-docker: build-docker
-:t-install-fgputil: fgputilInstall
-:t-uninstall-fgputil: fgputilUninstall
 :t-install-raml4jaxrs: ramlGenInstall
 :t-uninstall-raml4jaxrs: ramlGenUninstall
 :t-generate-jaxrs: generate-jaxrs
@@ -40,14 +38,12 @@ The following tasks/targets are added to Gradle by this plugin.
 VEuPathDB tasks
 ---------------
 build-docker            - Builds this project's docker image.  WARNING: This task requires that your user is a member of the "docker" group.
-download-fgputil        - Downloads the selected (or latest) version of FgpUtil
 generate-jaxrs          - Generates JaxRS Java code based on the project's RAML API spec.
 generate-raml-docs      - Generates HTML documentation from the RAML API spec.
 install-raml-4-jax-rs   - Builds and installs the Raml for JaxRS generator.
 patch-discriminators    - Patches the generated JaxRS classes by correcting invalid discriminator types.
 patch-enums             - Adds a getter for the internal value for Raml for Jax RS generated enum types.
 print-package           - Print the current project's root package.
-uninstall-fgputil       - Removes FgpUtil jars from the dependency directory.
 uninstall-raml-4-jax-rs - Uninstalls the Raml for Jax RS tooling.
 ----
 
