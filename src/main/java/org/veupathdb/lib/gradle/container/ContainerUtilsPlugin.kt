@@ -12,8 +12,6 @@ import org.veupathdb.lib.gradle.container.tasks.*
 import org.veupathdb.lib.gradle.container.tasks.base.Action
 import org.veupathdb.lib.gradle.container.tasks.check.CheckEnv
 import org.veupathdb.lib.gradle.container.tasks.docker.DockerBuild
-import org.veupathdb.lib.gradle.container.tasks.fgputil.DownloadFgpUtil
-import org.veupathdb.lib.gradle.container.tasks.fgputil.UninstallFgpUtil
 import org.veupathdb.lib.gradle.container.tasks.jaxrs.*
 import org.veupathdb.lib.gradle.container.tasks.raml.GenerateRamlDocs
 
@@ -54,9 +52,6 @@ class ContainerUtilsPlugin : Plugin<Project> {
 
     // Register Tasks
     val tasks = project.tasks
-
-    tasks.create(DownloadFgpUtil.TaskName, DownloadFgpUtil::class.java, Action::init)
-    tasks.create(UninstallFgpUtil.TaskName, UninstallFgpUtil::class.java, Action::init)
 
     tasks.create(InstallRaml4JaxRS.TaskName, InstallRaml4JaxRS::class.java, Action::init)
     tasks.create(UninstallRaml4JaxRS.TaskName, UninstallRaml4JaxRS::class.java, Action::init)
