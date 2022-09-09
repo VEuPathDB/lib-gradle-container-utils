@@ -3,7 +3,7 @@
 :icons: font
 
 // Project version
-:p-version: 3.4.3
+:p-version: 4.0.0
 
 // Options List
 :o-vendorDir: vendorDirectory
