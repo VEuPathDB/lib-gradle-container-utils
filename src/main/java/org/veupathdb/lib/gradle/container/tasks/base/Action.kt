@@ -44,6 +44,9 @@ abstract class Action : DefaultTask() {
   protected val RootDir: File = project.rootDir
 
   @get:Internal
+  protected val ProjectDir: File = project.projectDir
+
+  @get:Internal
   protected val util by lazy { Utils(log) }
 
   @get:Internal
