@@ -3,7 +3,6 @@ package org.veupathdb.lib.gradle.container.tasks.jaxrs
 import org.veupathdb.lib.gradle.container.tasks.base.exec.BinExecAction
 
 import java.io.File
-import java.util.Arrays
 
 /**
  * Generate Jax-RS Classes
@@ -46,7 +45,7 @@ open class GenerateJaxRS : BinExecAction() {
   override fun appendArguments(args: MutableList<String>) {
     log.open(args)
 
-    args.addAll(Arrays.asList(
+    args.addAll(listOf(
       FlagJar, InstallRaml4JaxRS.OutputFile,
       File(ProjectDir, options.rootApiDefinition).path,
       FlagDirectory, sourceDirectory,
