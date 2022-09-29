@@ -48,7 +48,7 @@ open class GenerateJaxRS : BinExecAction() {
 
     args.addAll(Arrays.asList(
       FlagJar, InstallRaml4JaxRS.OutputFile,
-      File(RootDir, options.rootApiDefinition).path,
+      File(ProjectDir, options.rootApiDefinition).path,
       FlagDirectory, sourceDirectory,
       FlagGenTypesWith, ParamGenTypesWith,
       FlagModelPackage, modelPackagePath,
