@@ -65,7 +65,7 @@ open class GenerateJaxRS : BinExecAction() {
 
   private val basePackage by lazy { projectConfig().projectPackage }
 
-  private val sourceDirectory get() = "../src/main/java"
+  private val sourceDirectory get() = "$ProjectDir/src/main/java"
 
   private val modelPackagePath get() = "$generatedPackagePath.model"
 
