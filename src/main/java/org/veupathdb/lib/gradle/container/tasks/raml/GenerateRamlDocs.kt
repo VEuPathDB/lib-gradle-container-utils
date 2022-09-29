@@ -1,14 +1,10 @@
 package org.veupathdb.lib.gradle.container.tasks.raml
 
-import org.jetbrains.annotations.NotNull
 import org.veupathdb.lib.gradle.container.config.RedirectConfig
 import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecAction
-import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecConfiguration
 
 import java.io.File
 import java.util.Arrays
-import java.util.List
-import java.util.Optional
 
 /**
  * Generate RAML Documentation
@@ -23,7 +19,7 @@ open class GenerateRamlDocs : ExecAction() {
     const val TaskName = "generate-raml-docs"
   }
 
-  override fun getWorkDirectory() = RootDir
+  override fun getWorkDirectory() = ProjectDir
 
   override val pluginDescription
     get() = "Generates HTML documentation from the RAML API spec."
@@ -53,8 +49,8 @@ open class GenerateRamlDocs : ExecAction() {
 
     util.moveFile(
       File(conf.apiDocFileName),
-      File(util.getOrCreateDir(File(RootDir, conf.repoDocsDir)), conf.apiDocFileName),
-      File(util.getOrCreateDir(File(RootDir, conf.resourceDocsDir)), conf.apiDocFileName)
+      File(util.getOrCreateDir(File(ProjectDir, conf.repoDocsDir)), conf.apiDocFileName),
+      File(util.getOrCreateDir(File(ProjectDir, conf.resourceDocsDir)), conf.apiDocFileName)
     )
 
     log.close()
