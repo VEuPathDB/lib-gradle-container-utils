@@ -13,7 +13,7 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
     private const val LogModelDirFound = "Found generated model dir {}"
     private const val LogJavaFileCheck = "Testing file {}"
 
-    private const val  DiscTypeNameLine = "  String _DISCRIMINATOR_TYPE_NAME = "
+    private const val DiscTypeNameLine = "  String _DISCRIMINATOR_TYPE_NAME = "
 
     private const val DiscriminatorTypeName = "_DISCRIMINATOR_TYPE_NAME"
 
