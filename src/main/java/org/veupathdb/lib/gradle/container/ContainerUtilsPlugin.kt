@@ -62,6 +62,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
     tasks.create(JaxRSDiscriminatorPatch.TaskName, JaxRSDiscriminatorPatch::class.java, Action::init)
     tasks.create(JaxRSEnumValuePatch.TaskName, JaxRSEnumValuePatch::class.java, Action::init)
     tasks.create(JaxRSGenerateStreams.TaskName, JaxRSGenerateStreams::class.java, Action::init)
+    tasks.create(JaxRSJakartaImportPatch.TaskName, JaxRSJakartaImportPatch::class.java, Action::init)
 
     tasks.create(DockerBuild.TaskName, DockerBuild::class.java, Action::init)
 
@@ -97,6 +98,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
       JaxRSDiscriminatorPatch.TaskName,
       JaxRSEnumValuePatch.TaskName,
       JaxRSGenerateStreams.TaskName,
+      JaxRSJakartaImportPatch.TaskName,
     )
   }
 
