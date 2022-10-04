@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.veupathdb.lib"
-version = "4.2.0"
+version = "4.3.5"
 
 java {
   toolchain {
@@ -42,8 +42,13 @@ gradlePlugin {
 
 dependencies {
   implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21")
+
   implementation(kotlin("stdlib"))
   implementation(kotlin("stdlib-jdk8"))
+
+  implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.4"))
+  implementation("com.fasterxml.jackson.core:jackson-databind")
+  implementation("com.fasterxml.jackson.core:jackson-annotations")
 }
 
 publishing {
