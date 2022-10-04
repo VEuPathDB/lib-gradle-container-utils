@@ -13,7 +13,9 @@ import org.veupathdb.lib.gradle.container.tasks.base.Action
 import org.veupathdb.lib.gradle.container.tasks.check.CheckEnv
 import org.veupathdb.lib.gradle.container.tasks.docker.DockerBuild
 import org.veupathdb.lib.gradle.container.tasks.jaxrs.*
+import org.veupathdb.lib.gradle.container.tasks.raml.ExecMergeRaml
 import org.veupathdb.lib.gradle.container.tasks.raml.GenerateRamlDocs
+import org.veupathdb.lib.gradle.container.tasks.raml.InstallMergeRaml
 
 
 /**
@@ -59,6 +61,9 @@ class ContainerUtilsPlugin : Plugin<Project> {
     tasks.create(GenerateJaxRS.TaskName, GenerateJaxRS::class.java, Action::init)
     tasks.create(GenerateRamlDocs.TaskName, GenerateRamlDocs::class.java, Action::init)
 
+    tasks.create(InstallMergeRaml.TaskName, InstallMergeRaml::class.java, Action::init)
+    tasks.create(ExecMergeRaml.TaskName, ExecMergeRaml::class.java, Action::init)
+
     tasks.create(JaxRSDiscriminatorPatch.TaskName, JaxRSDiscriminatorPatch::class.java, Action::init)
     tasks.create(JaxRSEnumValuePatch.TaskName, JaxRSEnumValuePatch::class.java, Action::init)
     tasks.create(JaxRSGenerateStreams.TaskName, JaxRSGenerateStreams::class.java, Action::init)
@@ -92,7 +97,10 @@ class ContainerUtilsPlugin : Plugin<Project> {
 
     val genJaxrs = tasks.getByName(GenerateJaxRS.TaskName)
 
-    genJaxrs.dependsOn(tasks.getByName(InstallRaml4JaxRS.TaskName))
+    genJaxrs.dependsOn(
+      tasks.getByName(ExecMergeRaml.TaskName),
+      tasks.getByName(InstallRaml4JaxRS.TaskName)
+    )
 
     genJaxrs.finalizedBy(
       JaxRSDiscriminatorPatch.TaskName,
@@ -100,6 +108,10 @@ class ContainerUtilsPlugin : Plugin<Project> {
       JaxRSGenerateStreams.TaskName,
       JaxRSJakartaImportPatch.TaskName,
     )
+
+    // Register merge raml dependencies
+    tasks.getByName(ExecMergeRaml.TaskName)
+      .dependsOn(InstallMergeRaml.TaskName)
   }
 
   private fun setProjectProps(project: Project, opts: Options) {
