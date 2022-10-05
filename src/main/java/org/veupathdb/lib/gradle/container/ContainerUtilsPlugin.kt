@@ -64,10 +64,11 @@ class ContainerUtilsPlugin : Plugin<Project> {
     tasks.create(InstallMergeRaml.TaskName, InstallMergeRaml::class.java, Action::init)
     tasks.create(ExecMergeRaml.TaskName, ExecMergeRaml::class.java, Action::init)
 
-    tasks.create(JaxRSDiscriminatorPatch.TaskName, JaxRSDiscriminatorPatch::class.java, Action::init)
-    tasks.create(JaxRSEnumValuePatch.TaskName, JaxRSEnumValuePatch::class.java, Action::init)
+    tasks.create(JaxRSPatchDiscriminators.TaskName, JaxRSPatchDiscriminators::class.java, Action::init)
+    tasks.create(JaxRSPatchEnumValue.TaskName, JaxRSPatchEnumValue::class.java, Action::init)
     tasks.create(JaxRSGenerateStreams.TaskName, JaxRSGenerateStreams::class.java, Action::init)
-    tasks.create(JaxRSJakartaImportPatch.TaskName, JaxRSJakartaImportPatch::class.java, Action::init)
+    tasks.create(JaxRSPatchJakartaImports.TaskName, JaxRSPatchJakartaImports::class.java, Action::init)
+    tasks.create(JaxRSPatchBoxedTypes.TaskName, JaxRSPatchBoxedTypes::class.java, Action::init)
 
     tasks.create(DockerBuild.TaskName, DockerBuild::class.java, Action::init)
 
@@ -103,10 +104,11 @@ class ContainerUtilsPlugin : Plugin<Project> {
     )
 
     genJaxrs.finalizedBy(
-      JaxRSDiscriminatorPatch.TaskName,
-      JaxRSEnumValuePatch.TaskName,
+      JaxRSPatchDiscriminators.TaskName,
+      JaxRSPatchEnumValue.TaskName,
       JaxRSGenerateStreams.TaskName,
-      JaxRSJakartaImportPatch.TaskName,
+      JaxRSPatchJakartaImports.TaskName,
+      JaxRSPatchBoxedTypes.TaskName,
     )
 
     // Register merge raml dependencies

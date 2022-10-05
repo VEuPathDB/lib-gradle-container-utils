@@ -6,10 +6,10 @@ import java.io.*
 import java.util.Arrays
 import java.util.Locale
 
-open class JaxRSEnumValuePatch : JaxRSSourceAction() {
+open class JaxRSPatchEnumValue : JaxRSSourceAction() {
 
   companion object {
-    const val TaskName = "patch-enums"
+    const val TaskName = "jaxrs-patch-enums"
 
     private const val OldLeader = "  private "
     private const val NewLeader = "  public final "
