@@ -6,7 +6,7 @@ import java.io.*
 import java.util.Arrays
 import java.util.Locale
 
-open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
+open class JaxRSPatchDiscriminators : JaxRSSourceAction() {
 
   companion object {
     private const val LogModelDirCheck = "Testing generated model dir {}"
@@ -23,7 +23,7 @@ open class JaxRSDiscriminatorPatch : JaxRSSourceAction() {
 
     private const val ModelDir = "model"
 
-    const val TaskName = "patch-discriminators"
+    const val TaskName = "jaxrs-patch-discriminators"
 
     private val ValueCorrection = Regex("\\W+")
 

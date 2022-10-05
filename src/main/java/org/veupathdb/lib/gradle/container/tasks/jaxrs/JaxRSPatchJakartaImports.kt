@@ -7,7 +7,7 @@ import java.io.File
 import java.util.*
 import java.util.stream.Stream
 
-open class JaxRSJakartaImportPatch : JaxRSSourceAction() {
+open class JaxRSPatchJakartaImports : JaxRSSourceAction() {
 
   companion object {
     private const val ReplaceOld = "javax.ws"
@@ -16,7 +16,7 @@ open class JaxRSJakartaImportPatch : JaxRSSourceAction() {
     private const val ResourceDir = "resources"
     private const val SupportDir = "support"
 
-    const val TaskName = "patch-javax-ws"
+    const val TaskName = "jaxrs-patch-jakarta-imports"
   }
 
   override val pluginDescription: String
