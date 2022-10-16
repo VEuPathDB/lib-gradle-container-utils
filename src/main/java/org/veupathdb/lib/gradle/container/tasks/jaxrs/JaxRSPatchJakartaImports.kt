@@ -13,9 +13,6 @@ open class JaxRSPatchJakartaImports : JaxRSSourceAction() {
     private const val ReplaceOld = "javax.ws"
     private const val ReplaceNew = "jakarta.ws"
 
-    private const val ResourceDir = "resources"
-    private const val SupportDir = "support"
-
     const val TaskName = "jaxrs-patch-jakarta-imports"
   }
 
@@ -28,8 +25,8 @@ open class JaxRSPatchJakartaImports : JaxRSSourceAction() {
     // Get all the generated source root directories
     getGeneratedSourceDirectories()
       .flatMap { Stream.of(                 // Expand the stream to the 2 relevant subdirectories
-        File(it, ResourceDir),
-        File(it, SupportDir)
+        File(it, GeneratedResourceDirectory),
+        File(it, GeneratedSupportDirectory)
       ) }
       .filter { it.exists() }               // Filter out any erroneous paths
       .map { it.listFiles() }               // Map to lists of files in each directory

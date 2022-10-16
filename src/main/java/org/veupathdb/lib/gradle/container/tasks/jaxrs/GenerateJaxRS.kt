@@ -66,11 +66,11 @@ open class GenerateJaxRS : BinExecAction() {
 
   private val sourceDirectory get() = "$ProjectDir/src/main/java"
 
-  private val modelPackagePath get() = "$generatedPackagePath.model"
+  private val modelPackagePath get() = "$generatedPackagePath.$GeneratedModelDirectory"
 
-  private val resourcePackagePath get() = "$generatedPackagePath.resources"
+  private val resourcePackagePath get() = "$generatedPackagePath.$GeneratedResourceDirectory"
 
-  private val supportPackagePath get() = "$generatedPackagePath.support"
+  private val supportPackagePath get() = "$generatedPackagePath.$GeneratedSupportDirectory"
 
   private val generatedPackagePath get() = "$basePackage.generated"
 }
