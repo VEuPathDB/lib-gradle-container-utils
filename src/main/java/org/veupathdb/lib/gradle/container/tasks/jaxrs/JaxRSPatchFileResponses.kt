@@ -11,7 +11,7 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
 
     private const val OldImportLine = "import java.io.File;"
 
-    private const val NewImportLine = "import java.io.InputStream;"
+    private const val NewImportLine = "import jakarta.ws.core.StreamingOutput;"
 
     private val MethodPattern = Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity,\$")
 
@@ -42,7 +42,7 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
   }
 
   private fun buildLine(ret: String, code: String, media: String) =
-    "    public static $ret respond${code}With${media}(InputStream entity,"
+    "    public static $ret respond${code}With${media}(StreamingOutput entity,"
 
   private fun testFile(file: File): Boolean {
     val read = file.bufferedReader()
