@@ -28,7 +28,6 @@ open class JaxRSPatchBoxedTypes : JaxRSSourceAction() {
 
   override fun execute() {
     getGeneratedModelDirectories()
-      .filter { it.exists() }
       .map { it.listFiles() }
       .filter { it != null }
       .flatMap { Arrays.stream(it) }
