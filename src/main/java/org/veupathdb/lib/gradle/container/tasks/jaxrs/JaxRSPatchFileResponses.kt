@@ -11,7 +11,7 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
 
     private const val OldImportLine = "import java.io.File;"
 
-    private const val NewImportLine = "import jakarta.ws.core.StreamingOutput;"
+    private const val NewImportLine = "import jakarta.ws.rs.core.StreamingOutput;"
 
     private val MethodPattern = Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity,\$")
 
