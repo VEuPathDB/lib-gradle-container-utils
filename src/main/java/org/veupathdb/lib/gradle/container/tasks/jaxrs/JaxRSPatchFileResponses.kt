@@ -13,7 +13,9 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
 
     private const val NewImportLine = "import jakarta.ws.rs.core.StreamingOutput;"
 
-    private val MethodPattern = Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity,\$")
+    private val MethodPattern1 = Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity,\$")
+    private val MethodPattern2 = Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity\\) \\{\$")
+
 
     const val TaskName = "jaxrs-patch-file-responses"
   }
@@ -41,8 +43,11 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
       .forEach { processFile(it) }
   }
 
-  private fun buildLine(ret: String, code: String, media: String) =
+  private fun buildLine1(ret: String, code: String, media: String) =
     "    public static $ret respond${code}With${media}(StreamingOutput entity,"
+  private fun buildLine2(ret: String, code: String, media: String) =
+    "    public static $ret respond${code}With${media}(StreamingOutput entity) {"
+
 
   private fun testFile(file: File): Boolean {
     val read = file.bufferedReader()
@@ -84,8 +89,10 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
     while (line != null) {
       writer.write(
         when {
-          line.startsWith(' ') -> MethodPattern.matchEntire(line)
-            ?.let { buildLine(it.groupValues[1], it.groupValues[2], it.groupValues[3]) }
+          line.startsWith(' ') -> MethodPattern1.matchEntire(line)
+            ?.let { buildLine1(it.groupValues[1], it.groupValues[2], it.groupValues[3]) }
+            ?: MethodPattern2.matchEntire(line)
+            ?.let { buildLine2(it.groupValues[1], it.groupValues[2], it.groupValues[3]) }
             ?: line
 
           line == OldImportLine -> NewImportLine
