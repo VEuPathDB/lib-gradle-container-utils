@@ -6,6 +6,8 @@ import java.io.BufferedWriter
 import java.io.File
 import java.util.*
 
+private typealias Replacer = (MatchResult) -> String
+
 open class JaxRSPatchFileResponses : JaxRSSourceAction() {
   companion object {
 
@@ -13,9 +15,16 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
 
     private const val NewImportLine = "import jakarta.ws.rs.core.StreamingOutput;"
 
-    private val MethodPattern1 = Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity,\$")
-    private val MethodPattern2 = Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity\\) \\{\$")
-
+    private val MethodReplaces = arrayOf<Pair<Regex, Replacer>>(
+      Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity,\$")
+        to { "    public static ${it.groupValues[1]} respond${it.groupValues[2]}With${it.groupValues[3]}(StreamingOutput entity," },
+      Regex("^ +public static (\\w+) respond(\\d+)With(\\w+)\\(File entity\\) \\{\$")
+        to { "    public static ${it.groupValues[1]} respond${it.groupValues[2]}With${it.groupValues[3]}(StreamingOutput entity) {" },
+      Regex("^ +public static (\\w+) respond(\\d+)With\\(File entity,\$")
+        to { "    public static ${it.groupValues[1]} respond${it.groupValues[2]}With(StreamingOutput entity," },
+      Regex("^ +public static (\\w+) respond(\\d+)With\\(File entity\\) \\{\$")
+        to { "    public static ${it.groupValues[1]} respond${it.groupValues[2]}With(StreamingOutput entity) {" },
+    )
 
     const val TaskName = "jaxrs-patch-file-responses"
   }
@@ -42,12 +51,6 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
       // Process the files
       .forEach { processFile(it) }
   }
-
-  private fun buildLine1(ret: String, code: String, media: String) =
-    "    public static $ret respond${code}With${media}(StreamingOutput entity,"
-  private fun buildLine2(ret: String, code: String, media: String) =
-    "    public static $ret respond${code}With${media}(StreamingOutput entity) {"
-
 
   private fun testFile(file: File): Boolean {
     val read = file.bufferedReader()
@@ -89,15 +92,9 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
     while (line != null) {
       writer.write(
         when {
-          line.startsWith(' ') -> MethodPattern1.matchEntire(line)
-            ?.let { buildLine1(it.groupValues[1], it.groupValues[2], it.groupValues[3]) }
-            ?: MethodPattern2.matchEntire(line)
-            ?.let { buildLine2(it.groupValues[1], it.groupValues[2], it.groupValues[3]) }
-            ?: line
-
+          line.startsWith(' ')  -> processLine(line)
           line == OldImportLine -> NewImportLine
-
-          else -> line
+          else                  -> line
         }
       )
       writer.newLine()
@@ -105,5 +102,12 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
 
       line = reader.readLine()
     }
+  }
+
+  private fun processLine(line: String): String {
+    for ((pattern, replacer) in MethodReplaces)
+      return replacer(pattern.matchEntire(line) ?: continue)
+
+    return line
   }
 }
