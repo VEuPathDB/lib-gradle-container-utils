@@ -20,4 +20,5 @@ abstract class BinInstallAction: Action() {
         log.getter(File(RootDir, globalBuildConfiguration().binDirectory))
 
     protected fun globalBuildConfiguration() = options.binBuilds
+
 }

@@ -17,8 +17,6 @@ import java.net.http.HttpResponse
 open class InstallRaml4JaxRS : BinInstallAction() {
 
   companion object {
-    private const val LockFile = "raml4jaxrs.lock"
-
     const val TaskName = "install-raml-4-jax-rs"
 
     const val OutputFile = "raml-to-jaxrs.jar"
@@ -27,6 +25,7 @@ open class InstallRaml4JaxRS : BinInstallAction() {
   }
 
   override fun execute() {
+    createBuildRootIfNotExists();
     install();
   }
 
@@ -48,12 +47,27 @@ open class InstallRaml4JaxRS : BinInstallAction() {
         HttpResponse.BodyHandlers.ofInputStream()
       )
     val file = File(getBinRoot(), OutputFile)
+    log.info("Creating file at ${file.path}")
     file.delete()
     file.createNewFile()
 
+    log.info("Fetching raml tool from $RamlToJaxrsDownloadLink")
     FileOutputStream(file).use {
       res.body().transferTo(it)
       it.flush()
+    }
+
+    log.close()
+  }
+
+  protected fun createBuildRootIfNotExists() {
+    log.open()
+
+    val dir = getBinRoot()
+
+    if (!dir.exists() && !dir.mkdirs()) {
+      log.error("Failed to create build root $dir")
+      throw RuntimeException("Failed to create build root $dir")
     }
 
     log.close()
