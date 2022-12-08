@@ -21,7 +21,7 @@ open class InstallRaml4JaxRS : BinInstallAction() {
 
     const val OutputFile = "raml-to-jaxrs.jar"
 
-    const val RamlToJaxrsDownloadLink = "https://github.com/VEuPathDB/maven-packages/blob/main/raw-packages/org/raml/jaxrs/3.0.7/raml-to-jaxrs-cli-3.0.7.jar?raw=true";
+    const val RamlToJaxrsDownloadLink = "https://github.com/VEuPathDB/maven-packages/blob/main/raw-packages/org/raml/jaxrs/3.0.7/raml-to-jaxrs-cli-3.0.7-jar-with-dependencies.jar?raw=true"
   }
 
   override fun execute() {
@@ -36,7 +36,7 @@ open class InstallRaml4JaxRS : BinInstallAction() {
     log.open()
 
     val res = HttpClient.newBuilder()
-      .followRedirects(HttpClient.Redirect.NEVER)
+      .followRedirects(HttpClient.Redirect.ALWAYS)
       .build()
       .send(
         HttpRequest.newBuilder(
@@ -50,6 +50,8 @@ open class InstallRaml4JaxRS : BinInstallAction() {
     log.info("Creating file at ${file.path}")
     file.delete()
     file.createNewFile()
+
+    log.info("Received ${res.statusCode()} status from download URL")
 
     log.info("Fetching raml tool from $RamlToJaxrsDownloadLink")
     FileOutputStream(file).use {
