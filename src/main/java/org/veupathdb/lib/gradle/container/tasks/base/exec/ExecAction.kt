@@ -219,10 +219,9 @@ abstract class ExecAction : Action() {
           args[0],
           args[1],
           args[2])
-        else -> String.format("Executing command `%s %s %s ...`\n",
+        else -> String.format("Executing command `%s %s`\n",
           args[0],
-          args[1],
-          args[2])
+          args.subList(1, args.size).toString())
       }
     }
   }
