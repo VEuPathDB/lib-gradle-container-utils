@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.veupathdb.lib.gradle.container.tasks.base.Action
 import java.lang.RuntimeException
 import java.net.URL
+import java.nio.file.Files
 
 open class InstallMergeRaml : Action() {
 
@@ -86,6 +87,7 @@ open class InstallMergeRaml : Action() {
     // Get the download link to download the binary.
     val downloadLink = URL(release.getDownloadLink(getOS()))
 
+    Files.createDirectory(binDirectory.toPath());
     downloadFile.createNewFile()
     downloadFile.outputStream().use { output -> downloadLink.openStream().use { input -> input.transferTo(output) } }
 
