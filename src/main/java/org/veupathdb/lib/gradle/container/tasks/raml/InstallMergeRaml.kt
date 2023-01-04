@@ -87,7 +87,7 @@ open class InstallMergeRaml : Action() {
     // Get the download link to download the binary.
     val downloadLink = URL(release.getDownloadLink(getOS()))
 
-    Files.createDirectory(binDirectory.toPath());
+    Files.createDirectories(binDirectory.toPath());
     downloadFile.createNewFile()
     downloadFile.outputStream().use { output -> downloadLink.openStream().use { input -> input.transferTo(output) } }
 
