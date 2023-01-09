@@ -11,6 +11,7 @@ import org.veupathdb.lib.gradle.container.config.Options
 import org.veupathdb.lib.gradle.container.tasks.*
 import org.veupathdb.lib.gradle.container.tasks.base.Action
 import org.veupathdb.lib.gradle.container.tasks.check.CheckEnv
+import org.veupathdb.lib.gradle.container.tasks.check.DownloadDependencies
 import org.veupathdb.lib.gradle.container.tasks.docker.DockerBuild
 import org.veupathdb.lib.gradle.container.tasks.jaxrs.*
 import org.veupathdb.lib.gradle.container.tasks.raml.ExecMergeRaml
@@ -76,6 +77,8 @@ class ContainerUtilsPlugin : Plugin<Project> {
     tasks.create(PrintPackage.TaskName, PrintPackage::class.java, Action::init)
 
     tasks.create(CheckEnv.TaskName, CheckEnv::class.java, Action::init)
+
+    tasks.create(DownloadDependencies.TaskName, DownloadDependencies::class.java, DownloadDependencies::init)
 
     project.afterEvaluate { x -> afterEvaluate(x) }
   }
