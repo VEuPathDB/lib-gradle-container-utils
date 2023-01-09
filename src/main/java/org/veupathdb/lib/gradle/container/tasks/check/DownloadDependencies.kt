@@ -14,7 +14,7 @@ import java.nio.file.Paths
  *
  * This allows the download of dependencies to be done in advance of a compile step,
  * which, when called as a separate step in a Dockerfile, can optimizing docker cache
- * hits since depencencies change more rarely than project source code.
+ * hits since dependencies change more rarely than project source code.
  */
 open class DownloadDependencies : Copy() {
 
