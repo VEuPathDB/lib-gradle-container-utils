@@ -11,6 +11,9 @@ package org.veupathdb.lib.gradle.container.tasks.base;
 @Deprecated
 public class Defaults {
 
+  /**
+   * Default location of root service API raml document
+   */
   @Deprecated
   public static final String DefaultApiDocsRoot         = "api.raml";
 }
