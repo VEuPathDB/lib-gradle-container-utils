@@ -22,6 +22,7 @@
 :t-uninstall-raml4jaxrs: ramlGenUninstall
 :t-generate-jaxrs: generate-jaxrs
 :t-generate-raml-docs: generate-raml-docs
+:t-download-dependencies: download-dependencies
 
 // Footnotes
 :fn-nb: footnote:nb["Necessary" means that either the dependency has not yet been installed, or the version that is installed differs from the version currently set in the `build.gradle.kts` file.]
@@ -45,6 +46,7 @@ patch-discriminators    - Patches the generated JaxRS classes by correcting inva
 patch-enums             - Adds a getter for the internal value for Raml for Jax RS generated enum types.
 print-package           - Print the current project's root package.
 uninstall-raml-4-jax-rs - Uninstalls the Raml for Jax RS tooling.
+download-dependencies   - Downloads project's dependencies, adding them to the gradle cache
 ----
 
 == Configuration
