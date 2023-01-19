@@ -11,7 +11,7 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
     const val TaskName = "jaxrs-patch-enums"
 
     private const val OldNameField = "  private String name;"
-    private const val NewNameField = "  public final String value;"
+    private const val NewNameField = "  private final String value;"
 
     private const val OldNameSetter = "    this.name = name;"
     private const val NewNameSetter = "    this.value = name;"
