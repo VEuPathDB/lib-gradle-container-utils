@@ -32,11 +32,25 @@ open class JaxRSGenerateStreams : JaxRSSourceAction() {
     // List the files present in the model directory
     dir.listFiles()?.forEach {
       // If the file is ends with "Impl" then we care about it
-      if (it.name.endsWith("Impl.java"))
+      if (it.name.endsWith("Impl.java") && canMakeStreamOf(it))
         handleModelFileList(filePackage, it)
     }
 
     log.close()
+  }
+
+  private fun canMakeStreamOf(file: File): Boolean {
+    val constructor = privateConstructor(file.name.let { it.substring(0, it.length - 5) })
+
+    file.bufferedReader().use {
+      it.lineSequence()
+        .forEach {
+          if (it.contains(constructor))
+            return false
+        }
+    }
+
+    return true
   }
 
   // Here we know that we have a handle on a file whose name ends with "Impl"
@@ -61,6 +75,9 @@ open class JaxRSGenerateStreams : JaxRSSourceAction() {
     log.close()
   }
 }
+
+private fun privateConstructor(className: String) =
+  "private $className()"
 
 private fun templateSource(
   packName: String,
