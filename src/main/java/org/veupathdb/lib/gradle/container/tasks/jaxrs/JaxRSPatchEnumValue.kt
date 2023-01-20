@@ -10,11 +10,13 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
   companion object {
     const val TaskName = "jaxrs-patch-enums"
 
-    private const val OldNameField = "  private String name;"
-    private const val NewNameField = "  private final String value;"
+    private val EnumLeaderPat = Regex("^ *(?:public)? +enum ")
 
-    private const val OldNameSetter = "    this.name = name;"
-    private const val NewNameSetter = "    this.value = name;"
+    private const val OldNameField = "private String name;"
+    private const val NewNameField = "private final String value;"
+
+    private const val OldNameSetter = "this.name = name;"
+    private const val NewNameSetter = "this.value = name;"
   }
 
   override fun execute() {
@@ -43,7 +45,7 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
     log.open(file)
 
     return BufferedReader(FileReader(file)).use { reader ->
-      log.close(reader.lines().anyMatch { it.startsWith("public enum") })
+      log.close(reader.lines().anyMatch { EnumLeaderPat.containsMatchIn(it) })
     }
   }
 
@@ -55,24 +57,39 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
   }
 
   private fun patchContents(from: File, to: File) {
+
     BufferedReader(FileReader(from)).use { reader ->
       BufferedWriter(FileWriter(to)).use { writer ->
+        var inEnum = false
         var i = 0
+
         while (true) {
           val line = reader.readLine() ?: break
           i++
 
-          when {
-            line.startsWith(OldNameField)  -> writer.write(NewNameField)
+          if (inEnum) {
+            if (line.contains(OldNameField)) {
+              val indent = copyIndent(line)
+              writer.write(indent)
+              writer.write(NewNameField)
+              writer.newLine()
+              writer.newLine()
+              writer.write(generateValueGetter(indent))
+            }
 
-            line.startsWith(OldNameSetter) -> writer.write(NewNameSetter)
+            else if (line.contains(OldNameSetter)) {
+              writer.write(copyIndent(line))
+              writer.write(NewNameSetter)
+            }
 
-            line == "}"                    -> {
-              writer.write(generateValueGetter())
+            else {
               writer.write(line)
             }
 
-            else                           -> writer.write(line)
+          } else {
+            if (EnumLeaderPat.containsMatchIn(line))
+              inEnum = true
+            writer.write(line)
           }
 
           writer.newLine()
@@ -92,9 +109,17 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
   //                                                                                            //
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private fun generateValueGetter() =
-    "  public String getValue() {\n" +
-    "    return this.value;\n" +
-    "  }\n"
+  private fun copyIndent(line: String): String {
+    val sb = StringBuilder(8)
+    var i = 0
+    while (line[i++] == ' ')
+      sb.append(' ')
+    return sb.toString()
+  }
+
+  private fun generateValueGetter(indent: String) =
+    "${indent}public String getValue() {\n" +
+    "${indent}  return this.value;\n" +
+    "${indent}}"
 
 }
