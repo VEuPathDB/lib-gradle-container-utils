@@ -5,6 +5,7 @@ import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
 import java.util.Arrays
+import java.util.stream.Stream
 
 open class JaxRSPatchBoxedTypes : JaxRSSourceAction() {
 
@@ -27,7 +28,7 @@ open class JaxRSPatchBoxedTypes : JaxRSSourceAction() {
     get() = "Replaces java primitive usages with their boxed forms."
 
   override fun execute() {
-    getGeneratedModelDirectories()
+    Stream.concat(getGeneratedModelDirectories(), getGeneratedResourceDirectories())
       .map { it.listFiles() }
       .filter { it != null }
       .flatMap { Arrays.stream(it) }
