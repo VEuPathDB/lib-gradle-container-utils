@@ -35,6 +35,13 @@ open class InstallRaml4JaxRS : BinInstallAction() {
   private fun install() {
     log.open()
 
+    // check for file existence first; if corrupted, can be removed manually
+    val file = File(getBinRoot(), OutputFile)
+    if (file.exists()) {
+      log.info("Skipping download. Raml for JaxRS already exists at ${file.path}");
+      return;
+    }
+
     val res = HttpClient.newBuilder()
       .followRedirects(HttpClient.Redirect.ALWAYS)
       .build()
@@ -46,7 +53,7 @@ open class InstallRaml4JaxRS : BinInstallAction() {
           .build(),
         HttpResponse.BodyHandlers.ofInputStream()
       )
-    val file = File(getBinRoot(), OutputFile)
+
     log.info("Creating file at ${file.path}")
     file.delete()
     file.createNewFile()

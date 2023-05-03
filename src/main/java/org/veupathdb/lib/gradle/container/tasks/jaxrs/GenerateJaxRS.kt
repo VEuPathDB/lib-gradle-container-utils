@@ -37,8 +37,12 @@ open class GenerateJaxRS : BinExecAction() {
   override val pluginDescription: String
     get() = "Generates JaxRS Java code based on the project's RAML API spec."
 
-
   override fun getCommandName(): String {
+    // quick trick here before executing; remove existing generated files so
+    //   resulting contents accurately reflect the RAML (no extra lingering files)
+    val packagePath = generatedPackagePath.replace('.','/')
+    File("$sourceDirectory/$packagePath").deleteRecursively()
+
     return Command
   }
 
