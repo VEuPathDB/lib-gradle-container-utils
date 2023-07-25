@@ -12,7 +12,7 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
 
     private val EnumLeaderPat = Regex("^ *(?:public)? +enum ")
 
-    private val OldNamePattern = Regex("private (\\w+) name;")
+    private val OldNamePattern = Regex("^ *private (\\w+) name;")
 
     private fun newNameField(type: String) =
       "public final $type value;"
