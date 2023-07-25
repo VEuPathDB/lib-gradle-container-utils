@@ -77,7 +77,7 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
               writer.write(newNameField(match))
               writer.newLine()
               writer.newLine()
-              writer.write(generateValueGetter(indent))
+              writer.write(generateValueGetter(indent, match))
             }
 
             else if (line.contains(OldNameSetter)) {
@@ -120,9 +120,9 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
     return sb.toString()
   }
 
-  private fun generateValueGetter(indent: String) =
-    "${indent}public String getValue() {\n" +
-    "${indent}  return this.value;\n" +
+  private fun generateValueGetter(indent: String, type: String) =
+    "${indent}public $type getValue() {\n" +
+    "$indent  return this.value;\n" +
     "${indent}}"
 
 }
