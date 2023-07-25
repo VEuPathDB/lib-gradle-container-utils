@@ -12,8 +12,10 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
 
     private val EnumLeaderPat = Regex("^ *(?:public)? +enum ")
 
-    private const val OldNameField = "private String name;"
-    private const val NewNameField = "private final String value;"
+    private val OldNamePattern = Regex("private (\\w+) name;")
+
+    private fun newNameField(type: String) =
+      "public final $type value;"
 
     private const val OldNameSetter = "this.name = name;"
     private const val NewNameSetter = "this.value = name;"
@@ -68,10 +70,11 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
           i++
 
           if (inEnum) {
-            if (line.contains(OldNameField)) {
+            if (line.matches(OldNamePattern)) {
               val indent = copyIndent(line)
+              val match = OldNamePattern.find(line)!!.value
               writer.write(indent)
-              writer.write(NewNameField)
+              writer.write(newNameField(match))
               writer.newLine()
               writer.newLine()
               writer.write(generateValueGetter(indent))
