@@ -72,7 +72,7 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
           if (inEnum) {
             if (line.matches(OldNamePattern)) {
               val indent = copyIndent(line)
-              val match = OldNamePattern.find(line)!!.value
+              val match = OldNamePattern.find(line)!!.groupValues[1]
               writer.write(indent)
               writer.write(newNameField(match))
               writer.newLine()
