@@ -3,11 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   `java-gradle-plugin`
   `maven-publish`
-  kotlin("jvm") version "1.6.21"
+  kotlin("jvm") version "1.9.10"
 }
 
 group = "org.veupathdb.lib"
-version = "4.8.10"
+version = "5.0.0"
 
 java {
   toolchain {
@@ -41,12 +41,12 @@ gradlePlugin {
 }
 
 dependencies {
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21")
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10")
 
   implementation(kotlin("stdlib"))
   implementation(kotlin("stdlib-jdk8"))
 
-  implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.4"))
+  implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.3"))
   implementation("com.fasterxml.jackson.core:jackson-databind")
   implementation("com.fasterxml.jackson.core:jackson-annotations")
 }

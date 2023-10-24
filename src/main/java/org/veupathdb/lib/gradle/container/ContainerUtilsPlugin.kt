@@ -71,6 +71,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
     tasks.create(JaxRSPatchJakartaImports.TaskName, JaxRSPatchJakartaImports::class.java, Action::init)
     tasks.create(JaxRSPatchBoxedTypes.TaskName, JaxRSPatchBoxedTypes::class.java, Action::init)
     tasks.create(JaxRSPatchFileResponses.TaskName, JaxRSPatchFileResponses::class.java, Action::init)
+    tasks.create(JaxRSPatchDates.TaskName, JaxRSPatchDates::class.java, Action::init)
 
     tasks.create(DockerBuild.TaskName, DockerBuild::class.java, Action::init)
 
@@ -114,6 +115,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
       JaxRSPatchJakartaImports.TaskName,
       JaxRSPatchBoxedTypes.TaskName,
       JaxRSPatchFileResponses.TaskName,
+      JaxRSPatchDates.TaskName,
     )
 
     // Register merge raml dependencies
