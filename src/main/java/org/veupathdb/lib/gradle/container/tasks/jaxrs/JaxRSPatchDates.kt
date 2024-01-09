@@ -16,6 +16,7 @@ open class JaxRSPatchDates : JaxRSSourceAction() {
       "import java.util.Date;" to "import java.time.OffsetDateTime;",
       "  @JsonDeserialize(\n      using = TimestampDeserializer.class\n  )\n" to "",
       "  @JsonFormat(\n      shape = JsonFormat.Shape.STRING,\n      pattern = \"yyyy-MM-dd'T'HH:mm:ss.SSSXXX\"\n  )\n" to "",
+      "  @JsonFormat(\n      shape = JsonFormat.Shape.STRING,\n      pattern = \"yyyy-MM-dd'T'HH:mm:ss\"\n  )" to "",
     )
   }
 
