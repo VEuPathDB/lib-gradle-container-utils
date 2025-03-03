@@ -21,7 +21,7 @@ open class InstallRaml4JaxRS : BinInstallAction() {
 
     const val OutputFile = "raml-to-jaxrs.jar"
 
-    const val RamlToJaxrsDownloadLink = "https://raw.githubusercontent.com/VEuPathDB/maven-packages/main/raw-packages/org/raml/jaxrs/3.1.0/raml-to-jaxrs-cli-3.1.0-jar-with-dependencies.jar"
+    const val RamlToJaxrsDownloadLink = "https://raw.githubusercontent.com/VEuPathDB/maven-packages/main/raw-packages/org/raml/jaxrs/3.1.1/raml-to-jaxrs-cli-3.1.1-jar-with-dependencies.jar"
   }
 
   override fun execute() {
