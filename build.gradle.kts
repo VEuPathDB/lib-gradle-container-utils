@@ -3,11 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   `java-gradle-plugin`
   `maven-publish`
-  kotlin("jvm") version "1.9.10"
+  kotlin("jvm") version "2.1.20"
 }
 
 group = "org.veupathdb.lib"
-version = "5.0.5"
+version = "6.0.0-SNAPSHOT"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_17
@@ -32,7 +32,7 @@ repositories {
 
 gradlePlugin {
   // Define the plugin
-  val `container-utils` by plugins.creating {
+  val containerUtils by plugins.creating {
     id = "org.veupathdb.lib.gradle.container.container-utils"
     implementationClass = "org.veupathdb.lib.gradle.container.ContainerUtilsPlugin"
     description = "Utilities for building containerized services"
@@ -40,12 +40,11 @@ gradlePlugin {
 }
 
 dependencies {
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10")
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20")
 
-  implementation(kotlin("stdlib"))
   implementation(kotlin("stdlib-jdk8"))
 
-  implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.3"))
+  implementation(platform("com.fasterxml.jackson:jackson-bom:2.18.3"))
   implementation("com.fasterxml.jackson.core:jackson-databind")
   implementation("com.fasterxml.jackson.core:jackson-annotations")
 }

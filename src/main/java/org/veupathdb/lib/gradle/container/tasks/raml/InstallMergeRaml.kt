@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.veupathdb.lib.gradle.container.tasks.base.Action
 import java.lang.RuntimeException
-import java.net.URL
+import java.net.URI
 import java.nio.file.Files
 
 open class InstallMergeRaml : Action() {
@@ -85,7 +85,7 @@ open class InstallMergeRaml : Action() {
 
   private fun executeDownload(release: GitHubRelease) {
     // Get the download link to download the binary.
-    val downloadLink = URL(release.getDownloadLink(getOS()))
+    val downloadLink = URI.create(release.getDownloadLink(getOS())).toURL()
 
     Files.createDirectories(binDirectory.toPath());
     downloadFile.createNewFile()
@@ -95,7 +95,7 @@ open class InstallMergeRaml : Action() {
     downloadFile.delete()
 
     lockFile.createNewFile()
-    lockFile.writer().use { output -> output.write(release.tag) }
+    lockFile.writer().use { output -> output.write(release.tag!!) }
   }
 
   private fun unpackDownload() {
@@ -110,7 +110,7 @@ open class InstallMergeRaml : Action() {
   }
 
   private fun getReleaseInfo() =
-    jackson.readValue(URL(RamlMergeLatestURL), GitHubRelease::class.java)
+    jackson.readValue(URI.create(RamlMergeLatestURL).toURL(), GitHubRelease::class.java)
 
   private fun getOS() =
     System.getProperty("os.name").lowercase().let {
