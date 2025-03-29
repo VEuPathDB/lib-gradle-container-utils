@@ -4,7 +4,7 @@ import org.veupathdb.lib.gradle.container.tasks.base.JaxRSSourceAction
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
-import java.util.*
+import java.util.Arrays
 
 private typealias Replacer = (MatchResult) -> String
 

@@ -1,6 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks.jaxrs
 
-import org.veupathdb.lib.gradle.container.tasks.base.BinInstallAction
+import org.veupathdb.lib.gradle.container.tasks.base.exec.BinInstallAction
 
 import java.io.File
 import java.io.FileOutputStream
@@ -19,9 +19,9 @@ open class InstallRaml4JaxRS : BinInstallAction() {
   companion object {
     const val TaskName = "install-raml-4-jax-rs"
 
-    const val OutputFile = "raml-to-jaxrs.jar"
+    const val DefaultRaml4JaxRSDownloadUrl = "https://raw.githubusercontent.com/VEuPathDB/maven-packages/main/raw-packages/org/raml/jaxrs/3.1.2/raml-to-jaxrs-cli-3.1.2-jar-with-dependencies.jar"
 
-    const val RamlToJaxrsDownloadLink = "https://raw.githubusercontent.com/VEuPathDB/maven-packages/main/raw-packages/org/raml/jaxrs/3.1.1/raml-to-jaxrs-cli-3.1.1-jar-with-dependencies.jar"
+    fun outputFileName(uri: URI) = uri.path.substringAfterLast('/')
   }
 
   override fun execute() {
@@ -36,9 +36,9 @@ open class InstallRaml4JaxRS : BinInstallAction() {
     log.open()
 
     // check for file existence first; if corrupted, can be removed manually
-    val file = File(getBinRoot(), OutputFile)
+    val file = File(getBinRoot(), outputFileName(options.raml.raml4JaxRSDownloadURL))
     if (file.exists()) {
-      log.info("Skipping download. Raml for JaxRS already exists at ${file.path}");
+      log.info("Skipping download. Raml for JaxRS already exists at {}", file.path);
       return;
     }
 
@@ -46,21 +46,19 @@ open class InstallRaml4JaxRS : BinInstallAction() {
       .followRedirects(HttpClient.Redirect.ALWAYS)
       .build()
       .send(
-        HttpRequest.newBuilder(
-          URI.create(RamlToJaxrsDownloadLink)
-        )
+        HttpRequest.newBuilder(options.raml.raml4JaxRSDownloadURL)
           .GET()
           .build(),
         HttpResponse.BodyHandlers.ofInputStream()
       )
 
-    log.info("Creating file at ${file.path}")
+    log.info("Creating file at {}", file.path)
     file.delete()
     file.createNewFile()
 
-    log.info("Received ${res.statusCode()} status from download URL")
+    log.info("Received {} status from download URL", res.statusCode())
 
-    log.info("Fetching raml tool from $RamlToJaxrsDownloadLink")
+    log.info("Fetching raml tool from {}", options.raml.raml4JaxRSDownloadURL)
     FileOutputStream(file).use {
       res.body().transferTo(it)
       it.flush()
@@ -75,7 +73,7 @@ open class InstallRaml4JaxRS : BinInstallAction() {
     val dir = getBinRoot()
 
     if (!dir.exists() && !dir.mkdirs()) {
-      log.error("Failed to create build root $dir")
+      log.error("Failed to create build root {}", dir)
       throw RuntimeException("Failed to create build root $dir")
     }
 

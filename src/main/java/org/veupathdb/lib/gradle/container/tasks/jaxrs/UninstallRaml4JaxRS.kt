@@ -1,6 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks.jaxrs
 
-import org.veupathdb.lib.gradle.container.tasks.base.BinCleanAction
+import org.veupathdb.lib.gradle.container.tasks.base.exec.BinCleanAction
 import java.io.File
 
 /**
@@ -21,6 +21,6 @@ open class UninstallRaml4JaxRS : BinCleanAction() {
     get() = "Uninstalls the Raml for Jax RS tooling."
 
   override fun filerPredicate(file: File): Boolean {
-    return log.map(file, file.name.equals(InstallRaml4JaxRS.OutputFile))
+    return log.map(file, file.name.equals(InstallRaml4JaxRS.outputFileName(options.raml.raml4JaxRSDownloadURL)))
   }
 }

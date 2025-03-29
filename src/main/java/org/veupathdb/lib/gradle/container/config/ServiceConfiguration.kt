@@ -1,7 +1,7 @@
 package org.veupathdb.lib.gradle.container.config;
 
 
-class ProjectConfiguration {
+class ServiceConfiguration {
 
   var name = "demo-service";
 

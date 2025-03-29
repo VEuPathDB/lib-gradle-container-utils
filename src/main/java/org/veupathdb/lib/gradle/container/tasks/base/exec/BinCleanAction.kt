@@ -1,7 +1,7 @@
-package org.veupathdb.lib.gradle.container.tasks.base
+package org.veupathdb.lib.gradle.container.tasks.base.exec
 
 import org.gradle.api.tasks.Internal
-import org.jetbrains.annotations.NotNull
+import org.veupathdb.lib.gradle.container.tasks.base.CleanAction
 
 import java.io.File
 
@@ -15,5 +15,5 @@ import java.io.File
 abstract class BinCleanAction : CleanAction() {
   @get:Internal
   override val targetDirectory: File
-    get() = log.getter(File(RootDir, options.binBuilds.binDirectory))
+    get() = log.getter(File(RootDir, options.utils.binDirectory))
 }

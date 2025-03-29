@@ -1,14 +1,14 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   `java-gradle-plugin`
   `maven-publish`
-  kotlin("jvm") version "2.1.20"
+  alias(libs.plugins.kotlin)
+  alias(libs.plugins.dokka)
 }
 
 group = "org.veupathdb.lib"
-version = "6.0.0-SNAPSHOT"
+version = "6.0.0-SNAPSHOT-1"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_17
@@ -20,11 +20,7 @@ java {
   }
 }
 
-kotlin {
-  compilerOptions {
-    jvmTarget.set(JvmTarget.JVM_17)
-  }
-}
+kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
 
 repositories {
   mavenLocal()
@@ -41,13 +37,9 @@ gradlePlugin {
 }
 
 dependencies {
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20")
-
-  implementation(kotlin("stdlib-jdk8"))
-
-  implementation(platform("com.fasterxml.jackson:jackson-bom:2.18.3"))
-  implementation("com.fasterxml.jackson.core:jackson-databind")
-  implementation("com.fasterxml.jackson.core:jackson-annotations")
+  implementation(libs.gradle.kotlin)
+  implementation(libs.jackson.databind)
+  implementation(libs.jackson.annotations)
 }
 
 publishing {
@@ -74,7 +66,7 @@ publishing {
           developer {
             id.set("epharper")
             name.set("Elizabeth Paige Harper")
-            email.set("epharper@upenn.edu")
+            email.set("epharper.vpdb@foxcapades.io")
             url.set("https://github.com/foxcapades")
             organization.set("VEuPathDB")
           }
@@ -88,3 +80,23 @@ publishing {
     }
   }
 }
+
+testing {
+  suites {
+    withType<JvmTestSuite> {
+      useJUnitJupiter(libs.versions.junit)
+      dependencies {
+        implementation(libs.mockito.core)
+        implementation(libs.mockito.junit)
+      }
+    }
+  }
+}
+
+val updateReadme = tasks.register("update-readme") {
+  doLast {
+    ProcessBuilder("sed", "s/^:p-version:.\\+/:p-version: ${project.version}/")
+  }
+}
+
+tasks.withType<PublishToMavenRepository> { finalizedBy(updateReadme) }

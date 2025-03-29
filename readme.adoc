@@ -3,7 +3,7 @@
 :icons: font
 
 // Project version
-:p-version: 4.0.0
+:p-version: 6.0.0
 
 // Options List
 :o-vendorDir: vendorDirectory
@@ -64,7 +64,7 @@ plugins {
   id("org.veupathdb.lib.gradle.container.container-utils") version "{p-version}"
 }
 
-containerBuild {
+service {
   // Options go here.
 }
 ----

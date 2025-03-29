@@ -1,7 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks.base.exec
 
 import org.gradle.api.tasks.Internal
-import org.veupathdb.lib.gradle.container.config.RedirectConfig
 import org.veupathdb.lib.gradle.container.tasks.base.Action
 
 import java.io.ByteArrayOutputStream

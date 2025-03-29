@@ -1,7 +1,8 @@
 package org.veupathdb.lib.gradle.container.util
 
-import java.util.*
+import java.util.Spliterator
 import java.util.Spliterator.*
+import java.util.Stack
 import java.util.function.Consumer
 
 

@@ -28,8 +28,7 @@ open class JaxRSPatchDiscriminators : JaxRSSourceAction() {
     private val ValueCorrection = Regex("\\W+")
 
     fun assembleEnum(type: String, value: String): String {
-      return "$type." + ValueCorrection.replace(value, "")
-        .toUpperCase(Locale.ROOT)
+      return "$type." + ValueCorrection.replace(value, "").uppercase()
     }
   }
 

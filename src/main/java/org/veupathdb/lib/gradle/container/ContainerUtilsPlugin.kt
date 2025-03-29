@@ -8,7 +8,6 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.veupathdb.lib.gradle.container.config.Options
-import org.veupathdb.lib.gradle.container.tasks.*
 import org.veupathdb.lib.gradle.container.tasks.base.Action
 import org.veupathdb.lib.gradle.container.tasks.check.CheckEnv
 import org.veupathdb.lib.gradle.container.tasks.check.DownloadDependencies
@@ -30,7 +29,7 @@ import org.veupathdb.lib.gradle.container.tasks.raml.InstallMergeRaml
 class ContainerUtilsPlugin : Plugin<Project> {
 
   companion object {
-    const val ExtensionName = "containerBuild"
+    const val ExtensionName = "containerService"
 
     private val Events = arrayOf(
       TestLogEvent.PASSED,
@@ -51,35 +50,35 @@ class ContainerUtilsPlugin : Plugin<Project> {
    */
   override fun apply(project: Project) {
     // Register Global Options
-    project.extensions.create(ExtensionName, Options::class.java)
+    project.extensions.create(ExtensionName, Options::class.java, project)
 
     // Register Tasks
     val tasks = project.tasks
 
-    tasks.create(InstallRaml4JaxRS.TaskName, InstallRaml4JaxRS::class.java, Action::init)
-    tasks.create(UninstallRaml4JaxRS.TaskName, UninstallRaml4JaxRS::class.java, Action::init)
+    val init: (Action) -> Unit = { Action.init(it) }
 
-    tasks.create(GenerateJaxRS.TaskName, GenerateJaxRS::class.java, Action::init)
-    tasks.create(GenerateRamlDocs.TaskName, GenerateRamlDocs::class.java, Action::init)
+    tasks.register(InstallRaml4JaxRS.TaskName, InstallRaml4JaxRS::class.java, init)
+    tasks.register(UninstallRaml4JaxRS.TaskName, UninstallRaml4JaxRS::class.java, init)
 
-    tasks.create(InstallMergeRaml.TaskName, InstallMergeRaml::class.java, Action::init)
-    tasks.create(ExecMergeRaml.TaskName, ExecMergeRaml::class.java, Action::init)
+    tasks.register(GenerateJaxRS.TaskName, GenerateJaxRS::class.java, init)
+    tasks.register(GenerateRamlDocs.TaskName, GenerateRamlDocs::class.java, init)
 
-    tasks.create(JaxRSPatchDiscriminators.TaskName, JaxRSPatchDiscriminators::class.java, Action::init)
-    tasks.create(JaxRSPatchEnumValue.TaskName, JaxRSPatchEnumValue::class.java, Action::init)
-    tasks.create(JaxRSGenerateStreams.TaskName, JaxRSGenerateStreams::class.java, Action::init)
-    tasks.create(JaxRSPatchJakartaImports.TaskName, JaxRSPatchJakartaImports::class.java, Action::init)
-    tasks.create(JaxRSPatchBoxedTypes.TaskName, JaxRSPatchBoxedTypes::class.java, Action::init)
-    tasks.create(JaxRSPatchFileResponses.TaskName, JaxRSPatchFileResponses::class.java, Action::init)
-    tasks.create(JaxRSPatchDates.TaskName, JaxRSPatchDates::class.java, Action::init)
+    tasks.register(InstallMergeRaml.TaskName, InstallMergeRaml::class.java, init)
+    tasks.register(ExecMergeRaml.TaskName, ExecMergeRaml::class.java, init)
 
-    tasks.create(DockerBuild.TaskName, DockerBuild::class.java, Action::init)
+    tasks.register(JaxRSPatchDiscriminators.TaskName, JaxRSPatchDiscriminators::class.java, init)
+    tasks.register(JaxRSPatchEnumValue.TaskName, JaxRSPatchEnumValue::class.java, init)
+    tasks.register(JaxRSGenerateStreams.TaskName, JaxRSGenerateStreams::class.java, init)
+    tasks.register(JaxRSPatchJakartaImports.TaskName, JaxRSPatchJakartaImports::class.java, init)
+    tasks.register(JaxRSPatchBoxedTypes.TaskName, JaxRSPatchBoxedTypes::class.java, init)
+    tasks.register(JaxRSPatchFileResponses.TaskName, JaxRSPatchFileResponses::class.java, init)
+    tasks.register(JaxRSPatchDates.TaskName, JaxRSPatchDates::class.java, init)
 
-    tasks.create(PrintPackage.TaskName, PrintPackage::class.java, Action::init)
+    tasks.register(DockerBuild.TaskName, DockerBuild::class.java, init)
 
-    tasks.create(CheckEnv.TaskName, CheckEnv::class.java, Action::init)
+    tasks.register(CheckEnv.TaskName, CheckEnv::class.java, init)
 
-    tasks.create(DownloadDependencies.TaskName, DownloadDependencies::class.java, DownloadDependencies::init)
+    tasks.register(DownloadDependencies.TaskName, DownloadDependencies::class.java, DownloadDependencies::init)
 
     project.afterEvaluate { x -> afterEvaluate(x) }
   }
@@ -94,7 +93,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
     setProjectProps(project, opts)
     setJarProps(project, opts)
     configureTestLogging(project)
-    configureRepositories(project, opts)
+    configureRepositories(project)
 
     val tasks = project.tasks
 
@@ -124,13 +123,13 @@ class ContainerUtilsPlugin : Plugin<Project> {
   }
 
   private fun setProjectProps(project: Project, opts: Options) {
-    project.version = opts.project.version
-    project.group = opts.project.group
+    project.version = opts.service.version
+    project.group = opts.service.group
   }
 
   private fun setJarProps(project: Project, opts: Options) {
     project.logger.debug("Configuring jar tasks.")
-    val conf = opts.project
+    val conf = opts.service
 
     project.tasks.getByName("jar") { jar ->
       jar as Jar
@@ -170,7 +169,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
     }
   }
 
-  private fun configureRepositories(project: Project, opts: Options) {
+  private fun configureRepositories(project: Project) {
     project.repositories.mavenCentral()
     project.repositories.maven { mar ->
       mar.name = "GitHubPackages"

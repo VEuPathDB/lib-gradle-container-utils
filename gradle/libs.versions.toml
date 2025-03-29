@@ -1,0 +1,19 @@
+[versions]
+kotlin  = "2.1.20"
+jackson = "2.18.3"
+junit   = "5.12.1"
+mockito = "5.16.1"
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dokka  = { id = "org.jetbrains.dokka",      version = "2.0.0"  }
+
+[libraries]
+gradle-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin"}
+
+jackson-databind    = { group = "com.fasterxml.jackson.core", name = "jackson-databind",    version.ref = "jackson" }
+jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
+
+# Unit Testing
+mockito-core  = { group = "org.mockito", name = "mockito-core",          version.ref = "mockito" }
+mockito-junit = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }

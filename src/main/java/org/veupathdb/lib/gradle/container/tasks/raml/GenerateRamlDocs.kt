@@ -1,8 +1,8 @@
 package org.veupathdb.lib.gradle.container.tasks.raml
 
-import org.veupathdb.lib.gradle.container.config.RedirectConfig
+import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
 import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecAction
-
+import org.veupathdb.lib.gradle.container.tasks.base.exec.RedirectConfig
 import java.io.File
 import java.util.Arrays
 
@@ -17,6 +17,8 @@ open class GenerateRamlDocs : ExecAction() {
 
   companion object {
     const val TaskName = "generate-raml-docs"
+
+    const val DefaultDocFileName = "api.html"
   }
 
   override fun getWorkDirectory() = ProjectDir
@@ -29,15 +31,15 @@ open class GenerateRamlDocs : ExecAction() {
   override fun appendArguments(args: MutableList<String>) {
     log.open(args)
 
-    args.addAll(Arrays.asList("api.raml", "--theme", "raml2html-modern-theme"))
+    args.addAll(listOf(execConfiguration.rootApiDefinition.path, "--theme", "raml2html-modern-theme"))
 
     log.close()
   }
 
-  override val execConfiguration get() = options.generateJaxRS
+  override val execConfiguration get() = options.raml
 
   override fun getStdOutRedirect(): RedirectConfig? {
-    return log.getter(RedirectConfig.toFile(execConfiguration.apiDocFileName))
+    return log.getter(RedirectConfig.toFile(DefaultDocFileName))
   }
 
   override fun postExec() {
@@ -48,9 +50,9 @@ open class GenerateRamlDocs : ExecAction() {
     val conf = execConfiguration
 
     util.moveFile(
-      File(conf.apiDocFileName),
-      File(util.getOrCreateDir(File(ProjectDir, conf.repoDocsDir)), conf.apiDocFileName),
-      File(util.getOrCreateDir(File(ProjectDir, conf.resourceDocsDir)), conf.apiDocFileName)
+      File(DefaultDocFileName),
+      conf.apiDocOutputFile.also { it.ensureParentDirsCreated() },
+      File(conf.resourceDocsDir.also { it.ensureParentDirsCreated() }, DefaultDocFileName)
     )
 
     log.close()

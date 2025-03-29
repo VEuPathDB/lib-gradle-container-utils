@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.veupathdb.lib.gradle.container.tasks.base.Action
-import java.lang.RuntimeException
 import java.net.URI
 import java.nio.file.Files
 
 open class InstallMergeRaml : Action() {
 
   companion object {
-    private const val RamlMergeLatestURL = "https://api.github.com/repos/VEuPathDB/script-raml-merge/releases/latest"
+    private const val RamlMergeReleaseURL = "https://api.github.com/repos/VEuPathDB/script-raml-merge/releases/"
 
     private const val LockFileName = "merge-raml.lock"
 
@@ -24,14 +23,12 @@ open class InstallMergeRaml : Action() {
     const val TaskName = "install-raml-merge"
   }
 
-
   private val jackson by lazy { ObjectMapper() }
 
   private val binDirectory by lazy { RootDir.resolve(BinDirectoryName) }
   private val lockFile by lazy { binDirectory.resolve(LockFileName) }
   private val binaryFile by lazy { binDirectory.resolve(BinaryFileName) }
   private val downloadFile by lazy { binDirectory.resolve(DLFileName) }
-
 
   override val pluginDescription: String
     get() = "Downloads the raml merge script from GitHub"
@@ -49,38 +46,41 @@ open class InstallMergeRaml : Action() {
     return executeDownload()
   }
 
-
   private fun executeUpdate() {
     // Get the lock version
     val lockVersion = lockFile.readText().trim()
 
-    // Get the latest script release details
-    val release = getReleaseInfo()
+    // Get the version the build wants to install
+    val targetVersion = options.raml.mergeToolVersion
 
-    // If the downloaded version is already the latest, then there is nothing
-    // we need to do.
+    // If we already have the desired version installed, then there is nothing
+    // to do.
+    if (lockVersion == targetVersion)
+      return
+
+    // Get the release details for the target version.
+    val release = getReleaseInfo(targetVersion)
+
+    // If the downloaded version is already the desired version, then there is
+    // nothing we need to do.
     if (lockVersion == release.tag)
       return
 
-    // If we have a newer version for some reason (local development of the
-    // script) do nothing.
-    if (lockVersion > release.tag!!)
-      return
-
-    // So we have an older version downloaded, cleanup and execute a download
-    binaryFile.delete()
-    lockFile.delete()
-    executeDownload(release)
+    // We have a different version downloaded, cleanup and download a new copy
+    executeCleanup(release)
   }
 
-  private fun executeCleanup() {
+  private fun executeCleanup(release: GitHubRelease? = null) {
     binaryFile.delete()
     lockFile.delete()
-    executeDownload()
+    if (release == null)
+      executeDownload()
+    else
+      executeDownload(release)
   }
 
   private fun executeDownload() {
-    executeDownload(getReleaseInfo())
+    executeDownload(getReleaseInfo(options.raml.mergeToolVersion))
   }
 
   private fun executeDownload(release: GitHubRelease) {
@@ -109,8 +109,16 @@ open class InstallMergeRaml : Action() {
     }
   }
 
-  private fun getReleaseInfo() =
-    jackson.readValue(URI.create(RamlMergeLatestURL).toURL(), GitHubRelease::class.java)
+  private fun getReleaseInfo(targetVersion: String) =
+    jackson.readValue(targetVersion.toDownloadURL(), GitHubRelease::class.java)
+
+  private fun String.toDownloadURL() =
+    URI.create(
+      if (this == "latest")
+        RamlMergeReleaseURL + "latest"
+      else
+        RamlMergeReleaseURL + "tags/" + this
+    ).toURL()
 
   private fun getOS() =
     System.getProperty("os.name").lowercase().let {

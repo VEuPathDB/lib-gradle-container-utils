@@ -5,11 +5,9 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.Internal
 import org.veupathdb.lib.gradle.container.ContainerUtilsPlugin
 import org.veupathdb.lib.gradle.container.config.Options
-import org.veupathdb.lib.gradle.container.config.ProjectConfiguration
+import org.veupathdb.lib.gradle.container.config.ServiceConfiguration
 import org.veupathdb.lib.gradle.container.util.Logger
-
 import java.io.File
-import java.util.HashSet
 import java.util.Optional
 
 /**
@@ -148,7 +146,7 @@ abstract class Action : DefaultTask() {
     outputs.files(files.toArray())
   }
 
-  protected fun projectConfig(): ProjectConfiguration = options.project
+  protected fun projectConfig(): ServiceConfiguration = options.service
 
   @Internal
   protected fun getProperty(key: String) =
