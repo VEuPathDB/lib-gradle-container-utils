@@ -7,13 +7,13 @@ import org.veupathdb.lib.gradle.container.tasks.jaxrs.InstallRaml4JaxRS
 import java.io.File
 import java.net.URI
 
-class RamlConfig(private val project: Project): ExecConfiguration() {
+class RamlConfig(project: Project): ExecConfiguration() {
   companion object {
     const val DefaultResourceDocsDir = "src/main/resources"
     const val DefaultAPIDocFile = "docs/${GenerateRamlDocs.DefaultDocFileName}"
     const val DefaultSchemaRootDir = "schema"
     const val DefaultMergedRamlFile = "$DefaultSchemaRootDir/${ExecMergeRaml.DefaultOutputLibraryName}"
-    const val DefaultRamlMergeToolVersion = "v2.0.2"
+    const val DefaultRamlMergeToolVersion = "v2.0.3"
     inline val DefaultRootRamlFile
       get() = GenerateJaxRS.DefaultRootRamlApiDefinitionFile
     inline val DefaultRaml4JaxRSDownloadURL
