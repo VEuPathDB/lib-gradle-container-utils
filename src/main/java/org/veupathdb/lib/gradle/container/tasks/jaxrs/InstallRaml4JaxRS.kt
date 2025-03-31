@@ -19,7 +19,7 @@ open class InstallRaml4JaxRS : BinInstallAction() {
   companion object {
     const val TaskName = "install-raml-4-jax-rs"
 
-    const val DefaultRaml4JaxRSDownloadUrl = "https://raw.githubusercontent.com/VEuPathDB/maven-packages/main/raw-packages/org/raml/jaxrs/3.1.2/raml-to-jaxrs-cli-3.1.2-jar-with-dependencies.jar"
+    const val DefaultRaml4JaxRSDownloadUrl = "https://github.com/VEuPathDB/raml-for-jax-rs/releases/download/v3.1.2/raml-to-jaxrs-cli-3.1.2-jar-with-dependencies.jar"
 
     fun outputFileName(uri: URI) = uri.path.substringAfterLast('/')
   }
