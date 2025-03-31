@@ -1,13 +1,14 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   `java-gradle-plugin`
   `maven-publish`
-  kotlin("jvm") version "1.9.10"
+  alias(libs.plugins.kotlin)
+  alias(libs.plugins.dokka)
 }
 
 group = "org.veupathdb.lib"
-version = "5.0.5"
+version = "6.0.0"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_17
@@ -19,11 +20,7 @@ java {
   }
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-  kotlinOptions {
-    jvmTarget = "17"
-  }
-}
+kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
 
 repositories {
   mavenLocal()
@@ -32,7 +29,7 @@ repositories {
 
 gradlePlugin {
   // Define the plugin
-  val `container-utils` by plugins.creating {
+  val containerUtils by plugins.creating {
     id = "org.veupathdb.lib.gradle.container.container-utils"
     implementationClass = "org.veupathdb.lib.gradle.container.ContainerUtilsPlugin"
     description = "Utilities for building containerized services"
@@ -40,14 +37,9 @@ gradlePlugin {
 }
 
 dependencies {
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10")
-
-  implementation(kotlin("stdlib"))
-  implementation(kotlin("stdlib-jdk8"))
-
-  implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.3"))
-  implementation("com.fasterxml.jackson.core:jackson-databind")
-  implementation("com.fasterxml.jackson.core:jackson-annotations")
+  implementation(libs.gradle.kotlin)
+  implementation(libs.jackson.databind)
+  implementation(libs.jackson.annotations)
 }
 
 publishing {
@@ -74,7 +66,7 @@ publishing {
           developer {
             id.set("epharper")
             name.set("Elizabeth Paige Harper")
-            email.set("epharper@upenn.edu")
+            email.set("epharper.vpdb@foxcapades.io")
             url.set("https://github.com/foxcapades")
             organization.set("VEuPathDB")
           }
@@ -88,3 +80,23 @@ publishing {
     }
   }
 }
+
+testing {
+  suites {
+    withType<JvmTestSuite> {
+      useJUnitJupiter(libs.versions.junit)
+      dependencies {
+        implementation(libs.mockito.core)
+        implementation(libs.mockito.junit)
+      }
+    }
+  }
+}
+
+val updateReadme = tasks.register("update-readme") {
+  doLast {
+    ProcessBuilder("sed", "s/^:p-version:.\\+/:p-version: ${project.version}/")
+  }
+}
+
+tasks.withType<PublishToMavenRepository> { finalizedBy(updateReadme) }

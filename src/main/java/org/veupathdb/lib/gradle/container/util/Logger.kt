@@ -1,3 +1,5 @@
+@file:Suppress("DuplicatedCode")
+
 package org.veupathdb.lib.gradle.container.util
 
 import java.io.*
@@ -229,7 +231,7 @@ class Logger(level: () -> Level, rootDir: File) {
    *
    * @since 1.1.0
    */
-  private val projPath: String
+  private val projPath: String = rootDir.path
 
   /**
    * Standard logging writer.
@@ -238,7 +240,7 @@ class Logger(level: () -> Level, rootDir: File) {
    *
    * @since 1.1.0
    */
-  private val writer: BufferedWriter
+  private val writer: BufferedWriter = BufferedWriter(PrintWriter(System.out))
 
   /**
    * Timestamp for when this logger instance was created.
@@ -259,8 +261,6 @@ class Logger(level: () -> Level, rootDir: File) {
   private var call: Int = 0
 
   init {
-    this.projPath = rootDir.path
-    this.writer = BufferedWriter(PrintWriter(System.out))
     this.constructor(level, rootDir)
   }
 
@@ -773,8 +773,8 @@ class Logger(level: () -> Level, rootDir: File) {
   fun debug(value: Any?) = log(Level.Debug, value)
 
   /**
-   * If {@link #Level.Debug} is enabled, expands the template string using the
-   * given argument and prints the result to stdout.
+   * If [Level.Debug] is enabled, expands the template string using the given
+   * argument and prints the result to stdout.
    *
    * @param fmt  Template string.
    * @param val1 Value to inject into the template string.
@@ -830,7 +830,7 @@ class Logger(level: () -> Level, rootDir: File) {
     val buf = StringWriter (64)
 
     write(BufferedWriter (buf), Level.Fatal, value)
-    write(writer, buf.toString())
+    writeNoPrefix(writer, buf.toString())
 
     throw RuntimeException(buf.toString())
   }
@@ -855,7 +855,7 @@ class Logger(level: () -> Level, rootDir: File) {
     val buf = StringWriter(128)
 
     write(BufferedWriter(buf), Level.Fatal, fmt, value)
-    write(writer, buf.toString())
+    writeNoPrefix(writer, buf.toString())
 
     throw RuntimeException(buf.toString())
   }
@@ -874,7 +874,7 @@ class Logger(level: () -> Level, rootDir: File) {
     val buf = StringWriter(64)
 
     write(BufferedWriter(buf), Level.Fatal, value)
-    write(writer, buf.toString())
+    writeNoPrefix(writer, buf.toString())
 
     throw RuntimeException(buf.toString(), err)
   }
@@ -883,7 +883,7 @@ class Logger(level: () -> Level, rootDir: File) {
     val buf = StringWriter(64)
 
     write(BufferedWriter(buf), Level.Fatal, fmt, value)
-    write(writer, buf.toString())
+    writeNoPrefix(writer, buf.toString())
 
     throw RuntimeException(buf.toString(), err)
   }
@@ -892,7 +892,7 @@ class Logger(level: () -> Level, rootDir: File) {
     val buf = StringWriter(64)
 
     write(BufferedWriter(buf), Level.Fatal, fmt, val1, val2)
-    write(writer, buf.toString())
+    writeNoPrefix(writer, buf.toString())
 
     throw RuntimeException(buf.toString(), err)
   }
@@ -906,8 +906,8 @@ class Logger(level: () -> Level, rootDir: File) {
   ) {
     val buf = StringWriter (64)
 
-    write(BufferedWriter(buf), Level.Fatal, fmt, val1, val2)
-    write(writer, buf.toString())
+    write(BufferedWriter(buf), Level.Fatal, fmt, val1, val2, val3)
+    writeNoPrefix(writer, buf.toString())
 
     throw RuntimeException(buf.toString(), err)
   }
@@ -939,7 +939,7 @@ class Logger(level: () -> Level, rootDir: File) {
    * If the current configured log level is greater than or equal to the given
    * {@code level}, prints the given value to stdout.
    *
-   * @param val Value to print.
+   * @param value Value to print.
    *
    * @since 1.1.0
    */
@@ -1259,7 +1259,7 @@ class Logger(level: () -> Level, rootDir: File) {
     var rem = time
 
     while (rem > 0) {
-      buf[pos--] = (rem % 10 + 48).toChar()
+      buf[pos--] = (rem % 10 + 48).toInt().toChar()
       rem /= 10
     }
   }
@@ -1292,7 +1292,7 @@ class Logger(level: () -> Level, rootDir: File) {
     }
   }
 
-  internal fun write(writer: BufferedWriter, value: Any?) {
+  internal fun writeNoPrefix(writer: BufferedWriter, value: Any?) {
     try {
       writer.write(value.toString())
       writer.newLine()
@@ -1360,7 +1360,6 @@ class Logger(level: () -> Level, rootDir: File) {
     write(writer, level, fmt, val1, val2)
   }
 
-  @SuppressWarnings("DuplicatedCode")
   internal fun write(
     writer: BufferedWriter,
     level: Level,
@@ -1413,8 +1412,49 @@ class Logger(level: () -> Level, rootDir: File) {
    *
    * @since 1.1.0
    */
-  @SuppressWarnings("DuplicatedCode")
   internal fun write(
+    level: Level,
+    fmt: String,
+    val1: Any?,
+    val2: Any?,
+    val3: Any?,
+  ) {
+    val count = 3
+    var ind = 0
+    var pos = 0
+    var prev = 0
+
+    try {
+      writePrefix(level)
+
+      pos = inject(pos, ind++, count, fmt, val1)
+
+      if (pos > -1) {
+        prev = pos
+        pos = inject(pos, ind++, count, fmt, val2)
+      }
+
+      if (pos > -1) {
+        prev = pos
+        pos = inject(pos, ind, count, fmt, val3)
+      }
+
+      if (pos == -1) {
+        writer.write(fmt.substring(prev))
+      } else {
+        writer.write(fmt.substring(pos))
+      }
+
+      writer.newLine()
+      writer.flush()
+    } catch (e: IOException) {
+      backupWrite(Level.Error, "Failed to write to stdout")
+      throw RuntimeException("Failed to write to stdout", e)
+    }
+  }
+
+  internal fun write(
+    writer: BufferedWriter,
     level: Level,
     fmt: String,
     val1: Any?,
@@ -1737,7 +1777,7 @@ class Logger(level: () -> Level, rootDir: File) {
       writer.write(levelPrefix(level))
     }
 
-    if (level >= Level.Trace)
+    if (logLevel >= Level.Trace)
       writer.write(pad())
   }
 

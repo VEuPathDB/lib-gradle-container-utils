@@ -32,6 +32,8 @@ open class GenerateJaxRS : BinExecAction() {
     private const val FlagJar = "-jar"
 
     private const val ParamGenTypesWith = "jackson"
+
+    const val DefaultRootRamlApiDefinitionFile = "api.raml"
   }
 
   override val pluginDescription: String
@@ -49,9 +51,11 @@ open class GenerateJaxRS : BinExecAction() {
   override fun appendArguments(args: MutableList<String>) {
     log.open(args)
 
+    log.debug("api RAML path = {}", options.raml.rootApiDefinition)
+
     args.addAll(listOf(
-      FlagJar, InstallRaml4JaxRS.OutputFile,
-      File(ProjectDir, options.rootApiDefinition).path,
+      FlagJar, InstallRaml4JaxRS.outputFileName(options.raml.raml4JaxRSDownloadURL),
+      options.raml.rootApiDefinition.path,
       FlagDirectory, sourceDirectory,
       FlagGenTypesWith, ParamGenTypesWith,
       FlagModelPackage, modelPackagePath,
@@ -64,7 +68,7 @@ open class GenerateJaxRS : BinExecAction() {
     log.close()
   }
 
-  override val execConfiguration get() = options.generateJaxRS
+  override val execConfiguration get() = options.raml
 
   private val basePackage by lazy { projectConfig().projectPackage }
 

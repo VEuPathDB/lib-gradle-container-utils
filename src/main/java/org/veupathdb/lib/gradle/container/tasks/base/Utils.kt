@@ -1,6 +1,5 @@
 package org.veupathdb.lib.gradle.container.tasks.base
 
-import org.jetbrains.annotations.NotNull
 import org.veupathdb.lib.gradle.container.util.Logger
 
 import java.io.File

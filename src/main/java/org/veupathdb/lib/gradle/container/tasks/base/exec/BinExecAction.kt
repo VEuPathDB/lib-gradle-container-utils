@@ -1,7 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks.base.exec
 
 import org.gradle.api.tasks.Internal
-import org.jetbrains.annotations.NotNull
 
 import java.io.File
 
@@ -15,6 +14,6 @@ import java.io.File
 abstract class BinExecAction : ExecAction() {
   @Internal
   override fun getWorkDirectory(): File {
-    return log.getter(File(RootDir, options.binBuilds.binDirectory))
+    return log.getter(File(RootDir, options.utils.binDirectory))
   }
 }

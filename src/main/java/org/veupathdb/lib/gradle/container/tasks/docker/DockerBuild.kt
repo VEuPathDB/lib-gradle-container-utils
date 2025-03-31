@@ -1,9 +1,8 @@
 package org.veupathdb.lib.gradle.container.tasks.docker
 
 import org.gradle.api.tasks.Internal
-import org.veupathdb.lib.gradle.container.config.RedirectConfig
 import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecAction
-
+import org.veupathdb.lib.gradle.container.tasks.base.exec.RedirectConfig
 import java.io.File
 import java.io.IOException
 import java.util.Arrays

@@ -1,6 +1,7 @@
-package org.veupathdb.lib.gradle.container.tasks.base
+package org.veupathdb.lib.gradle.container.tasks.base.exec
 
 import org.gradle.api.tasks.Internal
+import org.veupathdb.lib.gradle.container.tasks.base.Action
 import java.io.File
 
 abstract class BinInstallAction: Action() {
@@ -19,6 +20,6 @@ abstract class BinInstallAction: Action() {
     protected fun getBinRoot(): File =
         log.getter(File(RootDir, globalBuildConfiguration().binDirectory))
 
-    protected fun globalBuildConfiguration() = options.binBuilds
+    protected fun globalBuildConfiguration() = options.utils
 
 }

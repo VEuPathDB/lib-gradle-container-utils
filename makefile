@@ -8,8 +8,8 @@ validate:
 
 .PHONY: publish
 publish:
-	@./gradlew -Pfull-publish=true publishPluginMavenPublicationToGitHubRepository publishContainer-utilsPluginMarkerMavenPublicationToGitHubRepository
+	@./gradlew -Pfull-publish=true build publishPluginMavenPublicationToGitHubRepository publishContainerUtilsPluginMarkerMavenPublicationToGitHubRepository
 
 .PHONY: publish-local
 publish-local:
-	@./gradlew publishPluginMavenPublicationToMavenLocal publishContainer-utilsPluginMarkerMavenPublicationToMavenLocal
+	@./gradlew build publishPluginMavenPublicationToMavenLocal publishContainerUtilsPluginMarkerMavenPublicationToMavenLocal
