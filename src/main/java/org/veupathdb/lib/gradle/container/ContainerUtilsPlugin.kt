@@ -57,26 +57,36 @@ class ContainerUtilsPlugin : Plugin<Project> {
 
     val init: (Action) -> Unit = { Action.init(it) }
 
-    tasks.register(InstallRaml4JaxRS.TaskName, InstallRaml4JaxRS::class.java, init)
-    tasks.register(UninstallRaml4JaxRS.TaskName, UninstallRaml4JaxRS::class.java, init)
+    arrayOf(
+      // RAML Merge
+      InstallMergeRaml.TaskName to InstallMergeRaml::class,
+      ExecMergeRaml.TaskName to ExecMergeRaml::class,
 
-    tasks.register(GenerateJaxRS.TaskName, GenerateJaxRS::class.java, init)
-    tasks.register(GenerateRamlDocs.TaskName, GenerateRamlDocs::class.java, init)
+      // JaxRS Code Generation
+      InstallRaml4JaxRS.TaskName to InstallRaml4JaxRS::class,
+      UninstallRaml4JaxRS.TaskName to UninstallRaml4JaxRS::class,
 
-    tasks.register(InstallMergeRaml.TaskName, InstallMergeRaml::class.java, init)
-    tasks.register(ExecMergeRaml.TaskName, ExecMergeRaml::class.java, init)
+      GenerateJaxRS.TaskName to GenerateJaxRS::class,
+      GenerateRamlDocs.TaskName to GenerateRamlDocs::class,
 
-    tasks.register(JaxRSPatchDiscriminators.TaskName, JaxRSPatchDiscriminators::class.java, init)
-    tasks.register(JaxRSPatchEnumValue.TaskName, JaxRSPatchEnumValue::class.java, init)
-    tasks.register(JaxRSGenerateStreams.TaskName, JaxRSGenerateStreams::class.java, init)
-    tasks.register(JaxRSPatchJakartaImports.TaskName, JaxRSPatchJakartaImports::class.java, init)
-    tasks.register(JaxRSPatchBoxedTypes.TaskName, JaxRSPatchBoxedTypes::class.java, init)
-    tasks.register(JaxRSPatchFileResponses.TaskName, JaxRSPatchFileResponses::class.java, init)
-    tasks.register(JaxRSPatchDates.TaskName, JaxRSPatchDates::class.java, init)
+      JaxRSPatchDiscriminators.TaskName to JaxRSPatchDiscriminators::class,
+      JaxRSPatchEnumValue.TaskName to JaxRSPatchEnumValue::class,
+      JaxRSGenerateStreams.TaskName to JaxRSGenerateStreams::class,
+      JaxRSPatchJakartaImports.TaskName to JaxRSPatchJakartaImports::class,
+      JaxRSPatchBoxedTypes.TaskName to JaxRSPatchBoxedTypes::class,
+      JaxRSPatchFileResponses.TaskName to JaxRSPatchFileResponses::class,
+      JaxRSPatchDates.TaskName to JaxRSPatchDates::class,
+      JaxRSPatchResponseDelegate.TaskName to JaxRSPatchResponseDelegate::class,
+      JaxRSPatchResponseTypes.TaskName to JaxRSPatchResponseTypes::class,
 
-    tasks.register(DockerBuild.TaskName, DockerBuild::class.java, init)
+      // Docker
+      DockerBuild.TaskName to DockerBuild::class,
 
-    tasks.register(CheckEnv.TaskName, CheckEnv::class.java, init)
+      // Utilities
+      CheckEnv.TaskName to CheckEnv::class,
+    ).forEach { (name, type) ->
+      tasks.register(name, type.java, init)
+    }
 
     tasks.register(DownloadDependencies.TaskName, DownloadDependencies::class.java, DownloadDependencies::init)
 
@@ -115,6 +125,8 @@ class ContainerUtilsPlugin : Plugin<Project> {
       JaxRSPatchBoxedTypes.TaskName,
       JaxRSPatchFileResponses.TaskName,
       JaxRSPatchDates.TaskName,
+      JaxRSPatchResponseDelegate.TaskName,
+      JaxRSPatchResponseTypes.TaskName,
     )
 
     // Register merge raml dependencies

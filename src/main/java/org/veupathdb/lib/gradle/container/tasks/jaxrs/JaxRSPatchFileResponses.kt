@@ -36,18 +36,18 @@ open class JaxRSPatchFileResponses : JaxRSSourceAction() {
     // Get a stream over the resource directories
     getGeneratedResourceDirectories()
       // Map to a stream of arrays of files contained in those directories
-      .map { it.listFiles() }
+      .map(File::listFiles)
       // It won't here, but technically listFiles can return null
-      .filter { it != null }
+      .filterNotNull()
       // Flat map our stream of arrays to a stream of files contained in the
       // resource directories.
-      .flatMap { Arrays.stream(it) }
+      .flatMap { it.asSequence() }
       // Filter our stream down to only java files
       .filter { it.name.endsWith(".java") }
       // Filter our stream down to only those files that contain a File import.
       .filter { testFile(it) }
       // Log what we're doing
-      .peek { log.info("Processing file {}", it) }
+      .onEach { log.info("Processing file {}", it) }
       // Process the files
       .forEach { processFile(it) }
   }

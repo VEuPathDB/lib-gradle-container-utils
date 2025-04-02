@@ -30,9 +30,10 @@ open class JaxRSPatchEnumValue : JaxRSSourceAction() {
 
     getGeneratedModelDirectories()
       .map(File::listFiles)
-      .flatMap(Arrays::stream)
+      .filterNotNull()
+      .flatMap { it.asSequence() }
       .filter(this::enumFilter)
-      .peek { counter++ }
+      .onEach { counter++ }
       .forEach(this::patch)
 
     log.info("Patched {} enum files", counter)

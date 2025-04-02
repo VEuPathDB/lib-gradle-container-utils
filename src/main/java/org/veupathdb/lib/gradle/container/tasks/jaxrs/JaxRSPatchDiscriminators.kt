@@ -3,8 +3,6 @@ package org.veupathdb.lib.gradle.container.tasks.jaxrs
 import org.veupathdb.lib.gradle.container.tasks.base.JaxRSSourceAction
 
 import java.io.*
-import java.util.Arrays
-import java.util.Locale
 
 open class JaxRSPatchDiscriminators : JaxRSSourceAction() {
 
@@ -41,9 +39,9 @@ open class JaxRSPatchDiscriminators : JaxRSSourceAction() {
 
     // Filter the list of directories down to only those that actually exist.
     stream = if (log.isDebug) {
-      stream.peek(newFileLogger(LogModelDirCheck))
+      stream.onEach(newFileLogger(LogModelDirCheck))
         .filter(File::exists)
-        .peek(newFileLogger(LogModelDirFound))
+        .onEach(newFileLogger(LogModelDirFound))
     } else {
       stream.filter(File::exists)
     }
@@ -51,14 +49,15 @@ open class JaxRSPatchDiscriminators : JaxRSSourceAction() {
     // Expand the stream to all the files in each directory, then filter the
     // expanded file stream down to only files that appear to be interfaces.
     stream = stream.map(File::listFiles)
-      .flatMap(Arrays::stream)
+      .filterNotNull()
+      .flatMap { it.asSequence() }
       // Filter out implementation files
       .filter(this::nonImplPredicate)
       // Filter ot non-java files
       .filter(this::javaFilePredicate)
 
     if (log.isDebug) {
-      stream = stream.peek(newFileLogger(LogJavaFileCheck))
+      stream = stream.onEach(newFileLogger(LogJavaFileCheck))
     }
 
     // Sift through each file looking for

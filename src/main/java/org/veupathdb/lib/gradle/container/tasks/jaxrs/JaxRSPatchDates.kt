@@ -24,10 +24,10 @@ open class JaxRSPatchDates : JaxRSSourceAction() {
     get() = "Replaces usage of the deprecated Java Date API with OffsetDateTime."
 
   override fun execute() {
-    Stream.concat(getGeneratedModelDirectories(), getGeneratedResourceDirectories())
-      .map { it.listFiles() }
-      .filter { it != null }
-      .flatMap { Arrays.stream(it) }
+    (getGeneratedModelDirectories() + getGeneratedResourceDirectories())
+      .map(File::listFiles)
+      .filterNotNull()
+      .flatMap { it.asSequence() }
       .filter { it.name.endsWith(".java") }
       .filter { it.name != "TimestampDeserializer.java" }
       .forEach { processFile(it) }

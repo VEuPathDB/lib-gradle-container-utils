@@ -6,7 +6,6 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 
 import java.io.File
-import java.util.stream.Stream
 
 abstract class SourceAction : Action() {
 
@@ -16,7 +15,7 @@ abstract class SourceAction : Action() {
   }
 
   @Internal
-  protected fun getProjectSourceDirectories(): Stream<File> {
+  protected fun getProjectSourceDirectories(): Sequence<File> {
     log.open()
 
     val projectPath = projectConfig().projectPackage.replace('.', '/')
@@ -37,13 +36,13 @@ abstract class SourceAction : Action() {
    * @return Stream of source directories.
    */
   @Internal
-  protected fun getSourceDirectories(): Stream<File> =
+  protected fun getSourceDirectories(): Sequence<File> =
     log.getter(
       getSourceSets()
-        .stream()
+        .asSequence()
         .map(SourceSet::getAllSource)
         .map(SourceDirectorySet::getSrcDirs)
-        .flatMap(Collection<File>::stream)
+        .flatMap(Collection<File>::asSequence)
         .filter(File::exists))
 
   /**
@@ -56,23 +55,23 @@ abstract class SourceAction : Action() {
    * @return Stream of resource directories.
    */
   @Internal
-  protected fun getResourceDirectories(): Stream<File> {
+  protected fun getResourceDirectories(): Sequence<File> {
     log.open()
 
     var out = getSourceSets()
-      .stream()
+      .asSequence()
       .map(SourceSet::getResources)
       .map(SourceDirectorySet::getSrcDirs)
-      .flatMap(Collection<File>::stream)
+      .flatMap(Collection<File>::asSequence)
 
     if (log.isDebug) {
-      out = out.peek(newFileLogger(LogResDirsCheck))
+      out = out.onEach(newFileLogger(LogResDirsCheck))
     }
 
     out = out.filter(File::exists)
 
     if (log.isDebug) {
-      out = out.peek(newFileLogger(LogResDirsFound))
+      out = out.onEach(newFileLogger(LogResDirsFound))
     }
 
     return log.close(out)
