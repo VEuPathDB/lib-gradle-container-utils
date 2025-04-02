@@ -32,25 +32,12 @@ open class JaxRSPatchJakartaImports : JaxRSSourceAction() {
       .filterNotNull()                      // Filter out any erroneous entries (just to be safe)
       .flatMap { it.asSequence() }          // Expand the stream to a stream of files
       .filter { it.name.endsWith(".java") } // Filter the stream down to just java files
-      .forEach(::processFile)
+      .forEach { processFile(it, ::processContents) }
 
     log.close()
   }
 
-  private fun processFile(file: File) {
-    val tmpFile = File("${file.path}.tmp")
-    tmpFile.createNewFile()
-
-    tmpFile.bufferedWriter().use { output ->
-      file.bufferedReader().use { input -> processContents(output, input) }
-      output.flush()
-    }
-
-    tmpFile.copyTo(file, true)
-    tmpFile.delete()
-  }
-
-  private fun processContents(output: BufferedWriter, input: BufferedReader) {
+  private fun processContents(input: BufferedReader, output: BufferedWriter) {
     var line = input.readLine()
 
     while (line != null) {
