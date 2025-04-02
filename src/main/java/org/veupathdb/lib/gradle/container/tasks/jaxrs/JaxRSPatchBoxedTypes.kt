@@ -4,8 +4,6 @@ import org.veupathdb.lib.gradle.container.tasks.base.JaxRSSourceAction
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
-import java.util.Arrays
-import java.util.stream.Stream
 
 open class JaxRSPatchBoxedTypes : JaxRSSourceAction() {
 
@@ -28,28 +26,15 @@ open class JaxRSPatchBoxedTypes : JaxRSSourceAction() {
     get() = "Replaces java primitive usages with their boxed forms."
 
   override fun execute() {
-    Stream.concat(getGeneratedModelDirectories(), getGeneratedResourceDirectories())
-      .map { it.listFiles() }
-      .filter { it != null }
-      .flatMap { Arrays.stream(it) }
+    (getGeneratedModelDirectories() + getGeneratedResourceDirectories())
+      .map(File::listFiles)
+      .filterNotNull()
+      .flatMap { it.asSequence() }
       .filter { it.name.endsWith(".java") }
-      .forEach { processFile(it) }
+      .forEach { processFile(it, ::processContents) }
   }
 
-  private fun processFile(file: File) {
-    val tmpFile = File("${file.path}.tmp")
-    tmpFile.createNewFile()
-
-    tmpFile.bufferedWriter().use { output ->
-      file.bufferedReader().use { input -> processContents(output, input) }
-      output.flush()
-    }
-
-    tmpFile.copyTo(file, true)
-    tmpFile.delete()
-  }
-
-  private fun processContents(output: BufferedWriter, input: BufferedReader) {
+  private fun processContents(input: BufferedReader, output: BufferedWriter) {
     var line = input.readLine()
 
     while (line != null) {

@@ -4,8 +4,6 @@ import org.veupathdb.lib.gradle.container.tasks.base.JaxRSSourceAction
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
-import java.util.Arrays
-import java.util.stream.Stream
 
 open class JaxRSPatchJakartaImports : JaxRSSourceAction() {
 
@@ -24,34 +22,22 @@ open class JaxRSPatchJakartaImports : JaxRSSourceAction() {
 
     // Get all the generated source root directories
     getGeneratedSourceDirectories()
-      .flatMap { Stream.of(                 // Expand the stream to the 2 relevant subdirectories
-        File(it, GeneratedResourceDirectory),
-        File(it, GeneratedSupportDirectory)
-      ) }
+      // Expand the stream to the 2 relevant subdirectories
+      .flatMap { sequence {
+        yield(File(it, GeneratedResourceDirectory))
+        yield(File(it, GeneratedSupportDirectory))
+      } }
       .filter { it.exists() }               // Filter out any erroneous paths
       .map { it.listFiles() }               // Map to lists of files in each directory
-      .filter { it != null }                // Filter out any erroneous entries (just to be safe)
-      .flatMap { Arrays.stream(it) }        // Expand the stream to a stream of files
+      .filterNotNull()                      // Filter out any erroneous entries (just to be safe)
+      .flatMap { it.asSequence() }          // Expand the stream to a stream of files
       .filter { it.name.endsWith(".java") } // Filter the stream down to just java files
-      .forEach { processFile(it) }
+      .forEach { processFile(it, ::processContents) }
 
     log.close()
   }
 
-  private fun processFile(file: File) {
-    val tmpFile = File("${file.path}.tmp")
-    tmpFile.createNewFile()
-
-    tmpFile.bufferedWriter().use { output ->
-      file.bufferedReader().use { input -> processContents(output, input) }
-      output.flush()
-    }
-
-    tmpFile.copyTo(file, true)
-    tmpFile.delete()
-  }
-
-  private fun processContents(output: BufferedWriter, input: BufferedReader) {
+  private fun processContents(input: BufferedReader, output: BufferedWriter) {
     var line = input.readLine()
 
     while (line != null) {
