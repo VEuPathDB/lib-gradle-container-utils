@@ -164,4 +164,11 @@ class RamlConfig(project: Project): ExecConfiguration() {
    * Defaults to [DefaultRaml4JaxRSDownloadURL].
    */
   var raml4JaxRSDownloadURL: URI = URI.create(DefaultRaml4JaxRSDownloadURL)
+
+  /**
+   * Sets whether stream types should be created for generated JaxRS POJO types.
+   *
+   * Defaults to `true`.
+   */
+  var generateModelStreams: Boolean = true
 }

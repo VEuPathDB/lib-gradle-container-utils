@@ -15,10 +15,12 @@ open class JaxRSGenerateStreams : JaxRSSourceAction() {
   override fun execute() {
     log.open()
 
-    // Get the list of generated model source code directories
-    getGeneratedModelDirectories()
-      // Iterate through them and move down the call change
-      .forEach(this::handleModelDirectory)
+    if (options.raml.generateModelStreams) {
+      // Get the list of generated model source code directories
+      getGeneratedModelDirectories()
+        // Iterate through them and move down the call change
+        .forEach(this::handleModelDirectory)
+    }
 
     log.close()
   }
