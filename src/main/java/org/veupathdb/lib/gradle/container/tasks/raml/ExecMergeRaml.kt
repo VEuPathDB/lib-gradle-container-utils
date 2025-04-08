@@ -1,5 +1,7 @@
 package org.veupathdb.lib.gradle.container.tasks.raml
 
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.veupathdb.lib.gradle.container.tasks.base.Action
 import org.veupathdb.lib.gradle.container.util.Logger
 import java.io.File
@@ -20,12 +22,24 @@ open class ExecMergeRaml : Action() {
   // They will be available by the time execute is called.
   private val binDirectory by lazy { RootDir.resolve(options.utils.binDirectory) }
   private val binFile by lazy { binDirectory.resolve("merge-raml") }
-  private val outputFile by lazy { options.raml.mergedOutputFile }
-  private val inputPath by lazy { options.raml.schemaRootDir }
   private val exclusions by lazy { options.raml.mergeExcludedFiles }
+
+  @get:InputDirectory
+  val inputPath
+    get() = options.raml.schemaRootDir
+
+  @get:OutputFile
+  val outputFile
+    get() = options.raml.mergedOutputFile
 
   override val pluginDescription: String
     get() = "Merges the project's RAML files into a single library file."
+
+  override fun register() {
+    super.register()
+
+    dependsOn(InstallMergeRaml.TaskName)
+  }
 
   private fun logConfig(command: List<String>) {
     log.open()

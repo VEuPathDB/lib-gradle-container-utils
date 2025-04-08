@@ -1,10 +1,12 @@
 package org.veupathdb.lib.gradle.container.tasks.raml
 
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
 import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
 import org.veupathdb.lib.gradle.container.tasks.base.exec.ExecAction
 import org.veupathdb.lib.gradle.container.tasks.base.exec.RedirectConfig
 import java.io.File
-import java.util.Arrays
 
 /**
  * Generate RAML Documentation
@@ -21,6 +23,28 @@ open class GenerateRamlDocs : ExecAction() {
     const val DefaultDocFileName = "api.html"
   }
 
+  @get:InputFile
+  val apiRootDefinition
+    get() = execConfiguration.rootApiDefinition
+
+  @get:InputDirectory
+  val inputDirectory
+    get() = execConfiguration.schemaRootDir
+
+  @get:OutputFile
+  val docsOutput
+    get() = execConfiguration.apiDocOutputFile
+
+  @get:OutputFile
+  val resourceOutput
+    get() = File(execConfiguration.resourceDocsDir, DefaultDocFileName)
+
+  override fun register() {
+    super.register()
+
+    dependsOn(ExecMergeRaml.TaskName)
+  }
+
   override fun getWorkDirectory() = ProjectDir
 
   override val pluginDescription
@@ -31,7 +55,7 @@ open class GenerateRamlDocs : ExecAction() {
   override fun appendArguments(args: MutableList<String>) {
     log.open(args)
 
-    args.addAll(listOf(execConfiguration.rootApiDefinition.path, "--theme", "raml2html-modern-theme"))
+    args.addAll(listOf(apiRootDefinition.path, "--theme", "raml2html-modern-theme"))
 
     log.close()
   }
@@ -47,12 +71,10 @@ open class GenerateRamlDocs : ExecAction() {
 
     log.debug("Copying generated docs to target doc directories")
 
-    val conf = execConfiguration
-
     util.moveFile(
       File(DefaultDocFileName),
-      conf.apiDocOutputFile.also { it.ensureParentDirsCreated() },
-      File(conf.resourceDocsDir.also { it.ensureParentDirsCreated() }, DefaultDocFileName)
+      docsOutput.also { it.ensureParentDirsCreated() },
+      resourceOutput.also { it.ensureParentDirsCreated() }
     )
 
     log.close()

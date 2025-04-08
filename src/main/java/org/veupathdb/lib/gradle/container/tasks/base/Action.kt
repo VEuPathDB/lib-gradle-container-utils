@@ -130,7 +130,7 @@ abstract class Action : DefaultTask() {
    *
    * @since 1.1.0
    */
-  protected fun register() {
+  protected open fun register() {
     // No logging, logger options are not yet loaded
     description = pluginDescription
     group = Group

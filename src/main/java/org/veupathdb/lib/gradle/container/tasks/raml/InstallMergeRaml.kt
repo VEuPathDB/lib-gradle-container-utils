@@ -3,6 +3,8 @@ package org.veupathdb.lib.gradle.container.tasks.raml
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
 import org.veupathdb.lib.gradle.container.tasks.base.Action
 import java.net.URI
 import java.nio.file.Files
@@ -26,9 +28,19 @@ open class InstallMergeRaml : Action() {
   private val jackson by lazy { ObjectMapper() }
 
   private val binDirectory by lazy { RootDir.resolve(BinDirectoryName) }
-  private val lockFile by lazy { binDirectory.resolve(LockFileName) }
-  private val binaryFile by lazy { binDirectory.resolve(BinaryFileName) }
   private val downloadFile by lazy { binDirectory.resolve(DLFileName) }
+
+  @get:Input
+  val targetVersion
+    get() = options.raml.mergeToolVersion
+
+  @get:OutputFile
+  val binaryFile
+    get() = binDirectory.resolve(BinaryFileName)
+
+  @get:OutputFile
+  val lockFile
+    get() = binDirectory.resolve(LockFileName)
 
   override val pluginDescription: String
     get() = "Downloads the raml merge script from GitHub"
@@ -49,9 +61,6 @@ open class InstallMergeRaml : Action() {
   private fun executeUpdate() {
     // Get the lock version
     val lockVersion = lockFile.readText().trim()
-
-    // Get the version the build wants to install
-    val targetVersion = options.raml.mergeToolVersion
 
     // If we already have the desired version installed, then there is nothing
     // to do.

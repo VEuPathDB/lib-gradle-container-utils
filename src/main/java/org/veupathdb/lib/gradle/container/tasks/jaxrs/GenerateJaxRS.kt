@@ -1,6 +1,12 @@
 package org.veupathdb.lib.gradle.container.tasks.jaxrs
 
+import org.gradle.api.Task
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputDirectories
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputFiles
 import org.veupathdb.lib.gradle.container.tasks.base.exec.BinExecAction
+import org.veupathdb.lib.gradle.container.tasks.raml.ExecMergeRaml
 
 import java.io.File
 
@@ -12,7 +18,7 @@ import java.io.File
  *
  * @since 1.1.0
  */
-open class GenerateJaxRS : BinExecAction() {
+abstract class GenerateJaxRS : BinExecAction() {
 
   companion object {
     const val TaskName = "generate-jaxrs"
@@ -36,6 +42,57 @@ open class GenerateJaxRS : BinExecAction() {
     const val DefaultRootRamlApiDefinitionFile = "api.raml"
   }
 
+  private val basePackage by lazy { projectConfig().projectPackage }
+
+  private val sourceDirectory
+    get() = "$ProjectDir/src/main/java"
+
+  private val modelPackagePath
+    get() = "$generatedPackagePath.$GeneratedModelDirectory"
+
+  private val resourcePackagePath
+    get() = "$generatedPackagePath.$GeneratedResourceDirectory"
+
+  private val supportPackagePath
+    get() = "$generatedPackagePath.$GeneratedSupportDirectory"
+
+  private val generatedPackagePath
+    get() = "$basePackage.generated"
+
+  @get:InputFile
+  val rootApiDefinition
+    get() = options.raml.rootApiDefinition
+
+  @get:OutputDirectories
+  val outputDirectories
+    get() = listOf(
+      File(sourceDirectory, modelPackagePath.replace('.', '/')),
+      File(sourceDirectory, resourcePackagePath.replace('.', '/')),
+      File(sourceDirectory, generatedPackagePath.replace('.', '/')),
+    )
+
+  override fun register() {
+    super.register()
+
+    dependsOn(
+      ExecMergeRaml.TaskName,
+      InstallRaml4JaxRS.TaskName,
+    )
+
+    finalizedBy(
+      JaxRSPatchDiscriminators.TaskName,
+      JaxRSPatchEnumValue.TaskName,
+      JaxRSGenerateStreams.TaskName,
+      JaxRSPatchJakartaImports.TaskName,
+      JaxRSPatchBoxedTypes.TaskName,
+      JaxRSPatchFileResponses.TaskName,
+      JaxRSPatchDates.TaskName,
+      JaxRSPatchResponseDelegate.TaskName,
+      JaxRSPatchResponseTypes.TaskName,
+      JaxRSGenerateFieldNameConstants.TaskName,
+    )
+  }
+
   override val pluginDescription: String
     get() = "Generates JaxRS Java code based on the project's RAML API spec."
 
@@ -46,6 +103,10 @@ open class GenerateJaxRS : BinExecAction() {
     File("$sourceDirectory/$packagePath").deleteRecursively()
 
     return Command
+  }
+
+  override fun finalizedBy(vararg paths: Any?): Task {
+    return super.finalizedBy(*paths)
   }
 
   override fun appendArguments(args: MutableList<String>) {
@@ -69,16 +130,4 @@ open class GenerateJaxRS : BinExecAction() {
   }
 
   override val execConfiguration get() = options.raml
-
-  private val basePackage by lazy { projectConfig().projectPackage }
-
-  private val sourceDirectory get() = "$ProjectDir/src/main/java"
-
-  private val modelPackagePath get() = "$generatedPackagePath.$GeneratedModelDirectory"
-
-  private val resourcePackagePath get() = "$generatedPackagePath.$GeneratedResourceDirectory"
-
-  private val supportPackagePath get() = "$generatedPackagePath.$GeneratedSupportDirectory"
-
-  private val generatedPackagePath get() = "$basePackage.generated"
 }

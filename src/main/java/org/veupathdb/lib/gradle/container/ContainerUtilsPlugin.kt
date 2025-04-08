@@ -78,6 +78,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
       JaxRSPatchDates.TaskName to JaxRSPatchDates::class,
       JaxRSPatchResponseDelegate.TaskName to JaxRSPatchResponseDelegate::class,
       JaxRSPatchResponseTypes.TaskName to JaxRSPatchResponseTypes::class,
+      JaxRSGenerateFieldNameConstants.TaskName to JaxRSGenerateFieldNameConstants::class,
 
       // Docker
       DockerBuild.TaskName to DockerBuild::class,
@@ -104,34 +105,6 @@ class ContainerUtilsPlugin : Plugin<Project> {
     setJarProps(project, opts)
     configureTestLogging(project)
     configureRepositories(project)
-
-    val tasks = project.tasks
-
-      // Make sure that Raml for Jax RS is installed before attempting to generate
-    // java types.
-
-    val genJaxrs = tasks.getByName(GenerateJaxRS.TaskName)
-
-    genJaxrs.dependsOn(
-      tasks.getByName(ExecMergeRaml.TaskName),
-      tasks.getByName(InstallRaml4JaxRS.TaskName)
-    )
-
-    genJaxrs.finalizedBy(
-      JaxRSPatchDiscriminators.TaskName,
-      JaxRSPatchEnumValue.TaskName,
-      JaxRSGenerateStreams.TaskName,
-      JaxRSPatchJakartaImports.TaskName,
-      JaxRSPatchBoxedTypes.TaskName,
-      JaxRSPatchFileResponses.TaskName,
-      JaxRSPatchDates.TaskName,
-      JaxRSPatchResponseDelegate.TaskName,
-      JaxRSPatchResponseTypes.TaskName,
-    )
-
-    // Register merge raml dependencies
-    tasks.getByName(ExecMergeRaml.TaskName)
-      .dependsOn(InstallMergeRaml.TaskName)
   }
 
   private fun setProjectProps(project: Project, opts: Options) {
