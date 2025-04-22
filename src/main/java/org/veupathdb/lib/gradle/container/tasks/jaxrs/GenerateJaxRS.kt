@@ -1,10 +1,6 @@
 package org.veupathdb.lib.gradle.container.tasks.jaxrs
 
 import org.gradle.api.Task
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputDirectories
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.OutputFiles
 import org.veupathdb.lib.gradle.container.tasks.base.exec.BinExecAction
 import org.veupathdb.lib.gradle.container.tasks.raml.ExecMergeRaml
 
@@ -59,17 +55,8 @@ abstract class GenerateJaxRS : BinExecAction() {
   private val generatedPackagePath
     get() = "$basePackage.generated"
 
-  @get:InputFile
-  val rootApiDefinition
-    get() = options.raml.rootApiDefinition
-
-  @get:OutputDirectories
-  val outputDirectories
-    get() = listOf(
-      File(sourceDirectory, modelPackagePath.replace('.', '/')),
-      File(sourceDirectory, resourcePackagePath.replace('.', '/')),
-      File(sourceDirectory, generatedPackagePath.replace('.', '/')),
-    )
+  override val pluginDescription: String
+    get() = "Generates JaxRS Java code based on the project's RAML API spec."
 
   override fun register() {
     super.register()
@@ -90,11 +77,19 @@ abstract class GenerateJaxRS : BinExecAction() {
       JaxRSPatchResponseDelegate.TaskName,
       JaxRSPatchResponseTypes.TaskName,
       JaxRSGenerateFieldNameConstants.TaskName,
+      JaxRSGenerateUrlPathConstants.TaskName,
     )
   }
 
-  override val pluginDescription: String
-    get() = "Generates JaxRS Java code based on the project's RAML API spec."
+  override fun fillIncrementalInputFiles(files: MutableCollection<File>) {
+    files.add(options.raml.rootApiDefinition)
+  }
+
+  override fun fillIncrementalOutputDirs(dirs: MutableCollection<File>) {
+    dirs.add(File(sourceDirectory, modelPackagePath.replace('.', '/')))
+    dirs.add(File(sourceDirectory, resourcePackagePath.replace('.', '/')))
+    dirs.add(File(sourceDirectory, generatedPackagePath.replace('.', '/')))
+  }
 
   override fun getCommandName(): String {
     // quick trick here before executing; remove existing generated files so

@@ -299,6 +299,16 @@ class Logger(level: () -> Level, rootDir: File) {
     call++
   }
 
+  inline fun <T> exec(fn: () -> T): T {
+    open()
+    return fn().also { if (it == Unit) close() else close(it) }
+  }
+
+  inline fun <T> exec(arg1: Any?, fn: () -> T): T {
+    open(arg1)
+    return fn().also { if (it == Unit) close() else close(it) }
+  }
+
   /**
    * Increments the call stack count and, if trace logging is enabled, prints
    * the class name, method name, and first argument of the caller.

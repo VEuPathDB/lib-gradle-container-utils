@@ -7,7 +7,6 @@ import java.io.File
 import org.veupathdb.lib.gradle.container.tasks.base.JaxRSSourceAction
 import java.io.BufferedReader
 import java.io.BufferedWriter
-import java.io.ByteArrayOutputStream
 
 abstract class JaxRSGenerateFieldNameConstants : JaxRSSourceAction() {
   companion object {
@@ -19,18 +18,17 @@ abstract class JaxRSGenerateFieldNameConstants : JaxRSSourceAction() {
     private const val JacksonMultilinePropPrefix = "      value = \""
 
     private const val ConstantsClassName = "JsonField"
-
-    private val AsciiDigitRange = 48..57
-    private val AsciiLowerRange = 97..122
-    private val AsciiUpperRange = 65..90
-    private const val AsciiUnderscore = 95
-    private const val CaseModifier = 32
   }
-
 
   override val pluginDescription: String
     get() = "Generates constant values for the JSON keys of POJO fields.\n" +
     "Not intended to be used directly."
+
+  override fun register() {
+    super.register()
+
+    dependsOn(GenerateJaxRS.TaskName)
+  }
 
   override fun execute() {
     log.open()
@@ -208,67 +206,5 @@ abstract class JaxRSGenerateFieldNameConstants : JaxRSSourceAction() {
     }
 
     buf.writeLine(remainder)
-  }
-
-  private fun computeConstName(name: String): String {
-    val out = ByteArrayOutputStream(name.length + 8)
-    val raw = name.byteInputStream()
-
-    // upper = 1
-    // lower = 2
-    // digit = 3
-    // under = 4
-    var lastType = 0
-    var written = 0
-    while (true) {
-      when (val b = raw.read()) {
-        -1 -> break
-
-        in AsciiUpperRange -> {
-          if (lastType == 2 || lastType == 3)
-            out.write(AsciiUnderscore)
-          out.write(b)
-          lastType = 1
-        }
-
-        in AsciiLowerRange -> {
-          if (lastType == 3 || lastType == 4)
-            out.write(AsciiUnderscore)
-          out.write(b - CaseModifier)
-          lastType = 2
-        }
-
-        in AsciiDigitRange -> {
-          if (written == 0 || lastType == 4)
-            continue
-          if (lastType != 3)
-            out.write(AsciiUnderscore)
-          out.write(b)
-          lastType = 3
-        }
-
-        else -> {
-          if (written == 0 || lastType == 4)
-            continue
-
-          out.write(AsciiUnderscore)
-          lastType = 4
-        }
-      }
-
-      written++
-    }
-
-    // If the whole property name is something that can't be converted to a java
-    // variable name, return an empty string.  We will skip empty constant names
-    // when generating the constants.
-    if (written == 0)
-      return ""
-
-    // If the last character was an underscore, trim it off.
-    if (lastType == 4)
-      return out.toString().let { it.substring(0, it.length-1) }
-
-    return out.toString()
   }
 }

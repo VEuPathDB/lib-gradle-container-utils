@@ -92,8 +92,8 @@ abstract class Action : DefaultTask() {
   //
 
   /**
-   * Populate this task's declared inputs for use with incremental builds.
-   * <p>
+   * Populate this task's declared input files for use with incremental builds.
+   *
    * The declared inputs are used in a manner similar to {@code make} in that
    * if these files have not changed, the task may not run (depending on
    * declared outputs).
@@ -102,15 +102,21 @@ abstract class Action : DefaultTask() {
    *
    * @since 2.0.0
    */
-  open fun fillIncrementalInputFiles(files: MutableCollection<File>) {
-    log.open()
-    files.add(File("build.gradle.kts"))
-    log.close()
-  }
+  open fun fillIncrementalInputFiles(files: MutableCollection<File>) {}
 
   /**
-   * Populate this task's declared outputs for use with incremental builds.
-   * <p>
+   * Populate this task's declared input directories for use with incremental
+   * builds.
+   *
+   * @param dirs Collection of declared input directories.
+   *
+   * @since 6.4.0
+   */
+  open fun fillIncrementalInputDirs(dirs: MutableCollection<File>) {}
+
+  /**
+   * Populate this task's declared output files for use with incremental builds.
+   *
    * The declared outputs are used in a manner similar to {@code make} in that
    * if these files still exist and are not older than the declared input files,
    * the task will not run.
@@ -119,11 +125,17 @@ abstract class Action : DefaultTask() {
    *
    * @since 2.0.0
    */
-  open fun fillIncrementalOutputFiles(files: MutableCollection<File>) {
-    log.open()
-    // Do nothing
-    log.close()
-  }
+  open fun fillIncrementalOutputFiles(files: MutableCollection<File>) {}
+
+  /**
+   * Populate this task's declared output directories for use with incremental
+   * builds.
+   *
+   * @param dirs Collection of declared output directories.
+   *
+   * @since 6.4.0
+   */
+  open fun fillIncrementalOutputDirs(dirs: MutableCollection<File>) {}
 
   /**
    * Register configures the current Action after instantiation.

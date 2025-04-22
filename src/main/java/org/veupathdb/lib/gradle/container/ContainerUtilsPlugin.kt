@@ -79,6 +79,7 @@ class ContainerUtilsPlugin : Plugin<Project> {
       JaxRSPatchResponseDelegate.TaskName to JaxRSPatchResponseDelegate::class,
       JaxRSPatchResponseTypes.TaskName to JaxRSPatchResponseTypes::class,
       JaxRSGenerateFieldNameConstants.TaskName to JaxRSGenerateFieldNameConstants::class,
+      JaxRSGenerateUrlPathConstants.TaskName to JaxRSGenerateUrlPathConstants::class,
 
       // Docker
       DockerBuild.TaskName to DockerBuild::class,
