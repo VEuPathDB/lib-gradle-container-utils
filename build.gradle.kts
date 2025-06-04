@@ -8,11 +8,11 @@ plugins {
 }
 
 group = "org.veupathdb.lib"
-version = "6.4.0"
+version = "6.4.1"
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
+  sourceCompatibility = JavaVersion.VERSION_21
+  targetCompatibility = JavaVersion.VERSION_21
 
   if (project.hasProperty("full-publish")) {
     withSourcesJar()
@@ -20,7 +20,7 @@ java {
   }
 }
 
-kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
+kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_21) } }
 
 repositories {
   mavenLocal()
@@ -48,8 +48,14 @@ publishing {
       name = "GitHub"
       url = uri("https://maven.pkg.github.com/veupathdb/maven-packages")
       credentials {
-        username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-        password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+        username = project.findProperty("github.username") as String?
+          ?: System.getenv("GH_USERNAME")
+          ?: project.findProperty("gpr.user") as String?
+          ?: System.getenv("GITHUB_USERNAME")
+        password = project.findProperty("github.token") as String?
+          ?: System.getenv("GH_TOKEN")
+          ?: project.findProperty("gpr.key") as String?
+          ?: System.getenv("GITHUB_TOKEN")
       }
     }
   }

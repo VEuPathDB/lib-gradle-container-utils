@@ -163,8 +163,14 @@ class ContainerUtilsPlugin : Plugin<Project> {
 
       val creds = mar.credentials
 
-      creds.username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
-      creds.password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+      creds.username = project.findProperty("github.username") as String?
+        ?: System.getenv("GH_USERNAME")
+        ?: project.findProperty("gpr.user") as String?
+        ?: System.getenv("GITHUB_USERNAME")
+      creds.password = project.findProperty("github.token") as String?
+        ?: System.getenv("GH_TOKEN")
+        ?: project.findProperty("gpr.key") as String?
+        ?: System.getenv("GITHUB_TOKEN")
     }
   }
 }
